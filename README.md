@@ -81,9 +81,3 @@ npm run start
 
 ## Ghi chú triển khai
 - `middleware.ts` hiện đang comment chặn auth để dễ demo UI; khi tích hợp backend, bật lại kiểm tra cookie `ed_auth`.
-- Trang `/(auth)/callback/github` đã bọc Suspense và có redirect; cần backend endpoint để exchange `code` -> token và set cookie.
-- UI theo tông sáng, sử dụng Card/PageHeader/ProjectsTable để giảm khoảng trắng và giống trải nghiệm Vercel/Render.
-
-## Scripts hữu ích
-- `npm run lint` – kiểm tra lint
-- `npm run format` – format bằng Prettier
