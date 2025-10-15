@@ -11,7 +11,7 @@ export default function AppsListPage() {
 			<div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
 				<Card>
 					<CardBody>
-						<p className="muted">Chưa có ứng dụng nào. Bắt đầu bằng nút "Deploy mới".</p>
+						<p className="muted">Chưa có ứng dụng nào. Bắt đầu bằng nút &quot;Deploy mới&quot;.</p>
 					</CardBody>
 				</Card>
 				<Card>
