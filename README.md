@@ -1,6 +1,6 @@
-# EasyDeploy Frontend (Next.js 14)
+# EasyDeploy Frontend (Next.js 15)
 
-EasyDeploy là nền tảng giúp developer tự động triển khai ứng dụng web bằng GitHub repo hoặc Docker image. Frontend này được xây bằng Next.js 14 (App Router), TypeScript, TailwindCSS v4, Zustand, SWR và Axios.
+EasyDeploy là nền tảng giúp developer tự động triển khai ứng dụng web bằng GitHub repo hoặc Docker image. Frontend này được xây bằng Next.js 15 (App Router), React 19, TypeScript, TailwindCSS v4, Zustand v5, SWR và Axios.
 
 ## Mục tiêu (MVP)
 - Đăng ký/Đăng nhập, OAuth GitHub (callback scaffold)
@@ -48,9 +48,10 @@ EasyDeploy là nền tảng giúp developer tự động triển khai ứng dụ
  ├─ styles/                       globals.css (Tailwind v4)
  ├─ public/                       Logo & images
  ├─ middleware.ts                 Auth guard (đang tắt để review UI)
- ├─ postcss.config.js             ESM + @tailwindcss/postcss
- ├─ next.config.mjs               Next.js config (ESM)
- ├─ tsconfig.json                 TS config (Next.js plugin)
+├─ postcss.config.js             ESM + @tailwindcss/postcss
+├─ next.config.mjs               Next.js config (ESM)
+├─ tsconfig.json                 TS config (Next.js plugin)
+├─ eslint.config.mjs             ESLint v9 (flat config)
  └─ package.json
 ```
 
@@ -82,8 +83,5 @@ npm run start
 ## Ghi chú triển khai
 - `middleware.ts` hiện đang comment chặn auth để dễ demo UI; khi tích hợp backend, bật lại kiểm tra cookie `ed_auth`.
 - Trang `/(auth)/callback/github` đã bọc Suspense và có redirect; cần backend endpoint để exchange `code` -> token và set cookie.
-- UI theo tông sáng, sử dụng Card/PageHeader/ProjectsTable để giảm khoảng trắng và giống trải nghiệm Vercel/Render.
-
-## Scripts hữu ích
-- `npm run lint` – kiểm tra lint
-- `npm run format` – format bằng Prettier
+- Dynamic routes trên Next 15 dùng `params: Promise<...>` với React 19: các page `apps/[appId]` và `apps/[appId]/log` đã cập nhật dùng `use(params)`.
+- Đã thêm Axios interceptor xử lý chung status code tại `services/api.ts`.

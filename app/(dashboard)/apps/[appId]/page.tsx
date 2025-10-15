@@ -1,7 +1,8 @@
 import Link from "next/link";
+import { use } from "react";
 
-export default function AppDetailPage({ params }: { params: { appId: string } }) {
-	const { appId } = params;
+export default function AppDetailPage({ params }: { params: Promise<{ appId: string }> }) {
+    const { appId } = use(params);
 	return (
 		<div className="grid gap-6">
 			<div className="flex items-center justify-between">
