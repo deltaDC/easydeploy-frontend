@@ -1,11 +1,46 @@
 import api from "./api";
+import type { 
+	LoginRequest, 
+	RegisterRequest, 
+	AuthResponse
+} from "@/types/user.type";
 
 export const AuthService = {
-	login: (payload: { email: string; password: string }) => api.post("/auth/login", payload),
-	register: (payload: { name: string; email: string; password: string }) => api.post("/auth/register", payload),
-	me: () => api.get("/auth/me"),
-	logout: () => api.post("/auth/logout"),
-	githubAuthUrl: () => api.get("/auth/github/url"),
+	/**
+	 * Đăng nhập với email và password
+	 */
+	login: async (payload: LoginRequest): Promise<AuthResponse> => {
+		const response = await api.post<AuthResponse>("/v1/auth/login", payload);
+		return response.data;
+	},
+
+	/**
+	 * Đăng ký tài khoản mới
+	 */
+	register: async (payload: RegisterRequest): Promise<AuthResponse> => {
+		const response = await api.post<AuthResponse>("/v1/auth/register", payload);
+		return response.data;
+	},
+
+	/**
+	 * Đăng xuất
+	 */
+	logout: async (): Promise<void> => {
+		const token = localStorage.getItem("auth_token");
+		if (token) {
+			await api.post("/v1/auth/logout", {}, {
+				headers: {
+					Authorization: `Bearer ${token}`
+				}
+			});
+		}
+		
+		// Clear local storage/cookies
+		if (typeof window !== "undefined") {
+			localStorage.removeItem("auth_token");
+			localStorage.removeItem("refresh_token");
+		}
+	},
 };
 
 export default AuthService;

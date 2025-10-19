@@ -10,29 +10,54 @@ function CallbackInner() {
 	useEffect(() => {
 		const code = params.get("code");
 		const state = params.get("state");
+		const error = params.get("error");
+		
 		(async () => {
 			try {
-				if (!code) throw new Error("Thiếu code");
-				// TODO: exchange code -> tokens via backend
-				setStatus("Thành công! Chuyển hướng...");
-				setTimeout(() => router.replace("/apps"), 800);
-			} catch (e) {
-				setStatus("Xác thực thất bại. Vui lòng thử lại.");
+				if (error) {
+					throw new Error(`GitHub OAuth error: ${error}`);
+				}
+				
+				if (!code) {
+					throw new Error("Thiếu authorization code từ GitHub");
+				}
+
+				setStatus("GitHub OAuth callback nhận được...");
+				
+				// TODO: Backend GitHub OAuth callback API chưa được implement
+				// Hiện tại chỉ hiển thị thông báo và redirect về login
+				setStatus("GitHub OAuth chưa được cấu hình đầy đủ. Vui lòng đăng nhập bằng email.");
+				
+				setTimeout(() => router.replace("/login"), 2000);
+			} catch (e: any) {
+				console.error('GitHub auth error:', e);
+				setStatus(`Xác thực thất bại: ${e.message}. Vui lòng thử lại.`);
+				setTimeout(() => router.replace("/login"), 3000);
 			}
 		})();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	return (
-		<div className="grid place-items-center py-20 text-center">
-			<p className="text-sm text-white/80">{status}</p>
+		<div className="flex items-center justify-center min-h-screen">
+			<div className="text-center space-y-4">
+				<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+				<p className="text-sm text-gray-600">{status}</p>
+			</div>
 		</div>
 	);
 }
 
 export default function GithubCallbackPage() {
 	return (
-		<Suspense fallback={<div className="grid place-items-center py-20 text-center"><p className="text-sm text-white/80">Đang xác thực...</p></div>}>
+		<Suspense fallback={
+			<div className="flex items-center justify-center min-h-screen">
+				<div className="text-center space-y-4">
+					<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+					<p className="text-sm text-gray-600">Đang xác thực...</p>
+				</div>
+			</div>
+		}>
 			<CallbackInner />
 		</Suspense>
 	);
