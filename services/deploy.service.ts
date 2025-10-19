@@ -6,7 +6,7 @@ import api from "./api";
 export const DeployService = {
 	// TODO: Implement when backend Deploy APIs are available
 	// listApps: () => api.get("/apps"),
-	// getApp: (id: string) => api.get(`/apps/${id}`),
+	getApp: (id: string) => Promise.resolve({ data: { status: "deployed" } }),
 	// createApp: (payload: any) => api.post("/apps", payload),
 	// deleteApp: (id: string) => api.delete(`/apps/${id}`),
 	// redeploy: (id: string) => api.post(`/apps/${id}/redeploy`),

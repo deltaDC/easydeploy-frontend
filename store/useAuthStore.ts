@@ -35,12 +35,14 @@ export const useAuthStore = create<AuthState>()(
 			
 			setLoading: (isLoading) => set({ isLoading }),
 			
-			login: (user, token) => set({ 
-				user, 
-				token, 
-				isAuthenticated: true,
-				isLoading: false 
-			}),
+			login: (user, token) => {
+				set({ 
+					user, 
+					token, 
+					isAuthenticated: true,
+					isLoading: false 
+				});
+			},
 			
 			logout: () => set({ 
 				user: null, 
@@ -73,7 +75,10 @@ export const useAuthStore = create<AuthState>()(
 		{
 			name: 'auth-storage',
 			partialize: (state) => ({ 
-				user: state.user, 
+				user: state.user ? {
+					...state.user,
+					roles: Array.from(state.user.roles)
+				} : null, 
 				token: state.token,
 				isAuthenticated: state.isAuthenticated 
 			}),

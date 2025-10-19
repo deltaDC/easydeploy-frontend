@@ -28,7 +28,7 @@ export function ErrorAlert({ error, onRetry, className }: ErrorAlertProps) {
               <p className="mb-1"><strong>Giải pháp:</strong> Admin cần chạy script khởi tạo database</p>
               <p className="text-xs mt-2 p-2 bg-gray-100 rounded">
                 <strong>Chi tiết kỹ thuật:</strong><br/>
-                - Tạo bảng 'roles' với dữ liệu: ADMIN, DEVELOPER<br/>
+                - Tạo bảng roles với dữ liệu: ADMIN, DEVELOPER<br/>
                 - Hoặc thêm DataInitializer trong backend<br/>
                 - Lỗi: ResourceNotFoundException: Role DEVELOPER không tồn tại
               </p>

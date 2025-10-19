@@ -2,7 +2,6 @@ import Link from "next/link";
 import PageHeader from "@/components/layout/PageHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import ProjectsTable from "@/components/tables/ProjectsTable";
 import { Plus, Lightbulb, Github, Container } from "lucide-react";
 
@@ -31,7 +30,7 @@ export default function AppsListPage() {
 							</div>
 							<div>
 								<CardTitle className="text-lg">Chưa có ứng dụng</CardTitle>
-								<CardDescription>Bắt đầu bằng nút "Deploy mới"</CardDescription>
+								<CardDescription>Bắt đầu bằng nút Deploy mới</CardDescription>
 							</div>
 						</div>
 					</CardHeader>
