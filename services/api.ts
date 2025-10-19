@@ -24,7 +24,13 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-    // Attach auth token from cookie/localStorage if needed
+    // Attach auth token from localStorage
+    if (typeof window !== "undefined") {
+        const token = localStorage.getItem("auth_token");
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+    }
     return config;
 });
 
@@ -46,6 +52,14 @@ api.interceptors.response.use(
         switch (status) {
             case 400:
                 message ||= "Invalid request";
+                // Handle specific backend errors
+                if (message.includes("Role DEVELOPER không tồn tại")) {
+                    message = "Hệ thống chưa được cấu hình đầy đủ. Vui lòng liên hệ admin để khởi tạo dữ liệu hệ thống.";
+                } else if (message.includes("Email này đã được đăng ký")) {
+                    message = "Email này đã được sử dụng. Vui lòng chọn email khác.";
+                } else if (message.includes("Mật khẩu phải có ít nhất")) {
+                    message = "Mật khẩu phải có ít nhất 6 ký tự.";
+                }
                 break;
             case 401: {
                 message ||= "Unauthorized";
