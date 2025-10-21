@@ -1,13 +1,22 @@
 "use client";
-import { ReactNode, useState } from "react";
+import { ReactNode, useState, useEffect } from "react";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { LogOut, User, Home, Settings, Activity, Server, Menu, X } from "lucide-react";
+import { LogOut, User, Home, Settings, Activity, Server, Menu, X, Users } from "lucide-react";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
 	const { user, isAuthenticated, logout, isAdmin } = useAuth();
 	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+	const [mounted, setMounted] = useState(false);
+
+	useEffect(() => {
+		setMounted(true);
+	}, []);
+
+	if (!mounted) {
+		return null;
+	}
 
 	return (
 		<div className="min-h-screen bg-gray-50">
@@ -32,6 +41,15 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 								<Home className="h-4 w-4" />
 								Dashboard
 							</Link>
+							{isAdmin() && (
+								<Link 
+									href="/admin/users" 
+									className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md hover:bg-gray-100"
+								>
+									<Users className="h-4 w-4" />
+									Quản lý User
+								</Link>
+							)}
 							<Link 
 								href="/apps" 
 								className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md hover:bg-gray-100"
@@ -53,9 +71,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 								<Settings className="h-4 w-4" />
 								Cài đặt
 							</Link>
-						</div>
-
-						{/* Desktop User Menu */}
+						</div>						{/* Desktop User Menu */}
 						<div className="hidden md:flex items-center gap-3">
 							{isAuthenticated ? (
 								<>
@@ -107,6 +123,16 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 									<Home className="h-4 w-4" />
 									Dashboard
 								</Link>
+								{isAdmin() && (
+									<Link 
+										href="/admin/users" 
+										className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md hover:bg-gray-100"
+										onClick={() => setIsMobileMenuOpen(false)}
+									>
+										<Users className="h-4 w-4" />
+										Quản lý User
+									</Link>
+								)}
 								<Link 
 									href="/apps" 
 									className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md hover:bg-gray-100"

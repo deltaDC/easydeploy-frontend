@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import Link from "next/link";
 import api from "@/services/api";
 import { 
 	Users, 
@@ -22,11 +23,13 @@ import {
 	CheckCircle,
 	AlertCircle,
 	TrendingUp,
-	TrendingDown
+	TrendingDown,
+	ArrowRight
 } from "lucide-react";
 
 export default function AdminDashboard() {
 	const { user, isAdmin } = useAuth();
+	const [mounted, setMounted] = useState(false);
 	const [searchTerm, setSearchTerm] = useState("");
 	const [statusFilter, setStatusFilter] = useState("all");
 	const [stats, setStats] = useState({
@@ -56,6 +59,10 @@ export default function AdminDashboard() {
 	}>>([]);
 	const [isLoading, setIsLoading] = useState(true);
 
+	// Handle client-side mounting
+	useEffect(() => {
+		setMounted(true);
+	}, []);
 
 	// Fetch admin dashboard data
 	useEffect(() => {
@@ -159,6 +166,11 @@ export default function AdminDashboard() {
 		);
 	}
 
+	// Prevent hydration mismatch
+	if (!mounted) {
+		return null;
+	}
+
 	if (isLoading) {
 		return (
 			<div className="flex items-center justify-center py-12">
@@ -189,18 +201,21 @@ export default function AdminDashboard() {
 
 				{/* System Overview */}
 				<div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-					<Card>
-						<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-							<CardTitle className="text-sm font-medium">Tổng người dùng</CardTitle>
-							<Users className="h-4 w-4 text-muted-foreground" />
-						</CardHeader>
-						<CardContent>
-							<div className="text-2xl font-bold">{stats.totalUsers.toLocaleString()}</div>
-							<p className="text-xs text-muted-foreground">
-								<span className="text-green-600">+12%</span> so với tháng trước
-							</p>
-						</CardContent>
-					</Card>
+					<Link href="/admin/users">
+						<Card className="cursor-pointer hover:shadow-md transition-shadow">
+							<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+								<CardTitle className="text-sm font-medium">Tổng người dùng</CardTitle>
+								<Users className="h-4 w-4 text-muted-foreground" />
+							</CardHeader>
+							<CardContent>
+								<div className="text-2xl font-bold">{stats.totalUsers.toLocaleString()}</div>
+								<p className="text-xs text-muted-foreground flex items-center gap-1">
+									<span className="text-green-600">+12%</span> so với tháng trước
+									<ArrowRight className="h-3 w-3 ml-auto" />
+								</p>	
+							</CardContent>
+						</Card>
+					</Link>
 
 					<Card>
 						<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">

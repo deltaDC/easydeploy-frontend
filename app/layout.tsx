@@ -2,6 +2,7 @@ import "@/styles/globals.css";
 import type { Metadata } from "next";
 import { ReactNode } from "react";
 import Link from "next/link";
+import { AuthProvider } from "@/components/providers/AuthProvider";
 
 export const metadata: Metadata = {
 	title: "EasyDeploy",
@@ -12,7 +13,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 	return (
 		<html lang="vi" suppressHydrationWarning>
 			<body className="min-h-svh antialiased" suppressHydrationWarning>
-				{children}
+				<AuthProvider>
+					{children}
+				</AuthProvider>
 			</body>
 		</html>
 	);
