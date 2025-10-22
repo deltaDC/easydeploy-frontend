@@ -14,7 +14,7 @@ import type {
   ActionResponse,
 } from '@/types/user-management';
 
-const USER_MANAGEMENT_BASE = '/v1/admin/users';
+const USER_MANAGEMENT_BASE = '/admin/users';
 
 /**
  * Lấy danh sách tất cả users với phân trang và filter

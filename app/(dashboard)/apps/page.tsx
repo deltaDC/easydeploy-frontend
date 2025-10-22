@@ -2,7 +2,7 @@ import Link from "next/link";
 import PageHeader from "@/components/layout/PageHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import ProjectsTable from "@/components/tables/ProjectsTable";
+import ApplicationsTable from "@/components/tables/ApplicationsTable";
 import { Plus, Lightbulb, Github, Container } from "lucide-react";
 
 export default function AppsListPage() {
@@ -20,7 +20,7 @@ export default function AppsListPage() {
 					</Button>
 				} 
 			/>
-			<ProjectsTable />
+			<ApplicationsTable />
 			<div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
 				<Card className="border-dashed">
 					<CardHeader className="pb-3">

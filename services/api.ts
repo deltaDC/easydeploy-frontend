@@ -1,5 +1,8 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 
+export const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
+export const API_VERSION = "v1";
+
 export type ApiError = {
     status: number;
     message: string;
@@ -19,8 +22,8 @@ export function isApiError(error: unknown): error is ApiError {
 }
 
 const api = axios.create({
-	baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api",
-	withCredentials: true,
+	baseURL: `${API_BASE}/${API_VERSION}`,
+	withCredentials: true, // Send cookies with requests
 });
 
 api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
@@ -44,6 +47,7 @@ api.interceptors.response.use(
         const extractedMessage =
             data?.message ||
             data?.error ||
+            data?.errorMessage ||
             (Array.isArray(data?.errors) ? data.errors.join(", ") : undefined) ||
             error.message ||
             "Unexpected error";
@@ -107,7 +111,13 @@ api.interceptors.response.use(
         };
 
         if (typeof console !== "undefined") {
-            console.error("API Error:", normalized);
+            console.error("API Error:", {
+                status: normalized.status,
+                message: normalized.message,
+                url: error.config?.url,
+                method: error.config?.method,
+                details: normalized.details,
+            });
         }
 
         return Promise.reject(normalized);
