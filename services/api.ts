@@ -1,5 +1,8 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 
+export const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
+export const API_VERSION = "v1";
+
 export type ApiError = {
     status: number;
     message: string;
@@ -19,7 +22,7 @@ export function isApiError(error: unknown): error is ApiError {
 }
 
 const api = axios.create({
-	baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api",
+	baseURL: `${API_BASE}/${API_VERSION}`,
 	withCredentials: true,
 });
 

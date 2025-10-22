@@ -10,7 +10,7 @@ export const AuthService = {
 	 * Đăng nhập với email và password
 	 */
 	login: async (payload: LoginRequest): Promise<AuthResponse> => {
-		const response = await api.post<AuthResponse>("/v1/auth/login", payload);
+		const response = await api.post<AuthResponse>("/auth/login", payload);
 		return response.data;
 	},
 
@@ -18,7 +18,7 @@ export const AuthService = {
 	 * Đăng ký tài khoản mới
 	 */
 	register: async (payload: RegisterRequest): Promise<AuthResponse> => {
-		const response = await api.post<AuthResponse>("/v1/auth/register", payload);
+		const response = await api.post<AuthResponse>("/auth/register", payload);
 		return response.data;
 	},
 
@@ -28,7 +28,7 @@ export const AuthService = {
 	logout: async (): Promise<void> => {
 		const token = localStorage.getItem("auth_token");
 		if (token) {
-			await api.post("/v1/auth/logout", {}, {
+			await api.post("/auth/logout", {}, {
 				headers: {
 					Authorization: `Bearer ${token}`
 				}
