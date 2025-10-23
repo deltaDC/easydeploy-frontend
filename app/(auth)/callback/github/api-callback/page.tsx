@@ -5,16 +5,22 @@ import { GithubService } from "@/services/github.service";
 import { useAuthStore } from "@/store/useAuthStore";
 import { ErrorAlert } from "@/components/ui/error-alert";
 
-function CallbackInner() {
+function ApiCallbackInner() {
 	const params = useSearchParams();
 	const router = useRouter();
 	const { login } = useAuthStore();
-	const [status, setStatus] = useState("Đang xác thực với GitHub...");
+	const [status, setStatus] = useState("Đang xử lý callback từ API...");
 	const [error, setError] = useState<{ message: string; status?: number } | null>(null);
+	const [isClient, setIsClient] = useState(false);
 
 	useEffect(() => {
-		const code = params.get("code");
-		const state = params.get("state");
+		setIsClient(true);
+	}, []);
+
+	useEffect(() => {
+		if (!isClient) return;
+
+		const success = params.get("success");
 		const error = params.get("error");
 		
 		(async () => {
@@ -23,33 +29,38 @@ function CallbackInner() {
 					throw new Error(`GitHub OAuth error: ${error}`);
 				}
 				
-				if (!code) {
-					throw new Error("Thiếu authorization code từ GitHub");
-				}
-
-				setStatus("Đang xử lý GitHub OAuth callback...");
-				
-				if (state && state.startsWith("link_")) {
-					setStatus("Đây là luồng liên kết GitHub. Vui lòng đăng nhập trước.");
-					setTimeout(() => router.replace("/login"), 2000);
-					return;
-				}
-
-				const response = await GithubService.handleCallback(code, state || undefined);
-				
-				if (response.token) {
-					login({
-						id: response.userId,
-						email: response.email,
-						githubUsername: response.githubUsername,
-						avatarUrl: response.avatarUrl,
-						roles: new Set(Array.isArray(response.roles) ? response.roles : [response.roles]),
-					}, response.token);
+				if (success === "true") {
+					setStatus("Đang lấy thông tin đăng nhập...");
 					
-					setStatus("Đăng nhập GitHub thành công! Đang chuyển hướng...");
-					setTimeout(() => router.replace("/apps"), 1500);
+					// Gọi API để lấy token từ session
+					const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1"}/auth/github/auth-status`, {
+						method: 'GET',
+						credentials: 'include',
+					});
+					
+					if (!response.ok) {
+						throw new Error(`API error: ${response.status}`);
+					}
+					
+					const data = await response.json();
+					
+					if (data.token) {
+						// Lưu auth data
+						login({
+							id: data.userId,
+							email: data.email,
+							githubUsername: data.githubUsername,
+							avatarUrl: data.avatarUrl,
+							roles: new Set(Array.isArray(data.roles) ? data.roles : [data.roles]),
+						}, data.token);
+						
+						setStatus("Đăng nhập GitHub thành công! Đang chuyển hướng...");
+						setTimeout(() => router.replace("/apps"), 1500);
+					} else {
+						throw new Error("Không nhận được token từ server");
+					}
 				} else {
-					throw new Error("Không nhận được token từ server");
+					throw new Error("Thiếu thông tin xác thực từ GitHub");
 				}
 			} catch (e: any) {
 				console.error('GitHub auth error:', e);
@@ -61,7 +72,19 @@ function CallbackInner() {
 				setTimeout(() => router.replace("/login"), 3000);
 			}
 		})();
-	}, []);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [isClient]);
+
+	if (!isClient) {
+		return (
+			<div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+				<div className="text-center space-y-4">
+					<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+					<p className="text-sm text-muted-foreground">Đang xác thực...</p>
+				</div>
+			</div>
+		);
+	}
 
 	return (
 		<div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
@@ -96,7 +119,7 @@ function CallbackInner() {
 	);
 }
 
-export default function GithubCallbackPage() {
+export default function GithubApiCallbackPage() {
 	return (
 		<Suspense fallback={
 			<div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
@@ -106,7 +129,7 @@ export default function GithubCallbackPage() {
 				</div>
 			</div>
 		}>
-			<CallbackInner />
+			<ApiCallbackInner />
 		</Suspense>
 	);
 }

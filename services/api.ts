@@ -27,11 +27,34 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-    // Attach auth token from localStorage
+    // Attach auth token from localStorage - check both possible keys
     if (typeof window !== "undefined") {
-        const token = localStorage.getItem("auth_token");
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
+        // Try Zustand persist key first
+        const authStorage = localStorage.getItem("auth-storage");
+        if (authStorage) {
+            try {
+                const parsed = JSON.parse(authStorage);
+                if (parsed.state?.token) {
+                    config.headers.Authorization = `Bearer ${parsed.state.token}`;
+                    console.log("Using token from auth-storage:", parsed.state.token.substring(0, 20) + "...");
+                }
+            } catch (e) {
+                console.warn("Failed to parse auth storage:", e);
+            }
+        }
+        
+        // Fallback to direct token key
+        if (!config.headers.Authorization) {
+            const token = localStorage.getItem("auth_token");
+            if (token) {
+                config.headers.Authorization = `Bearer ${token}`;
+                console.log("Using token from auth_token:", token.substring(0, 20) + "...");
+            }
+        }
+        
+        // Debug: log if no token found
+        if (!config.headers.Authorization) {
+            console.warn("No auth token found for request:", config.url);
         }
     }
     return config;
