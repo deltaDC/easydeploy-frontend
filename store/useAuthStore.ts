@@ -36,12 +36,14 @@ export const useAuthStore = create<AuthState>()(
 			setLoading: (isLoading) => set({ isLoading }),
 			
 			login: (user, token) => {
+				console.log("Auth store login called with token:", token ? token.substring(0, 20) + "..." : "null");
 				set({ 
 					user, 
 					token, 
 					isAuthenticated: true,
 					isLoading: false 
 				});
+				console.log("Auth store state updated, token saved:", token ? "yes" : "no");
 			},
 			
 			logout: () => set({ 

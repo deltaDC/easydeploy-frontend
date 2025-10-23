@@ -21,6 +21,9 @@ import {
 	CheckCircle,
 	AlertCircle 
 } from "lucide-react";
+import GitHubIntegration from "@/components/github/GitHubIntegration";
+import { EmailUpdateAlert } from "@/components/ui/email-update-alert";
+import { GithubService } from "@/services/github.service";
 
 export default function ProfilePage() {
 	const { user, isLoading, hasRole } = useAuth();
@@ -30,6 +33,12 @@ export default function ProfilePage() {
 	});
 	const [isSaving, setIsSaving] = useState(false);
 	const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+	const handleEmailUpdated = (newEmail: string) => {
+		// Update user data in auth store
+		// This would typically be handled by the auth store
+		setMessage({ type: 'success', text: `Email đã được cập nhật thành ${newEmail}` });
+	};
 
 	if (isLoading) {
 		return (
@@ -102,6 +111,14 @@ export default function ProfilePage() {
 						</Button>
 					)}
 				</div>
+
+				{/* Email Update Alert for Fallback Emails */}
+				{GithubService.isFallbackEmail(user.email) && (
+					<EmailUpdateAlert 
+						email={user.email} 
+						onEmailUpdated={handleEmailUpdated}
+					/>
+				)}
 
 				{message && (
 					<Alert className={message.type === 'success' ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}>
@@ -221,6 +238,9 @@ export default function ProfilePage() {
 								)}
 							</CardContent>
 						</Card>
+
+						{/* GitHub Integration */}
+						<GitHubIntegration />
 
 						{/* Account Statistics */}
 						<Card>

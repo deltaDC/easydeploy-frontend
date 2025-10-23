@@ -168,9 +168,11 @@ export default function ApplicationsTable() {
 						<p className="text-muted-foreground text-center mb-4">
 							Bạn chưa có dự án nào được triển khai. Hãy tạo dự án đầu tiên của bạn!
 						</p>
-						<Button>
-							<Play className="h-4 w-4 mr-2" />
-							Tạo dự án mới
+						<Button asChild>
+							<Link href="/apps/new">
+								<Play className="h-4 w-4 mr-2" />
+								Tạo dự án mới
+							</Link>
 						</Button>
 					</CardContent>
 				</Card>

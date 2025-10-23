@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import Link from "next/link";
-import { ArrowRight, Zap, GitBranch, Activity, Plus } from "lucide-react";
+import { ArrowRight, Zap, GitBranch, Activity, Plus, Github } from "lucide-react";
 
 export default function DashboardHome() {
 	return (
@@ -14,12 +14,20 @@ export default function DashboardHome() {
 					title="Tổng quan" 
 					description="Tình trạng hệ thống, tài nguyên sử dụng và dự án gần đây" 
 					actions={
-						<Button asChild className="gap-2">
-							<Link href="/apps/new">
-								<Plus className="h-4 w-4" />
-								Deploy mới
-							</Link>
-						</Button>
+						<div className="flex gap-2">
+							<Button asChild variant="outline" className="gap-2">
+								<Link href="/import">
+									<Github className="h-4 w-4" />
+									Import từ GitHub
+								</Link>
+							</Button>
+							<Button asChild className="gap-2">
+								<Link href="/apps/new">
+									<Plus className="h-4 w-4" />
+									Deploy mới
+								</Link>
+							</Button>
+						</div>
 					} 
 				/>
 
@@ -93,10 +101,12 @@ export default function DashboardHome() {
 										</div>
 										<div className="flex justify-center gap-3">
 											<Button asChild>
-												<Link href="/apps/new">Import Project</Link>
+												<Link href="/import">Import từ GitHub</Link>
 											</Button>
-											<Button variant="outline">
-												Next.js Boilerplate
+											<Button asChild variant="outline">
+												<Link href="/apps/new">
+													Next.js Boilerplate
+												</Link>
 											</Button>
 										</div>
 									</div>

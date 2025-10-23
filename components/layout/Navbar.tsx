@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { LogOut, User } from "lucide-react";
+import { LogOut, User, Github } from "lucide-react";
 
 export default function Navbar() {
 	const { user, isAuthenticated, logout, isAdmin } = useAuth();
@@ -17,8 +17,12 @@ export default function Navbar() {
 				<div className="flex items-center gap-3 text-sm">
 					{isAuthenticated ? (
 						<>
-							<Link href={isAdmin() ? "/admin" : "/profile"} className="hover:text-white">
+							<Link href={isAdmin() ? "/admin" : "/"} className="hover:text-white">
 								Dashboard
+							</Link>
+							<Link href="/import" className="hover:text-white flex items-center gap-1">
+								<Github className="h-4 w-4" />
+								Import
 							</Link>
 							<div className="flex items-center gap-2">
 								<User className="h-4 w-4" />
