@@ -1,113 +1,158 @@
-"use client";
+﻿"use client";
 
-import { useState } from "react";
-import { useAuth } from "@/hooks/useAuth";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useUserSettings } from "@/hooks/useUserSettings";
+import { UserSettingsService } from "@/services/user-settings.service";
+import { UserProfileService } from "@/services/user-profile.service";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 import { 
-	Settings, 
+	Settings as SettingsIcon, 
 	Bell, 
 	Shield, 
 	Globe, 
 	Save, 
-	Eye, 
-	EyeOff,
-	CheckCircle,
+	CheckCircle2,
 	AlertCircle,
-	Mail,
-	Key,
+	Loader2,
 	Trash2
 } from "lucide-react";
 
 export default function SettingsPage() {
-	const { user, logout } = useAuth();
+	const router = useRouter();
+	const { settings, isLoading, isError, mutate } = useUserSettings();
 	const [isSaving, setIsSaving] = useState(false);
-	const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+	const [success, setSuccess] = useState(false);
 	
-	// Notification settings
-	const [notifications, setNotifications] = useState({
-		email: true,
-		push: false,
-		deployments: true,
-		errors: true,
-		maintenance: true,
-	});
+	// Delete account dialog state
+	const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+	const [deletePassword, setDeletePassword] = useState("");
+	const [deleteReason, setDeleteReason] = useState("");
+	const [isDeleting, setIsDeleting] = useState(false);
 	
-	// Privacy settings
-	const [privacy, setPrivacy] = useState({
-		profilePublic: false,
+	// Local state for form
+	const [formData, setFormData] = useState({
+		// Thông báo
+		emailNotifications: true,
+		pushNotifications: false,
+		deploymentUpdates: true,
+		errorAlerts: true,
+		
+		// Quyền riêng tư
+		publicProfile: false,
 		showEmail: false,
-		analytics: true,
-	});
-	
-	// Security settings
-	const [security, setSecurity] = useState({
-		twoFactor: false,
-		sessionTimeout: "24",
+		analyticsEnabled: true,
+		
+		// Bảo mật
+		twoFactorEnabled: false,
+		sessionTimeoutHours: 24,
 		loginAlerts: true,
 	});
 
-	const handleSaveSettings = async (section: string) => {
-		setIsSaving(true);
-		setMessage(null);
-		
-		try {
-			// TODO: Implement save settings API call
-			// await SettingsService.updateSettings(section, data);
-			
-			// Mock success for now
-			await new Promise(resolve => setTimeout(resolve, 1000));
-			
-			setMessage({ type: 'success', text: `Cập nhật ${section} thành công!` });
-		} catch (error) {
-			setMessage({ type: 'error', text: `Có lỗi xảy ra khi cập nhật ${section}.` });
-		} finally {
-			setIsSaving(false);
+	// Update form when settings load from backend
+	useEffect(() => {
+		if (settings) {
+			setFormData(settings);
 		}
-	};
+	}, [settings]);
 
-	const handleChangePassword = async () => {
+	const handleSaveSettings = async () => {
 		setIsSaving(true);
-		setMessage(null);
+		setSuccess(false);
 		
 		try {
-			// TODO: Implement change password API call
-			await new Promise(resolve => setTimeout(resolve, 1000));
+			const updatedSettings = await UserSettingsService.updateUserSettings(formData);
+			mutate(updatedSettings, false); // Optimistic update without revalidation
+			setSuccess(true);
+			toast.success("Cập nhật cài đặt thành công!");
 			
-			setMessage({ type: 'success', text: 'Đổi mật khẩu thành công!' });
+			// Hide success message after 3 seconds
+			setTimeout(() => setSuccess(false), 3000);
 		} catch (error) {
-			setMessage({ type: 'error', text: 'Có lỗi xảy ra khi đổi mật khẩu.' });
+			console.error('Failed to update settings:', error);
+			toast.error("Có lỗi xảy ra khi cập nhật cài đặt");
 		} finally {
 			setIsSaving(false);
 		}
 	};
 
 	const handleDeleteAccount = async () => {
-		if (!confirm('Bạn có chắc chắn muốn xóa tài khoản? Hành động này không thể hoàn tác.')) {
+		if (!deletePassword.trim()) {
+			toast.error("Vui lòng nhập mật khẩu để xác nhận");
 			return;
 		}
-		
-		setIsSaving(true);
-		setMessage(null);
+
+		setIsDeleting(true);
 		
 		try {
-			// TODO: Implement delete account API call
-			await new Promise(resolve => setTimeout(resolve, 1000));
+			await UserProfileService.deleteAccount({
+				password: deletePassword,
+				reason: deleteReason || undefined,
+			});
 			
-			// Logout and redirect
-			await logout();
-			window.location.href = '/';
-		} catch (error) {
-			setMessage({ type: 'error', text: 'Có lỗi xảy ra khi xóa tài khoản.' });
-			setIsSaving(false);
+			toast.success("Tài khoản đã được xóa thành công");
+			
+			// Clear auth and redirect to login
+			setTimeout(() => {
+				if (typeof window !== "undefined") {
+					localStorage.removeItem("auth_token");
+					window.location.href = "/login";
+				}
+			}, 1500);
+		} catch (error: any) {
+			console.error('Failed to delete account:', error);
+			const errorMessage = error.response?.data?.message || "Mật khẩu không đúng hoặc có lỗi xảy ra";
+			toast.error(errorMessage);
+		} finally {
+			setIsDeleting(false);
 		}
 	};
+
+	if (isLoading) {
+		return (
+			<div className="py-6">
+				<div className="container-page flex items-center justify-center min-h-[400px]">
+					<div className="flex flex-col items-center gap-3">
+						<Loader2 className="h-8 w-8 animate-spin text-primary" />
+						<p className="text-muted-foreground">Đang tải cài đặt...</p>
+					</div>
+				</div>
+			</div>
+		);
+	}
+
+	if (isError) {
+		return (
+			<div className="py-6">
+				<div className="container-page">
+					<Alert className="border-red-200 bg-red-50">
+						<AlertCircle className="h-4 w-4 text-red-600" />
+						<AlertDescription className="text-red-800">
+							Không thể tải cài đặt. Vui lòng thử lại sau.
+						</AlertDescription>
+					</Alert>
+				</div>
+			</div>
+		);
+	}
 
 	return (
 		<div className="py-6">
@@ -115,22 +160,18 @@ export default function SettingsPage() {
 				<div className="flex items-center justify-between">
 					<div>
 						<h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-							<Settings className="h-6 w-6" />
+							<SettingsIcon className="h-6 w-6" />
 							Cài đặt
 						</h1>
 						<p className="text-muted-foreground">Quản lý cài đặt tài khoản và ứng dụng</p>
 					</div>
 				</div>
 
-				{message && (
-					<Alert className={message.type === 'success' ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'}>
-						{message.type === 'success' ? (
-							<CheckCircle className="h-4 w-4 text-green-600" />
-						) : (
-							<AlertCircle className="h-4 w-4 text-red-600" />
-						)}
-						<AlertDescription className={message.type === 'success' ? 'text-green-800' : 'text-red-800'}>
-							{message.text}
+				{success && (
+					<Alert className="border-green-200 bg-green-50">
+						<CheckCircle2 className="h-4 w-4 text-green-600" />
+						<AlertDescription className="text-green-800">
+							Cài đặt đã được cập nhật thành công!
 						</AlertDescription>
 					</Alert>
 				)}
@@ -151,73 +192,64 @@ export default function SettingsPage() {
 							<div className="space-y-4">
 								<div className="flex items-center justify-between">
 									<div className="space-y-0.5">
-										<Label>Email notifications</Label>
+										<Label>Thông báo qua email</Label>
 										<p className="text-sm text-muted-foreground">
 											Nhận thông báo qua email
 										</p>
 									</div>
 									<Switch
-										checked={notifications.email}
+										checked={formData.emailNotifications}
 										onCheckedChange={(checked) => 
-											setNotifications(prev => ({ ...prev, email: checked }))
+											setFormData(prev => ({ ...prev, emailNotifications: checked }))
 										}
 									/>
 								</div>
 								
 								<div className="flex items-center justify-between">
 									<div className="space-y-0.5">
-										<Label>Push notifications</Label>
+										<Label>Thông báo đẩy</Label>
 										<p className="text-sm text-muted-foreground">
 											Nhận thông báo đẩy trên trình duyệt
 										</p>
 									</div>
 									<Switch
-										checked={notifications.push}
+										checked={formData.pushNotifications}
 										onCheckedChange={(checked) => 
-											setNotifications(prev => ({ ...prev, push: checked }))
+											setFormData(prev => ({ ...prev, pushNotifications: checked }))
 										}
 									/>
 								</div>
 								
 								<div className="flex items-center justify-between">
 									<div className="space-y-0.5">
-										<Label>Deployment updates</Label>
+										<Label>Cập nhật triển khai</Label>
 										<p className="text-sm text-muted-foreground">
 											Thông báo khi deployment hoàn thành
 										</p>
 									</div>
 									<Switch
-										checked={notifications.deployments}
+										checked={formData.deploymentUpdates}
 										onCheckedChange={(checked) => 
-											setNotifications(prev => ({ ...prev, deployments: checked }))
+											setFormData(prev => ({ ...prev, deploymentUpdates: checked }))
 										}
 									/>
 								</div>
 								
 								<div className="flex items-center justify-between">
 									<div className="space-y-0.5">
-										<Label>Error alerts</Label>
+										<Label>Cảnh báo lỗi</Label>
 										<p className="text-sm text-muted-foreground">
 											Thông báo khi có lỗi xảy ra
 										</p>
 									</div>
 									<Switch
-										checked={notifications.errors}
+										checked={formData.errorAlerts}
 										onCheckedChange={(checked) => 
-											setNotifications(prev => ({ ...prev, errors: checked }))
+											setFormData(prev => ({ ...prev, errorAlerts: checked }))
 										}
 									/>
 								</div>
 							</div>
-							
-							<Button 
-								onClick={() => handleSaveSettings('thông báo')} 
-								disabled={isSaving}
-								className="w-full gap-2"
-							>
-								<Save className="h-4 w-4" />
-								Lưu cài đặt thông báo
-							</Button>
 						</CardContent>
 					</Card>
 
@@ -225,7 +257,7 @@ export default function SettingsPage() {
 					<Card>
 						<CardHeader>
 							<CardTitle className="flex items-center gap-2">
-								<Shield className="h-5 w-5" />
+								<Globe className="h-5 w-5" />
 								Quyền riêng tư
 							</CardTitle>
 							<CardDescription>
@@ -242,9 +274,9 @@ export default function SettingsPage() {
 										</p>
 									</div>
 									<Switch
-										checked={privacy.profilePublic}
+										checked={formData.publicProfile}
 										onCheckedChange={(checked) => 
-											setPrivacy(prev => ({ ...prev, profilePublic: checked }))
+											setFormData(prev => ({ ...prev, publicProfile: checked }))
 										}
 									/>
 								</div>
@@ -253,49 +285,40 @@ export default function SettingsPage() {
 									<div className="space-y-0.5">
 										<Label>Hiển thị email</Label>
 										<p className="text-sm text-muted-foreground">
-											Hiển thị email trong hồ sơ công khai
+											Cho phép người khác xem email của bạn
 										</p>
 									</div>
 									<Switch
-										checked={privacy.showEmail}
+										checked={formData.showEmail}
 										onCheckedChange={(checked) => 
-											setPrivacy(prev => ({ ...prev, showEmail: checked }))
+											setFormData(prev => ({ ...prev, showEmail: checked }))
 										}
 									/>
 								</div>
 								
 								<div className="flex items-center justify-between">
 									<div className="space-y-0.5">
-										<Label>Analytics</Label>
+										<Label>Phân tích và cải thiện</Label>
 										<p className="text-sm text-muted-foreground">
-											Cho phép thu thập dữ liệu phân tích
+											Cho phép thu thập dữ liệu để cải thiện dịch vụ
 										</p>
 									</div>
 									<Switch
-										checked={privacy.analytics}
+										checked={formData.analyticsEnabled}
 										onCheckedChange={(checked) => 
-											setPrivacy(prev => ({ ...prev, analytics: checked }))
+											setFormData(prev => ({ ...prev, analyticsEnabled: checked }))
 										}
 									/>
 								</div>
 							</div>
-							
-							<Button 
-								onClick={() => handleSaveSettings('quyền riêng tư')} 
-								disabled={isSaving}
-								className="w-full gap-2"
-							>
-								<Save className="h-4 w-4" />
-								Lưu cài đặt quyền riêng tư
-							</Button>
 						</CardContent>
 					</Card>
 
 					{/* Security */}
-					<Card>
+					<Card className="lg:col-span-2">
 						<CardHeader>
 							<CardTitle className="flex items-center gap-2">
-								<Key className="h-5 w-5" />
+								<Shield className="h-5 w-5" />
 								Bảo mật
 							</CardTitle>
 							<CardDescription>
@@ -303,114 +326,182 @@ export default function SettingsPage() {
 							</CardDescription>
 						</CardHeader>
 						<CardContent className="space-y-6">
-							<div className="space-y-4">
+							<div className="grid gap-6 md:grid-cols-2">
 								<div className="flex items-center justify-between">
 									<div className="space-y-0.5">
-										<Label>Xác thực 2 yếu tố</Label>
+										<Label>Xác thực hai yếu tố (2FA)</Label>
 										<p className="text-sm text-muted-foreground">
-											Thêm lớp bảo mật cho tài khoản
+											Thêm lớp bảo mật bổ sung cho tài khoản
 										</p>
 									</div>
 									<Switch
-										checked={security.twoFactor}
+										checked={formData.twoFactorEnabled}
 										onCheckedChange={(checked) => 
-											setSecurity(prev => ({ ...prev, twoFactor: checked }))
+											setFormData(prev => ({ ...prev, twoFactorEnabled: checked }))
 										}
 									/>
-								</div>
-								
-								<div className="space-y-2">
-									<Label>Thời gian hết phiên</Label>
-									<Select 
-										value={security.sessionTimeout} 
-										onValueChange={(value) => 
-											setSecurity(prev => ({ ...prev, sessionTimeout: value }))
-										}
-									>
-										<SelectTrigger>
-											<SelectValue />
-										</SelectTrigger>
-										<SelectContent>
-											<SelectItem value="1">1 giờ</SelectItem>
-											<SelectItem value="8">8 giờ</SelectItem>
-											<SelectItem value="24">24 giờ</SelectItem>
-											<SelectItem value="168">7 ngày</SelectItem>
-										</SelectContent>
-									</Select>
 								</div>
 								
 								<div className="flex items-center justify-between">
 									<div className="space-y-0.5">
 										<Label>Cảnh báo đăng nhập</Label>
 										<p className="text-sm text-muted-foreground">
-											Thông báo khi có đăng nhập mới
+											Nhận thông báo khi có đăng nhập mới
 										</p>
 									</div>
 									<Switch
-										checked={security.loginAlerts}
+										checked={formData.loginAlerts}
 										onCheckedChange={(checked) => 
-											setSecurity(prev => ({ ...prev, loginAlerts: checked }))
+											setFormData(prev => ({ ...prev, loginAlerts: checked }))
 										}
 									/>
 								</div>
-							</div>
-							
-							<Separator />
-							
-							<div className="space-y-4">
-								<Button 
-									onClick={handleChangePassword} 
-									disabled={isSaving}
-									variant="outline"
-									className="w-full gap-2"
-								>
-									<Key className="h-4 w-4" />
-									Đổi mật khẩu
-								</Button>
 								
-								<Button 
-									onClick={() => handleSaveSettings('bảo mật')} 
-									disabled={isSaving}
-									className="w-full gap-2"
-								>
-									<Save className="h-4 w-4" />
-									Lưu cài đặt bảo mật
-								</Button>
-							</div>
-						</CardContent>
-					</Card>
-
-					{/* Danger Zone */}
-					<Card className="border-red-200">
-						<CardHeader>
-							<CardTitle className="flex items-center gap-2 text-red-600">
-								<AlertCircle className="h-5 w-5" />
-								Vùng nguy hiểm
-							</CardTitle>
-							<CardDescription>
-								Hành động không thể hoàn tác
-							</CardDescription>
-						</CardHeader>
-						<CardContent className="space-y-4">
-							<div className="p-4 border border-red-200 rounded-lg bg-red-50">
-								<h4 className="font-medium text-red-800 mb-2">Xóa tài khoản</h4>
-								<p className="text-sm text-red-700 mb-4">
-									Xóa vĩnh viễn tài khoản và tất cả dữ liệu liên quan. 
-									Hành động này không thể hoàn tác.
-								</p>
-								<Button 
-									onClick={handleDeleteAccount} 
-									disabled={isSaving}
-									variant="destructive"
-									className="gap-2"
-								>
-									<Trash2 className="h-4 w-4" />
-									Xóa tài khoản
-								</Button>
+								<div className="space-y-2 md:col-span-2">
+									<Label>Thời gian timeout phiên (giờ)</Label>
+									<Select
+										value={formData.sessionTimeoutHours.toString()}
+										onValueChange={(value) => 
+											setFormData(prev => ({ ...prev, sessionTimeoutHours: parseInt(value) }))
+										}
+									>
+										<SelectTrigger className="max-w-xs">
+											<SelectValue />
+										</SelectTrigger>
+										<SelectContent>
+											<SelectItem value="1">1 giờ</SelectItem>
+											<SelectItem value="6">6 giờ</SelectItem>
+											<SelectItem value="12">12 giờ</SelectItem>
+											<SelectItem value="24">24 giờ</SelectItem>
+											<SelectItem value="168">1 tuần</SelectItem>
+										</SelectContent>
+									</Select>
+									<p className="text-sm text-muted-foreground">
+										Tự động đăng xuất sau thời gian không hoạt động
+									</p>
+								</div>
 							</div>
 						</CardContent>
 					</Card>
 				</div>
+
+				{/* Action Buttons Row - Save on left, Danger Zone on right */}
+				<div className="flex items-center justify-between gap-6">
+					{/* Save Button */}
+					<Button 
+						onClick={handleSaveSettings} 
+						disabled={isSaving}
+						className="gap-2 min-w-[200px]"
+						size="lg"
+					>
+						{isSaving ? (
+							<>
+								<Loader2 className="h-4 w-4 animate-spin" />
+								Đang lưu...
+							</>
+						) : (
+							<>
+								<Save className="h-4 w-4" />
+								Lưu tất cả cài đặt
+							</>
+						)}
+					</Button>
+
+					{/* Danger Zone - Delete Account */}
+					<div className="flex items-center gap-3 p-4 border border-red-200 rounded-lg bg-red-50">
+						<div className="space-y-0.5">
+							<Label className="text-red-900 text-sm font-semibold">Vùng Nguy Hiểm</Label>
+							<p className="text-xs text-red-700">
+								Xóa vĩnh viễn tài khoản của bạn
+							</p>
+						</div>
+						<Button 
+							variant="destructive"
+							onClick={() => setShowDeleteDialog(true)}
+							className="gap-2"
+							size="sm"
+						>
+							<Trash2 className="h-4 w-4" />
+							Xóa tài khoản
+						</Button>
+					</div>
+				</div>
+
+				{/* Delete Account Dialog */}
+				<AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+					<AlertDialogContent>
+						<AlertDialogHeader>
+							<AlertDialogTitle className="flex items-center gap-2 text-red-600">
+								<Trash2 className="h-5 w-5" />
+								Xác nhận xóa tài khoản
+							</AlertDialogTitle>
+							<AlertDialogDescription>
+								Hành động này sẽ xóa vĩnh viễn tài khoản của bạn và không thể hoàn tác.
+								Vui lòng nhập mật khẩu để xác nhận.
+							</AlertDialogDescription>
+						</AlertDialogHeader>
+						
+						<div className="space-y-4 py-4">
+							<div className="space-y-2">
+								<Label htmlFor="delete-password">Mật khẩu hiện tại *</Label>
+								<Input
+									id="delete-password"
+									type="password"
+									placeholder="Nhập mật khẩu của bạn"
+									value={deletePassword}
+									onChange={(e) => setDeletePassword(e.target.value)}
+									disabled={isDeleting}
+								/>
+							</div>
+							
+							<div className="space-y-2">
+								<Label htmlFor="delete-reason">Lý do xóa (tùy chọn)</Label>
+								<Textarea
+									id="delete-reason"
+									placeholder="Cho chúng tôi biết tại sao bạn muốn xóa tài khoản..."
+									value={deleteReason}
+									onChange={(e) => setDeleteReason(e.target.value)}
+									disabled={isDeleting}
+									rows={3}
+								/>
+							</div>
+
+							<Alert className="border-red-200 bg-red-50">
+								<AlertCircle className="h-4 w-4 text-red-600" />
+								<AlertDescription className="text-red-800">
+									<strong>Cảnh báo:</strong> Tất cả dữ liệu của bạn sẽ bị xóa vĩnh viễn, 
+									bao gồm ứng dụng, deployments, và logs.
+								</AlertDescription>
+							</Alert>
+						</div>
+
+						<AlertDialogFooter>
+							<AlertDialogCancel disabled={isDeleting}>
+								Hủy
+							</AlertDialogCancel>
+							<AlertDialogAction
+								onClick={(e) => {
+									e.preventDefault();
+									handleDeleteAccount();
+								}}
+								disabled={isDeleting || !deletePassword.trim()}
+								className="bg-red-600 hover:bg-red-700"
+							>
+								{isDeleting ? (
+									<>
+										<Loader2 className="h-4 w-4 animate-spin mr-2" />
+										Đang xóa...
+									</>
+								) : (
+									<>
+										<Trash2 className="h-4 w-4 mr-2" />
+										Xác nhận xóa
+									</>
+								)}
+							</AlertDialogAction>
+						</AlertDialogFooter>
+					</AlertDialogContent>
+				</AlertDialog>
 			</div>
 		</div>
 	);

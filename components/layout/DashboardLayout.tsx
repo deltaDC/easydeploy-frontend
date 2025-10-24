@@ -32,15 +32,15 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 							<Link href="/" className="text-lg font-semibold text-gray-900">EasyDeploy</Link>
 						</div>
 
-						{/* Desktop Navigation Links */}
-						<div className="hidden md:flex items-center gap-6">
-							<Link 
-								href={isAdmin() ? "/admin" : "/profile"} 
-								className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md hover:bg-gray-100"
-							>
-								<Home className="h-4 w-4" />
-								Dashboard
-							</Link>
+					{/* Desktop Navigation Links */}
+					<div className="hidden md:flex items-center gap-6">
+						<Link 
+							href={isAdmin() ? "/admin" : "/dashboard"} 
+							className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md hover:bg-gray-100"
+						>
+							<Home className="h-4 w-4" />
+							Dashboard
+						</Link>
 							{isAdmin() && (
 								<Link 
 									href="/admin/users" 
@@ -71,7 +71,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 								<Settings className="h-4 w-4" />
 								Cài đặt
 							</Link>
-						</div>						{/* Desktop User Menu */}
+						</div>
+
+						{/* Desktop User Menu */}
 						<div className="hidden md:flex items-center gap-3">
 							{isAuthenticated ? (
 								<>
@@ -79,6 +81,16 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 										<User className="h-4 w-4" />
 										<span>{user?.email}</span>
 									</div>
+									<Link href="/profile">
+										<Button 
+											variant="ghost" 
+											size="sm"
+											className="flex items-center gap-2"
+										>
+											<User className="h-4 w-4" />
+											Profile
+										</Button>
+									</Link>
 									<Button 
 										variant="outline" 
 										size="sm"
@@ -111,18 +123,18 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 						</div>
 					</div>
 
-					{/* Mobile Menu */}
-					{isMobileMenuOpen && (
-						<div className="md:hidden border-t border-gray-200 py-4">
-							<div className="space-y-2">
-								<Link 
-									href={isAdmin() ? "/admin" : "/profile"} 
-									className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md hover:bg-gray-100"
-									onClick={() => setIsMobileMenuOpen(false)}
-								>
-									<Home className="h-4 w-4" />
-									Dashboard
-								</Link>
+				{/* Mobile Menu */}
+				{isMobileMenuOpen && (
+					<div className="md:hidden border-t border-gray-200 py-4">
+						<div className="space-y-2">
+							<Link 
+								href={isAdmin() ? "/admin" : "/dashboard"} 
+								className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md hover:bg-gray-100"
+								onClick={() => setIsMobileMenuOpen(false)}
+							>
+								<Home className="h-4 w-4" />
+								Dashboard
+							</Link>
 								{isAdmin() && (
 									<Link 
 										href="/admin/users" 
@@ -164,6 +176,20 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 											<User className="h-4 w-4" />
 											<span>{user?.email}</span>
 										</div>
+										<Link 
+											href="/profile" 
+											className="block w-full mt-2"
+											onClick={() => setIsMobileMenuOpen(false)}
+										>
+											<Button 
+												variant="ghost" 
+												size="sm"
+												className="w-full flex items-center gap-2"
+											>
+												<User className="h-4 w-4" />
+												Profile
+											</Button>
+										</Link>
 										<Button 
 											variant="outline" 
 											size="sm"
