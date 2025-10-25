@@ -10,6 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import { Github } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { ErrorAlert } from "@/components/ui/error-alert";
+import { GithubService } from "@/services/github.service";
 
 export default function LoginPage() {
 	const { login } = useAuth();
@@ -42,8 +43,25 @@ export default function LoginPage() {
 		const { name, value } = e.target;
 		setFormData(prev => ({
 			...prev,
-			[name]: value,
+			[name]: value
 		}));
+	};
+
+	const handleGitHubLogin = async () => {
+		try {
+			setIsLoading(true);
+			setError(null);
+			
+			const githubUrl = await GithubService.getOAuthUrl();
+			window.location.href = githubUrl;
+		} catch (err: any) {
+			setError({ 
+				message: err.message || "Không thể kết nối với GitHub",
+				status: err.status 
+			});
+		} finally {
+			setIsLoading(false);
+		}
 	};
 
 	return (
@@ -116,11 +134,14 @@ export default function LoginPage() {
 								<span className="bg-white px-2 text-muted-foreground">Hoặc tiếp tục với</span>
 							</div>
 						</div>
-						<Button variant="outline" className="w-full h-11" asChild>
-							<a href="/callback/github" className="flex items-center justify-center">
-								<Github className="mr-2 h-4 w-4" />
-								GitHub
-							</a>
+						<Button 
+							variant="outline" 
+							className="w-full h-11" 
+							onClick={handleGitHubLogin}
+							disabled={isLoading}
+						>
+							<Github className="mr-2 h-4 w-4" />
+							{isLoading ? "Đang kết nối..." : "Đăng nhập với GitHub"}
 						</Button>
 						<p className="text-center text-sm text-muted-foreground">
 							Chưa có tài khoản?{" "}

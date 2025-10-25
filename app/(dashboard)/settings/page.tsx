@@ -33,8 +33,10 @@ import {
 	CheckCircle2,
 	AlertCircle,
 	Loader2,
+	Github,
 	Trash2
 } from "lucide-react";
+import GitHubAppIntegration from "@/components/github/GitHubAppIntegration";
 
 export default function SettingsPage() {
 	const router = useRouter();
@@ -177,6 +179,22 @@ export default function SettingsPage() {
 				)}
 
 				<div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+					{/* GitHub Integration */}
+					<Card className="lg:col-span-2">
+						<CardHeader>
+							<CardTitle className="flex items-center gap-2">
+								<Github className="h-5 w-5" />
+								GitHub Integration
+							</CardTitle>
+							<CardDescription>
+								Kết nối với GitHub App để truy cập repositories từ cả personal account và organization
+							</CardDescription>
+						</CardHeader>
+						<CardContent>
+							<GitHubAppIntegration />
+						</CardContent>
+					</Card>
+
 					{/* Notifications */}
 					<Card>
 						<CardHeader>
