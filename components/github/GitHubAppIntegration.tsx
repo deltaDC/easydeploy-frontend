@@ -57,10 +57,12 @@ export default function GitHubAppIntegration() {
     try {
       setLoading(true);
       const data = await GithubService.getUserInstallations();
-      setInstallations(data);
+      // Ensure data is an array
+      setInstallations(Array.isArray(data) ? data : []);
     } catch (err) {
       setError("Không thể tải danh sách installations");
       console.error(err);
+      setInstallations([]);
     } finally {
       setLoading(false);
     }
@@ -69,10 +71,12 @@ export default function GitHubAppIntegration() {
   const loadAllRepositories = async () => {
     try {
       const data = await GithubService.getAllUserRepositories();
-      setRepositories(data);
+      // Ensure data is an array
+      setRepositories(Array.isArray(data) ? data : []);
     } catch (err) {
       setError("Không thể tải danh sách repositories");
       console.error(err);
+      setRepositories([]);
     }
   };
 

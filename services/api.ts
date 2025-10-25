@@ -23,7 +23,7 @@ export function isApiError(error: unknown): error is ApiError {
 
 const api = axios.create({
 	baseURL: `${API_BASE}/${API_VERSION}`,
-	withCredentials: true,
+	withCredentials: true, // Send cookies with requests
 });
 
 api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
@@ -70,6 +70,7 @@ api.interceptors.response.use(
         const extractedMessage =
             data?.message ||
             data?.error ||
+            data?.errorMessage ||
             (Array.isArray(data?.errors) ? data.errors.join(", ") : undefined) ||
             error.message ||
             "Unexpected error";
@@ -92,6 +93,12 @@ api.interceptors.response.use(
                 if (typeof window !== "undefined") {
                     const isOnAuth = window.location.pathname.startsWith("/login");
                     if (!isOnAuth) {
+                        console.error("🚨 401 Unauthorized - Redirecting to login", {
+                            url: error.config?.url,
+                            method: error.config?.method,
+                            currentPath: window.location.pathname,
+                            token: localStorage.getItem("auth_token") ? "EXISTS" : "MISSING",
+                        });
                         window.location.href = "/login";
                     }
                 }
@@ -133,7 +140,13 @@ api.interceptors.response.use(
         };
 
         if (typeof console !== "undefined") {
-            console.error("API Error:", normalized);
+            console.error("API Error:", {
+                status: normalized.status,
+                message: normalized.message,
+                url: error.config?.url,
+                method: error.config?.method,
+                details: normalized.details,
+            });
         }
 
         return Promise.reject(normalized);

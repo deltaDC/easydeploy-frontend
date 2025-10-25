@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
@@ -19,7 +19,8 @@ import {
 	Save, 
 	X, 
 	CheckCircle,
-	AlertCircle 
+	AlertCircle,
+	Loader2
 } from "lucide-react";
 import GitHubIntegration from "@/components/github/GitHubIntegration";
 import { EmailUpdateAlert } from "@/components/ui/email-update-alert";
@@ -40,16 +41,18 @@ export default function ProfilePage() {
 		setMessage({ type: 'success', text: `Email đã được cập nhật thành ${newEmail}` });
 	};
 
-	if (isLoading) {
-		return (
-			<div className="flex items-center justify-center py-12">
-				<div className="text-center">
-					<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-					<p className="text-muted-foreground">Đang tải thông tin...</p>
-				</div>
-			</div>
-		);
-	}
+  if (isLoading) {
+    return (
+      <div className="container mx-auto py-8 px-4">
+        <div className="max-w-4xl mx-auto flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-primary" />
+            <p className="text-gray-600">Đang tải thông tin profile...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
 	if (!user) {
 		return (

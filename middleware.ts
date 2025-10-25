@@ -7,6 +7,7 @@ export function middleware(req: NextRequest) {
 	
 	// Define protected routes and their required roles
 	const protectedRoutes = {
+		"/dashboard": ["user", "admin"],
 		"/apps": ["user", "admin"],
 		"/logs": ["user", "admin"],
 		"/settings": ["user", "admin"],

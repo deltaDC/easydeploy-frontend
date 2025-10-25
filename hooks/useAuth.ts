@@ -39,62 +39,60 @@ export function useAuth() {
 			
 			login(user, response.token);
 			
-			// Store tokens
-			if (typeof window !== "undefined") {
-				localStorage.setItem("auth_token", response.token);
-			}
-			
-			// Redirect based on role
-			if (typeof window !== "undefined") {
-				if (roles.has('ADMIN')) {
-					window.location.href = "/admin";
-				} else {
-					window.location.href = "/profile";
-				}
-			}
-			
-			return response;
-		} catch (error) {
-			throw error;
-		} finally {
-			setLoading(false);
+		// Store tokens
+		if (typeof window !== "undefined") {
+			localStorage.setItem("auth_token", response.token);
 		}
-	};
+		
+		// Redirect based on role
+		if (typeof window !== "undefined") {
+			if (roles.has('ADMIN')) {
+				window.location.href = "/admin";
+			} else {
+				window.location.href = "/dashboard";
+			}
+		}
+		
+		return response;
+	} catch (error) {
+		throw error;
+	} finally {
+		setLoading(false);
+	}
+};
 
-	const handleRegister = async (email: string, password: string) => {
-		setLoading(true);
-		try {
-			const response = await AuthService.register({ email, password });
-			
-			// Convert backend response to frontend user format
-			const roles = normalizeRoles(response.roles);
-			
-			const user: User = {
-				id: response.userId,
-				email: response.email,
-				githubUsername: response.githubUsername,
-				avatarUrl: response.avatarUrl,
-				roles: roles,
-				isActive: true
-			};
-			
-			login(user, response.token);
-			
-			// Store tokens
-			if (typeof window !== "undefined") {
-				localStorage.setItem("auth_token", response.token);
+const handleRegister = async (email: string, password: string) => {
+	setLoading(true);
+	try {
+		const response = await AuthService.register({ email, password });
+		
+		// Convert backend response to frontend user format
+		const roles = normalizeRoles(response.roles);
+		
+		const user: User = {
+			id: response.userId,
+			email: response.email,
+			githubUsername: response.githubUsername,
+			avatarUrl: response.avatarUrl,
+			roles: roles,
+			isActive: true
+		};
+		
+		login(user, response.token);
+		
+		// Store tokens
+		if (typeof window !== "undefined") {
+			localStorage.setItem("auth_token", response.token);
+		}
+		
+		// Redirect based on role
+		if (typeof window !== "undefined") {
+			if (roles.has('ADMIN')) {
+				window.location.href = "/admin";
+			} else {
+				window.location.href = "/dashboard";
 			}
-			
-			// Redirect based on role
-			if (typeof window !== "undefined") {
-				if (roles.has('ADMIN')) {
-					window.location.href = "/admin";
-				} else {
-					window.location.href = "/profile";
-				}
-			}
-			
-			return response;
+		}			return response;
 		} catch (error) {
 			throw error;
 		} finally {
