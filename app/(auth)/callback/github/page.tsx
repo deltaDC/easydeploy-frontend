@@ -61,7 +61,7 @@ function CallbackInner() {
 				setTimeout(() => router.replace("/login"), 3000);
 			}
 		})();
-	}, []);
+	}, [login, params, router]);
 
 	return (
 		<div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">

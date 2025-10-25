@@ -1,5 +1,5 @@
 "use client";
-import { ReactNode, useState, useEffect } from "react";
+import { ReactNode, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -8,15 +8,6 @@ import { LogOut, User, Home, Settings, Activity, Server, Menu, X, Users } from "
 export default function DashboardLayout({ children }: { children: ReactNode }) {
 	const { user, isAuthenticated, logout, isAdmin } = useAuth();
 	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-	const [mounted, setMounted] = useState(false);
-
-	useEffect(() => {
-		setMounted(true);
-	}, []);
-
-	if (!mounted) {
-		return null;
-	}
 
 	return (
 		<div className="min-h-screen bg-gray-50">

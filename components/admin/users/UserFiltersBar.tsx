@@ -41,7 +41,7 @@ export default function UserFiltersBar({
     }, 500); // Wait 500ms after user stops typing
 
     return () => clearTimeout(timer);
-  }, [searchValue]);
+  }, [searchValue, onFilterChange]);
 
   return (
     <Card className="p-4">

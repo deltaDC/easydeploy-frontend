@@ -44,7 +44,7 @@ function AppCallbackInner() {
 				setTimeout(() => router.replace("/apps/new"), 3000);
 			}
 		})();
-	}, [isClient]);
+	}, [isClient, params, router]);
 
 	if (!isClient) {
 		return (
