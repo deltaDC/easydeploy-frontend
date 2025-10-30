@@ -16,11 +16,13 @@ const nextConfig = {
       { protocol: 'https', hostname: '**' },
     ],
   },
-  webpack: (config) => {
+  webpack: (config, { isServer }) => {
     config.resolve.alias = {
       ...(config.resolve.alias || {}),
       '@': path.resolve(__dirname, '.'),
     };
+    // Disable filesystem caching to avoid snapshot issues
+    config.cache = false;
     return config;
   },
 };

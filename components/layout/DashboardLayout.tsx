@@ -3,7 +3,7 @@ import { ReactNode, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { LogOut, User, Home, Settings, Activity, Server, Menu, X, Users } from "lucide-react";
+import { LogOut, User, Home, Settings, Activity, Server, Menu, X, Users, Monitor } from "lucide-react";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
 	const { user, isAuthenticated, logout, isAdmin } = useAuth();
@@ -33,13 +33,22 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 							Dashboard
 						</Link>
 							{isAdmin() && (
-								<Link 
-									href="/admin/users" 
-									className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md hover:bg-gray-100"
-								>
-									<Users className="h-4 w-4" />
-									Quản lý User
-								</Link>
+								<>
+									<Link 
+										href="/admin/users" 
+										className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md hover:bg-gray-100"
+									>
+										<Users className="h-4 w-4" />
+										Quản lý User
+									</Link>
+									<Link 
+										href="/monitoring" 
+										className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md hover:bg-gray-100"
+									>
+										<Monitor className="h-4 w-4" />
+										Monitoring
+									</Link>
+								</>
 							)}
 							<Link 
 								href="/apps" 
@@ -47,13 +56,6 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 							>
 								<Server className="h-4 w-4" />
 								Ứng dụng
-							</Link>
-							<Link 
-								href="/logs" 
-								className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md hover:bg-gray-100"
-							>
-								<Activity className="h-4 w-4" />
-								Logs
 							</Link>
 							<Link 
 								href="/settings" 
@@ -127,14 +129,24 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 								Dashboard
 							</Link>
 								{isAdmin() && (
-									<Link 
-										href="/admin/users" 
-										className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md hover:bg-gray-100"
-										onClick={() => setIsMobileMenuOpen(false)}
-									>
-										<Users className="h-4 w-4" />
-										Quản lý User
-									</Link>
+									<>
+										<Link 
+											href="/admin/users" 
+											className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md hover:bg-gray-100"
+											onClick={() => setIsMobileMenuOpen(false)}
+										>
+											<Users className="h-4 w-4" />
+											Quản lý User
+										</Link>
+										<Link 
+											href="/monitoring" 
+											className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md hover:bg-gray-100"
+											onClick={() => setIsMobileMenuOpen(false)}
+										>
+											<Monitor className="h-4 w-4" />
+											Monitoring
+										</Link>
+									</>
 								)}
 								<Link 
 									href="/apps" 
@@ -143,14 +155,6 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 								>
 									<Server className="h-4 w-4" />
 									Ứng dụng
-								</Link>
-								<Link 
-									href="/logs" 
-									className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md hover:bg-gray-100"
-									onClick={() => setIsMobileMenuOpen(false)}
-								>
-									<Activity className="h-4 w-4" />
-									Logs
 								</Link>
 								<Link 
 									href="/settings" 
