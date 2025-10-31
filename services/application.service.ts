@@ -1,5 +1,5 @@
 import api from "./api";
-import { ApplicationListRequest, PaginatedResponse, Application, ApplicationDetail } from "@/types/application.type";
+import { ApplicationListRequest, PaginatedResponse, Application, ApplicationDetail, CreateApplicationRequest } from "@/types/application.type";
 
 export const ApplicationService = {
     getApplications: async (request: ApplicationListRequest): Promise<PaginatedResponse<Application>> => {
@@ -9,6 +9,11 @@ export const ApplicationService = {
 
     getApplication: async (id: string): Promise<ApplicationDetail> => {
         const response = await api.get(`/applications/${id}`);
+        return response.data;
+    },
+
+    createApplication: async (request: CreateApplicationRequest): Promise<ApplicationDetail> => {
+        const response = await api.post("/applications", request);
         return response.data;
     },
 }

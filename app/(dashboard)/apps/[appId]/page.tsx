@@ -122,20 +122,24 @@ export default function ApplicationDetailPage() {
 								</div>
 								<div>
 									<label className="text-sm font-medium text-muted-foreground">Container ID</label>
-									<p className="mt-1 text-sm font-mono">{application.containerId}</p>
+									<p className="mt-1 text-sm font-mono">{application.containerId || "N/A"}</p>
 								</div>
 								<div>
 									<label className="text-sm font-medium text-muted-foreground">Public URL</label>
 									<div className="mt-1 flex items-center gap-2">
-										<a
-											href={application.publicUrl}
-											target="_blank"
-											rel="noopener noreferrer"
-											className="text-sm text-primary hover:underline flex items-center gap-1"
-										>
-											{application.publicUrl}
-											<ExternalLink className="h-3 w-3" />
-										</a>
+										{application.publicUrl ? (
+											<a
+												href={application.publicUrl}
+												target="_blank"
+												rel="noopener noreferrer"
+												className="text-sm text-primary hover:underline flex items-center gap-1"
+											>
+												{application.publicUrl}
+												<ExternalLink className="h-3 w-3" />
+											</a>
+										) : (
+											<p className="text-sm text-muted-foreground">Not deployed yet</p>
+										)}
 									</div>
 								</div>
 								<div>
@@ -146,52 +150,74 @@ export default function ApplicationDetailPage() {
 						</CardContent>
 					</Card>
 
-					<Card>
-						<CardHeader>
-							<CardTitle>Deploy Configuration</CardTitle>
-						</CardHeader>
-						<CardContent className="space-y-4">
-							<div className="grid grid-cols-2 gap-4">
-								<div>
-									<label className="text-sm font-medium text-muted-foreground">Build Command</label>
-									<p className="mt-1 text-sm font-mono bg-muted p-2 rounded">{application.deployConfig.buildCommand}</p>
-								</div>
-								<div>
-									<label className="text-sm font-medium text-muted-foreground">Start Command</label>
-									<p className="mt-1 text-sm font-mono bg-muted p-2 rounded">{application.deployConfig.startCommand}</p>
-								</div>
-								<div>
-									<label className="text-sm font-medium text-muted-foreground">Exposed Port</label>
-									<p className="mt-1 text-sm">{application.deployConfig.exposedPort}</p>
-								</div>
-								<div>
-									<label className="text-sm font-medium text-muted-foreground">Auto Redeploy</label>
-									<p className="mt-1 text-sm">{application.deployConfig.autoRedeploy ? "Enabled" : "Disabled"}</p>
-								</div>
-							</div>
-							<div>
-								<label className="text-sm font-medium text-muted-foreground">Environment Variables</label>
-								<div className="mt-2 space-y-2">
-									{Object.entries(JSON.parse(application.deployConfig.environmentVars)).map(([key, value]) => (
-										<div key={key} className="flex gap-2">
-											<input
-												type="text"
-												value={key}
-												disabled
-												className="flex-1 px-3 py-2 text-sm bg-gray-100 border border-gray-200 rounded-md text-gray-600"
-											/>
-											<input
-												type="text"
-												value={value as string}
-												disabled
-												className="flex-1 px-3 py-2 text-sm bg-gray-100 border border-gray-200 rounded-md text-gray-600"
-											/>
+					{application.deployConfig && (
+						<Card>
+							<CardHeader>
+								<CardTitle>Deploy Configuration</CardTitle>
+							</CardHeader>
+							<CardContent className="space-y-4">
+								<div className="grid grid-cols-2 gap-4">
+									<div>
+										<label className="text-sm font-medium text-muted-foreground">Build Command</label>
+										<p className="mt-1 text-sm font-mono bg-muted p-2 rounded">{application.deployConfig.buildCommand || "N/A"}</p>
+									</div>
+									<div>
+										<label className="text-sm font-medium text-muted-foreground">Start Command</label>
+										<p className="mt-1 text-sm font-mono bg-muted p-2 rounded">{application.deployConfig.startCommand || "N/A"}</p>
+									</div>
+									<div>
+										<label className="text-sm font-medium text-muted-foreground">Exposed Port</label>
+										<p className="mt-1 text-sm">{application.deployConfig.exposedPort || "N/A"}</p>
+									</div>
+									<div>
+										<label className="text-sm font-medium text-muted-foreground">Auto Redeploy</label>
+										<p className="mt-1 text-sm">{application.deployConfig.autoRedeploy ? "Enabled" : "Disabled"}</p>
+									</div>
+									{application.deployConfig.publishDir && (
+										<div>
+											<label className="text-sm font-medium text-muted-foreground">Publish Directory</label>
+											<p className="mt-1 text-sm font-mono bg-muted p-2 rounded">{application.deployConfig.publishDir}</p>
 										</div>
-									))}
+									)}
+									{application.deployConfig.rootDir && (
+										<div>
+											<label className="text-sm font-medium text-muted-foreground">Root Directory</label>
+											<p className="mt-1 text-sm font-mono bg-muted p-2 rounded">{application.deployConfig.rootDir}</p>
+										</div>
+									)}
+									{application.deployConfig.healthCheckPath && (
+										<div>
+											<label className="text-sm font-medium text-muted-foreground">Health Check Path</label>
+											<p className="mt-1 text-sm font-mono bg-muted p-2 rounded">{application.deployConfig.healthCheckPath}</p>
+										</div>
+									)}
 								</div>
-							</div>
-						</CardContent>
-					</Card>
+								{application.deployConfig.environmentVars && (
+									<div>
+										<label className="text-sm font-medium text-muted-foreground">Environment Variables</label>
+										<div className="mt-2 space-y-2">
+											{Object.entries(JSON.parse(application.deployConfig.environmentVars)).map(([key, value]) => (
+												<div key={key} className="flex gap-2">
+													<input
+														type="text"
+														value={key}
+														disabled
+														className="flex-1 px-3 py-2 text-sm bg-gray-100 border border-gray-200 rounded-md text-gray-600"
+													/>
+													<input
+														type="text"
+														value={value as string}
+														disabled
+														className="flex-1 px-3 py-2 text-sm bg-gray-100 border border-gray-200 rounded-md text-gray-600"
+													/>
+												</div>
+											))}
+										</div>
+									</div>
+								)}
+							</CardContent>
+						</Card>
+					)}
 				</div>
 
 				<div className="space-y-6">

@@ -28,6 +28,6 @@ export const API_ENDPOINTS = {
 		authStatus: "/auth/github/auth-status",
 		installUrl: "/github/app/install-url",
 		installations: "/github/app/installations",
-		repositories: "/github/app/repositories/all",
+		repositories: "/github/app/repositories",
 	},
 };

@@ -84,8 +84,28 @@ export const GithubService = {
 		return response.data;
 	},
 
+	getRepositoryDetails: async (owner: string, repo: string) => {
+		const response = await api.get(`/github/app/repositories/${owner}/${repo}/details`);
+		return response.data;
+	},
+
+	getPublicRepositoryDetails: async (owner: string, repo: string) => {
+		const response = await api.get(`/github/app/public-repos/${owner}/${repo}/details`);
+		return response.data;
+	},
+
+	getRepositoryBranches: async (owner: string, repo: string) => {
+		const response = await api.get(`/github/app/repositories/${owner}/${repo}/branches`);
+		return response.data;
+	},
+
 	deleteInstallation: async (installationId: number) => {
 		const response = await api.delete(`/github/app/installations/${installationId}`);
+		return response.data;
+	},
+
+	syncRepositories: async () => {
+		const response = await api.post(API_ENDPOINTS.github.repositories + "/sync");
 		return response.data;
 	},
 

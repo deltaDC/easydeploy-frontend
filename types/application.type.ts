@@ -20,6 +20,10 @@ export type DeployConfig = {
 	environmentVars: string;
 	autoRedeploy: boolean;
 	exposedPort: number;
+	publishDir?: string;
+	rootDir?: string;
+	secretFiles?: string;
+	healthCheckPath?: string;
 	createdAt: string;
 	updatedAt: string;
 };
@@ -29,14 +33,14 @@ export type ApplicationDetail = {
 	userId: string;
 	name: string;
 	repoId: string;
-	publicUrl: string;
+	publicUrl?: string | null;
 	status: string;
-	containerId: string;
+	containerId?: string | null;
 	createdAt: string;
 	updatedAt: string;
-	deployConfigId: string;
-	user: User;
-	deployConfig: DeployConfig;
+	deployConfigId?: string | null;
+	user?: User;
+	deployConfig?: DeployConfig | null;
 };
 
 // Application list request interface
@@ -63,6 +67,68 @@ export const ALLOWED_APPLICATION_SORT_FIELDS = [
 ] as const;
 
 export type ApplicationSortField = typeof ALLOWED_APPLICATION_SORT_FIELDS[number];
+
+// Create Application Request
+export interface CreateApplicationRequest {
+  githubRepoId: number; // GitHub repository ID
+  appName: string;
+  selectedBranch: string;
+  language: string;
+  buildCommand: string;
+  startCommand: string;
+  publishDir?: string;
+  rootDir?: string;
+  healthCheckPath?: string;
+  envVars?: EnvironmentVariable[];
+  secretFiles?: SecretFile[];
+  exposedPort?: number;
+  autoRedeploy?: boolean;
+}
+
+export interface EnvironmentVariable {
+  key: string;
+  value: string;
+}
+
+export interface SecretFile {
+  filename: string;
+  content: string;
+}
+
+// Repository Detail Response
+export interface RepositoryDetailResponse {
+  id: number; // GitHub repo ID
+  dbId?: string; // Database UUID for the repository
+  provider: string;
+  providerId: string;
+  name: string;
+  nameWithOwner: string;
+  languages: string[];
+  isPrivate: boolean;
+  isFork: boolean;
+  url: string;
+  shortDescriptionHTML: string;
+  defaultBranch: BranchInfo;
+  branches: BranchInfo[];
+  suggestion: RepoSuggestion;
+}
+
+export interface BranchInfo {
+  name: string;
+}
+
+export interface RepoSuggestion {
+  primarySuggestion: DeployConfigSuggestion;
+  environmentSuggestions: DeployConfigSuggestion[];
+}
+
+export interface DeployConfigSuggestion {
+  framework: string;
+  buildCommand: string;
+  startCommand: string;
+  publishPath: string;
+  envVars: EnvironmentVariable[];
+}
 
 // Pagination response types
 export interface PageInfo {
