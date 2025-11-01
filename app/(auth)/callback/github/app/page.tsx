@@ -44,7 +44,8 @@ function AppCallbackInner() {
 				setTimeout(() => router.replace("/apps/new"), 3000);
 			}
 		})();
-	}, [isClient, params, router]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [isClient]);
 
 	if (!isClient) {
 		return (
