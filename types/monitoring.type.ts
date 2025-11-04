@@ -86,3 +86,48 @@ export interface SystemLog {
   message: string;
   containerId?: string;
 }
+
+// Prometheus Metrics Types
+export interface PrometheusMetrics {
+  jvmMetrics: JvmMetrics;
+  httpMetrics: HttpMetrics;
+  systemMetrics: SystemMetrics;
+  cpuHistory: TimeSeriesData[];
+  memoryHistory: TimeSeriesData[];
+  requestRateHistory: TimeSeriesData[];
+}
+
+export interface JvmMetrics {
+  heapUsed: number;
+  heapMax: number;
+  heapUsagePercent: number;
+  nonHeapUsed: number;
+  threadsLive: number;
+  threadsPeak: number;
+  gcPauseTime: number;
+  gcCount: number;
+}
+
+export interface HttpMetrics {
+  totalRequests: number;
+  requestsPerSecond: number;
+  avgResponseTime: number;
+  maxResponseTime: number;
+  successCount: number;
+  clientErrorCount: number;
+  serverErrorCount: number;
+}
+
+export interface SystemMetrics {
+  systemCpuUsage: number;
+  processCpuUsage: number;
+  uptimeSeconds: number;
+  activeConnections: number;
+  maxConnections: number;
+}
+
+export interface TimeSeriesData {
+  timestamp: string;
+  value: number;
+}
+

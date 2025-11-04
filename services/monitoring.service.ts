@@ -111,4 +111,14 @@ export const monitoringService = {
     const response = await api.get<SystemLog[]>('/monitoring/logs/system', { params });
     return response.data;
   },
+
+  /**
+   * Get Prometheus metrics
+   * GET /api/v1/monitoring/metrics/prometheus
+   */
+  getPrometheusMetrics: async (): Promise<import('@/types/monitoring.type').PrometheusMetrics> => {
+    const response = await api.get<import('@/types/monitoring.type').PrometheusMetrics>('/monitoring/metrics/prometheus');
+    return response.data;
+  },
 };
+
