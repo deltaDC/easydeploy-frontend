@@ -11,6 +11,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import Link from "next/link";
 import api from "@/services/api";
+import { StatsService } from "@/services/stats.service";
+import userManagementService from "@/services/user-management.service";
+import { SortDirection } from "@/types/user-management";
 import { 
 	Users, 
 	Activity, 
@@ -66,55 +69,46 @@ export default function AdminDashboard() {
 
 	// Fetch admin dashboard data
 	useEffect(() => {
+		if (!mounted) return;
+
 		const fetchAdminData = async () => {
 			try {
-				// TODO: Implement these API endpoints in backend
-				// const statsResponse = await api.get("/v1/admin/stats");
-				// const usersResponse = await api.get("/v1/admin/users");
-				// const metricsResponse = await api.get("/v1/admin/metrics");
-
-				// For now, show fix data for testing
+				const startDate = new Date('2025-01-01').toISOString();
+				const endDate = new Date().toISOString();
+				const overviewResponse = await StatsService.getSystemOverview('year', startDate, endDate);
+				const summary = overviewResponse.summary;
+				
 				setStats({
-					totalUsers: 156,
-					activeUsers: 142,
-					totalApps: 89,
-					runningApps: 76,
-					totalDeployments: 234,
-					successfulDeployments: 221,
-					systemUptime: 99.8,
-					avgResponseTime: 145,
+					totalUsers: summary.totalUsers,
+					activeUsers: summary.activeUsers,
+					totalApps: summary.totalApplications,
+					runningApps: summary.runningApplications,
+					totalDeployments: summary.totalDeployments,
+					successfulDeployments: summary.successfulDeployments,
+					systemUptime: 99.8, // Chưa có backend
+					avgResponseTime: 145, // Chưa có backend
 				});
 				
-				setRecentUsers([
-					{
-						id: "user_1",
-						email: "john.doe@example.com",
-						roles: new Set(["DEVELOPER"]),
-						status: "active",
-						createdAt: "2024-01-15T10:30:00Z",
-						lastLoginAt: "2024-01-20T09:15:00Z",
-						appsCount: 3
-					},
-					{
-						id: "user_2", 
-						email: "jane.smith@example.com",
-						roles: new Set(["DEVELOPER"]),
-						status: "active",
-						createdAt: "2024-01-18T14:20:00Z",
-						lastLoginAt: "2024-01-20T08:45:00Z",
-						appsCount: 2
-					},
-					{
-						id: "user_3",
-						email: "admin@example.com", 
-						roles: new Set(["ADMIN"]),
-						status: "active",
-						createdAt: "2024-01-10T09:00:00Z",
-						lastLoginAt: "2024-01-20T10:30:00Z",
-						appsCount: 0
-					}
-				]);
+				const usersResponse = await userManagementService.getAllUsers({
+					page: 1,
+					size: 5,
+					sortBy: 'createdAt',
+					direction: SortDirection.DESC,
+				});
 				
+				const users = usersResponse.users.map((user) => ({
+					id: user.id,
+					email: user.email,
+					roles: new Set(user.roles || []),
+					status: user.status?.toLowerCase() || 'active',
+					createdAt: user.createdAt || '',
+					lastLoginAt: (user as any).lastLoginAt || user.createdAt || '',
+					appsCount: user.totalProjects || 0,
+				}));
+				
+				setRecentUsers(users);
+				
+				// System metrics - chưa có backend
 				setSystemMetrics([
 					{
 						name: "CPU Usage",
@@ -150,8 +144,10 @@ export default function AdminDashboard() {
 
 		if (isAdmin()) {
 			fetchAdminData();
+		} else {
+			setIsLoading(false);
 		}
-	}, [isAdmin]);
+	}, [mounted, isAdmin]);
 
 	if (!isAdmin()) {
 		return (
@@ -336,11 +332,11 @@ export default function AdminDashboard() {
 												<div className="text-sm text-muted-foreground">{user.email}</div>
 											</div>
 										</TableCell>
-										<TableCell>
-											<Badge variant={isAdmin() ? 'default' : 'secondary'}>
-												{isAdmin() ? 'Quản trị viên' : 'Người dùng'}
-											</Badge>
-										</TableCell>
+									<TableCell>
+										<Badge variant={user.roles.has('ADMIN') ? 'default' : 'secondary'}>
+											{user.roles.has('ADMIN') ? 'Quản trị viên' : 'Người dùng'}
+										</Badge>
+									</TableCell>
 										<TableCell>
 											<Badge variant={user.status === 'active' ? 'default' : 'destructive'}>
 												{user.status === 'active' ? 'Hoạt động' : 'Bị khóa'}
