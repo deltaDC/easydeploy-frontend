@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -7,29 +7,64 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, ExternalLink, Play, Pause, RotateCcw, Settings } from "lucide-react";
 import Link from "next/link";
 import ApplicationService from "@/services/application.service";
+import BuildLogService from "@/services/build-log.service";
 import { ApplicationDetail } from "@/types/application.type";
+import { BuildLog, BuildLogMessage } from "@/types/build-log.type";
 import { formatDateDDMMYYYYHHMMSS } from "@/utils/date";
+import { useBuildLogWebSocket } from "@/hooks/useBuildLogWebSocket";
 
 export default function ApplicationDetailPage() {
-	const params = useParams();
-	const appId = params.appId as string;
+	const params = useParams<{ appId: string }>();
+	const appId = params?.appId;
 
 	const [application, setApplication] = useState<ApplicationDetail | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
+	const [logs, setLogs] = useState<BuildLogMessage[]>([]);
+	const [isLoadingLogs, setIsLoadingLogs] = useState(true);
+	const logsEndRef = useRef<HTMLDivElement>(null);
 
-	// TODO remove hard coded logs
-	const [logs, setLogs] = useState<string[]>([
-		"[2025-01-20 10:30:15] Starting application deployment...",
-		"[2025-01-20 10:30:16] Pulling Docker image: spring-api:latest",
-		"[2025-01-20 10:30:18] Image pulled successfully",
-		"[2025-01-20 10:30:19] Creating container: spring-api-container-456",
-		"[2025-01-20 10:30:20] Container created successfully",
-		"[2025-01-20 10:30:21] Starting container...",
-		"[2025-01-20 10:30:22] Container started on port 8080",
-		"[2025-01-20 10:30:23] Application is running",
-		"[2025-01-20 10:30:24] Health check passed",
-		"[2025-01-20 10:30:25] Deployment completed successfully"
-	]);
+	console.log("appId", appId);
+
+	useEffect(() => {
+		const fetchHistoricalLogs = async () => {
+			if (!appId) return;
+
+			try {
+				setIsLoadingLogs(true);
+				const response = await BuildLogService.getBuildLogsPaginated(appId, 0, 500);
+				const convertedLogs: BuildLogMessage[] = response.content.map((log) => ({
+					buildId: log.buildId,
+					applicationId: appId,
+					message: log.content,
+					logLevel: "INFO",
+					timestamp: log.timestamp,
+					logLineNumber: log?.lineNumber,
+				}));
+				setLogs(convertedLogs);
+			} catch (error) {
+				console.error("Error fetching build logs:", error);
+			} finally {
+				setIsLoadingLogs(false);
+			}
+		};
+
+		fetchHistoricalLogs();
+	}, [appId]);
+
+	const { isConnected } = useBuildLogWebSocket({
+		buildId: appId,
+		enabled: !!appId,
+		onMessage: (logMessage) => {
+			setLogs((prev) => [...prev, logMessage]);
+		},
+		onError: (error) => {
+			console.error("WebSocket error:", error);
+		},
+	});
+
+	useEffect(() => {
+		logsEndRef.current?.scrollIntoView({ behavior: "smooth" });
+	}, [logs]);
 
 	useEffect(() => {
 		const fetchApplication = async () => {
@@ -87,6 +122,13 @@ export default function ApplicationDetailPage() {
 			default:
 				return "bg-gray-100 text-gray-800";
 		}
+	};
+
+	const getLogLevelColor = (level: string) => {
+		if (level === "ERROR") return "text-red-500";
+		if (level === "WARN") return "text-yellow-500";
+		if (level === "DEBUG") return "text-gray-500";
+		return "text-gray-300";
 	};
 
 	return (
@@ -247,22 +289,49 @@ export default function ApplicationDetailPage() {
 				</div>
 			</div>
 			<div>
-					<Card>
-						<CardHeader>
-							<CardTitle>Application Logs</CardTitle>
-							<CardDescription>Real-time application logs</CardDescription>
-						</CardHeader>
-						<CardContent>
-							<div className="bg-black text-green-400 p-4 rounded-lg font-mono text-sm h-64 overflow-y-auto">
+				<Card>
+					<CardHeader>
+						<div className="flex items-center justify-between">
+							<div>
+								<CardTitle>Build Logs</CardTitle>
+								<CardDescription>
+									Real-time build logs from Jenkins
+									{isConnected && (
+										<span className="ml-2 inline-flex items-center gap-1">
+											<span className="h-2 w-2 bg-green-500 rounded-full animate-pulse"></span>
+											<span className="text-xs text-green-600">Live</span>
+										</span>
+									)}
+								</CardDescription>
+							</div>
+						</div>
+					</CardHeader>
+					<CardContent>
+						{isLoadingLogs ? (
+							<div className="bg-black text-green-400 p-4 rounded-lg font-mono text-sm h-64 flex items-center justify-center">
+								<div className="text-center">
+									<div className="animate-spin rounded-full h-6 w-6 border-b-2 border-green-400 mx-auto mb-2"></div>
+									<p className="text-xs">Loading logs...</p>
+								</div>
+							</div>
+						) : logs.length === 0 ? (
+							<div className="bg-black text-gray-500 p-4 rounded-lg font-mono text-sm h-64 flex items-center justify-center">
+								<p>No build logs available yet. Logs will appear here when a build is triggered.</p>
+							</div>
+						) : (
+							<div className="bg-black p-4 rounded-lg font-mono text-sm h-64 overflow-y-auto">
 								{logs.map((log, index) => (
-									<div key={index} className="mb-1">
-										{log}
+									<div key={`${log.timestamp}-${index}`} className={`mb-1 whitespace-pre-wrap break-words ${getLogLevelColor(log.logLevel)}`}>
+										<span className="text-gray-500">[{new Date(log.timestamp).toLocaleTimeString()}]</span>{" "}
+										<span className="text-gray-400">[{log.logLevel}]</span> {log.message}
 									</div>
 								))}
+								<div ref={logsEndRef} />
 							</div>
-						</CardContent>
-					</Card>
-				</div>
+						)}
+					</CardContent>
+				</Card>
+			</div>
 		</div>
 	);
 }
