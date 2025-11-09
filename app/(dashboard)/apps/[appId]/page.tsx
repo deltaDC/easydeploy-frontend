@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useParams } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -35,12 +35,13 @@ export default function ApplicationDetailPage() {
 				const convertedLogs: BuildLogMessage[] = response.content.map((log) => ({
 					buildId: log.buildId,
 					applicationId: appId,
-					message: log.content,
+					message: log.message || "",
 					logLevel: "INFO",
 					timestamp: log.timestamp,
-					logLineNumber: log?.lineNumber,
 				}));
+				console.log("Converted logs:", convertedLogs);
 				setLogs(convertedLogs);
+				console.log("Logs:", logs);
 			} catch (error) {
 				console.error("Error fetching build logs:", error);
 			} finally {
@@ -55,6 +56,7 @@ export default function ApplicationDetailPage() {
 		buildId: appId,
 		enabled: !!appId,
 		onMessage: (logMessage) => {
+			console.log("Received log message:", logMessage);
 			setLogs((prev) => [...prev, logMessage]);
 		},
 		onError: (error) => {
@@ -62,9 +64,18 @@ export default function ApplicationDetailPage() {
 		},
 	});
 
+	// Sort logs by timestamp (oldest first, newest last)
+	const sortedLogs = useMemo(() => {
+		return [...logs].sort((a, b) => {
+			const timeA = new Date(a.timestamp).getTime();
+			const timeB = new Date(b.timestamp).getTime();
+			return timeA - timeB;
+		});
+	}, [logs]);
+
 	useEffect(() => {
 		logsEndRef.current?.scrollIntoView({ behavior: "smooth" });
-	}, [logs]);
+	}, [sortedLogs]);
 
 	useEffect(() => {
 		const fetchApplication = async () => {
@@ -314,16 +325,17 @@ export default function ApplicationDetailPage() {
 									<p className="text-xs">Loading logs...</p>
 								</div>
 							</div>
-						) : logs.length === 0 ? (
+						) : sortedLogs.length === 0 ? (
 							<div className="bg-black text-gray-500 p-4 rounded-lg font-mono text-sm h-64 flex items-center justify-center">
 								<p>No build logs available yet. Logs will appear here when a build is triggered.</p>
 							</div>
 						) : (
 							<div className="bg-black p-4 rounded-lg font-mono text-sm h-64 overflow-y-auto">
-								{logs.map((log, index) => (
+								{sortedLogs.map((log, index) => (
 									<div key={`${log.timestamp}-${index}`} className={`mb-1 whitespace-pre-wrap break-words ${getLogLevelColor(log.logLevel)}`}>
 										<span className="text-gray-500">[{new Date(log.timestamp).toLocaleTimeString()}]</span>{" "}
-										<span className="text-gray-400">[{log.logLevel}]</span> {log.message}
+										<span className="text-gray-400">[{log.logLevel}]</span>{" "}
+										<span>{log.message || ""}</span>
 									</div>
 								))}
 								<div ref={logsEndRef} />

@@ -91,7 +91,16 @@ export function useBuildLogWebSocket({
 						`/topic/build-logs/${buildId}`,
 						(message: IMessage) => {
 							try {
-								const logMessage: BuildLogMessage = JSON.parse(message.body);
+								const rawMessage = JSON.parse(message.body);
+								// Normalize the message to ensure it has the 'message' field
+								const logMessage: BuildLogMessage = {
+									buildId: rawMessage.buildId || "",
+									applicationId: rawMessage.applicationId || "",
+									message: rawMessage.message || rawMessage.content || "",
+									logLevel: rawMessage.logLevel || "INFO",
+									timestamp: rawMessage.timestamp || new Date().toISOString(),
+									logLineNumber: rawMessage.logLineNumber,
+								};
 								callbacksRef.current.onMessage?.(logMessage);
 							} catch (error) {
 								console.error("Error parsing log message:", error);
@@ -159,7 +168,16 @@ export function useBuildLogWebSocket({
 								`/topic/build-logs/${buildId}`,
 								(message: IMessage) => {
 									try {
-										const logMessage: BuildLogMessage = JSON.parse(message.body);
+										const rawMessage = JSON.parse(message.body);
+										// Normalize the message to ensure it has the 'message' field
+										const logMessage: BuildLogMessage = {
+											buildId: rawMessage.buildId || null,
+											applicationId: rawMessage.applicationId || "",
+											message: rawMessage.message || rawMessage.content || "",
+											logLevel: rawMessage.logLevel || "INFO",
+											timestamp: rawMessage.timestamp || new Date().toISOString(),
+											logLineNumber: rawMessage.logLineNumber,
+										};
 										callbacksRef.current.onMessage?.(logMessage);
 									} catch (error) {
 										console.error("Error parsing log message:", error);

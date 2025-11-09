@@ -2,8 +2,9 @@ export type BuildLog = {
 	id: string;
 	buildId: string;
 	timestamp: string;
-	content: string;
-	lineNumber?: number;
+	message: string;
+	logLevel: string;
+	logLineNumber?: number;
 };
 
 export type BuildLogPageResponse = {
@@ -17,7 +18,7 @@ export type BuildLogPageResponse = {
 };
 
 export type BuildLogMessage = {
-	buildId: string;
+	buildId: string | null;
 	applicationId: string;
 	message: string;
 	logLevel: string;
