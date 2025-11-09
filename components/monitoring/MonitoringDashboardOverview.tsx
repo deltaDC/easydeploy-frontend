@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MonitoringDashboard } from "@/types/monitoring.type";
 import { Activity, Server, AlertTriangle, Cpu, HardDrive } from "lucide-react";
@@ -10,7 +11,7 @@ interface MonitoringDashboardOverviewProps {
   dashboard: MonitoringDashboard;
 }
 
-export default function MonitoringDashboardOverview({ dashboard }: MonitoringDashboardOverviewProps) {
+function MonitoringDashboardOverview({ dashboard }: MonitoringDashboardOverviewProps) {
   const containerHealthPercentage = dashboard.totalContainers > 0
     ? (dashboard.runningContainers / dashboard.totalContainers) * 100
     : 0;
@@ -113,3 +114,15 @@ export default function MonitoringDashboardOverview({ dashboard }: MonitoringDas
     </div>
   );
 }
+
+// Memoize to prevent re-render if dashboard metrics haven't changed
+export default memo(MonitoringDashboardOverview, (prev, next) => {
+  return (
+    prev.dashboard.totalContainers === next.dashboard.totalContainers &&
+    prev.dashboard.runningContainers === next.dashboard.runningContainers &&
+    prev.dashboard.stoppedContainers === next.dashboard.stoppedContainers &&
+    prev.dashboard.avgCpuUsage === next.dashboard.avgCpuUsage &&
+    prev.dashboard.avgMemoryUsage === next.dashboard.avgMemoryUsage &&
+    prev.dashboard.activeAlerts === next.dashboard.activeAlerts
+  );
+});

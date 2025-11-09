@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, memo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -14,7 +14,7 @@ interface ContainersListProps {
   onViewDetail: (containerId: string) => void;
 }
 
-export default function ContainersList({ containers, onViewDetail }: ContainersListProps) {
+function ContainersList({ containers, onViewDetail }: ContainersListProps) {
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6; // 2 rows x 3 columns
@@ -79,7 +79,10 @@ export default function ContainersList({ containers, onViewDetail }: ContainersL
     <div className="space-y-4">
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {currentContainers.map((container) => (
-        <Card key={container.containerId} className="hover:shadow-md transition-shadow">
+        <Card 
+          key={container.containerId} 
+          className="hover:shadow-md transition-all"
+        >
           <CardHeader className="pb-3">
             <div className="flex items-start justify-between">
               <div className="space-y-1 flex-1">
@@ -158,7 +161,7 @@ export default function ContainersList({ containers, onViewDetail }: ContainersL
             </Button>
           </CardContent>
         </Card>
-      ))}
+        ))}
       </div>
 
       {/* Pagination Controls */}
@@ -195,3 +198,21 @@ export default function ContainersList({ containers, onViewDetail }: ContainersL
     </div>
   );
 }
+
+// Memoize component to prevent unnecessary re-renders
+export default memo(ContainersList, (prevProps, nextProps) => {
+  // Only re-render if containers actually changed (deep comparison of metrics)
+  if (prevProps.containers.length !== nextProps.containers.length) return false;
+  
+  // Check if any container metrics changed
+  return prevProps.containers.every((prev, index) => {
+    const next = nextProps.containers[index];
+    return (
+      prev.containerId === next.containerId &&
+      prev.cpuUsage === next.cpuUsage &&
+      prev.memoryUsage === next.memoryUsage &&
+      prev.status === next.status &&
+      prev.uptime === next.uptime
+    );
+  });
+});
