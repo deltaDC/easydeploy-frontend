@@ -5,6 +5,7 @@ import { BuildLogMessage } from "@/types/build-log.type";
 
 interface UseBuildLogWebSocketOptions {
 	buildId: string | null;
+	applicationId?: string | null;
 	enabled?: boolean;
 	onMessage?: (log: BuildLogMessage) => void;
 	onError?: (error: Event) => void;
@@ -14,6 +15,7 @@ interface UseBuildLogWebSocketOptions {
 
 export function useBuildLogWebSocket({
 	buildId,
+	applicationId,
 	enabled = true,
 	onMessage,
 	onError,
@@ -52,12 +54,17 @@ export function useBuildLogWebSocket({
 	}, []);
 
 	useEffect(() => {
-		if (!buildId || !enabled) {
+		if (!enabled) {
 			if (clientRef.current?.active) {
 				clientRef.current.deactivate();
 				clientRef.current = null;
 				setIsConnected(false);
 			}
+			return;
+		}
+
+		// Need either buildId or applicationId to subscribe
+		if (!buildId && !applicationId) {
 			return;
 		}
 
@@ -68,11 +75,15 @@ export function useBuildLogWebSocket({
 		const wsUrl = getWebSocketUrl();
 		const token = getAuthToken();
 
-		console.log("Connecting to WebSocket:", wsUrl);
+		// Append token as query parameter for SockJS handshake
+		const wsUrlWithToken = token ? `${wsUrl}?token=${encodeURIComponent(token)}` : wsUrl;
+
+		console.log("Connecting to WebSocket:", wsUrlWithToken);
+		console.log("Using token from auth-storage:", token ? `${token.substring(0, 20)}...` : "none");
 
 		const client = new Client({
 			webSocketFactory: () => {
-				return new SockJS(wsUrl) as any;
+				return new SockJS(wsUrlWithToken) as any;
 			},
 			connectHeaders: token
 				? {
@@ -86,30 +97,58 @@ export function useBuildLogWebSocket({
 				setIsConnected(true);
 				callbacksRef.current.onConnect?.();
 
-				if (clientRef.current && buildId) {
-					clientRef.current.subscribe(
-						`/topic/build-logs/${buildId}`,
-						(message: IMessage) => {
-							try {
-								const rawMessage = JSON.parse(message.body);
-								// Normalize the message to ensure it has the 'message' field
-								const logMessage: BuildLogMessage = {
-									buildId: rawMessage.buildId || "",
-									applicationId: rawMessage.applicationId || "",
-									message: rawMessage.message || rawMessage.content || "",
-									logLevel: rawMessage.logLevel || "INFO",
-									timestamp: rawMessage.timestamp || new Date().toISOString(),
-									logLineNumber: rawMessage.logLineNumber,
-								};
-								callbacksRef.current.onMessage?.(logMessage);
-							} catch (error) {
-								console.error("Error parsing log message:", error);
+				if (clientRef.current) {
+					// Subscribe to applicationId topic if provided (for application-wide logs)
+					if (applicationId) {
+						clientRef.current.subscribe(
+							`/topic/application-logs/${applicationId}`,
+							(message: IMessage) => {
+								try {
+									const rawMessage = JSON.parse(message.body);
+									const logMessage: BuildLogMessage = {
+										buildId: rawMessage.buildId || "",
+										applicationId: rawMessage.applicationId || "",
+										message: rawMessage.message || rawMessage.content || "",
+										logLevel: rawMessage.logLevel || "INFO",
+										timestamp: rawMessage.timestamp || new Date().toISOString(),
+										logLineNumber: rawMessage.logLineNumber,
+									};
+									callbacksRef.current.onMessage?.(logMessage);
+								} catch (error) {
+									console.error("Error parsing log message:", error);
+								}
+							},
+							{
+								id: `application-logs-${applicationId}`,
 							}
-						},
-						{
-							id: `build-logs-${buildId}`,
-						}
-					);
+						);
+					}
+					
+					// Subscribe to buildId topic if provided (for specific build logs)
+					if (buildId) {
+						clientRef.current.subscribe(
+							`/topic/build-logs/${buildId}`,
+							(message: IMessage) => {
+								try {
+									const rawMessage = JSON.parse(message.body);
+									const logMessage: BuildLogMessage = {
+										buildId: rawMessage.buildId || "",
+										applicationId: rawMessage.applicationId || "",
+										message: rawMessage.message || rawMessage.content || "",
+										logLevel: rawMessage.logLevel || "INFO",
+										timestamp: rawMessage.timestamp || new Date().toISOString(),
+										logLineNumber: rawMessage.logLineNumber,
+									};
+									callbacksRef.current.onMessage?.(logMessage);
+								} catch (error) {
+									console.error("Error parsing log message:", error);
+								}
+							},
+							{
+								id: `build-logs-${buildId}`,
+							}
+						);
+					}
 				}
 			},
 			onStompError: (frame) => {

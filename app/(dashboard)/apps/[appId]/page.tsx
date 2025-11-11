@@ -53,7 +53,8 @@ export default function ApplicationDetailPage() {
 	}, [appId]);
 
 	const { isConnected } = useBuildLogWebSocket({
-		buildId: appId,
+		buildId: null, // Don't subscribe to specific build, subscribe to application logs
+		applicationId: appId, // Subscribe to all logs for this application
 		enabled: !!appId,
 		onMessage: (logMessage) => {
 			console.log("Received log message:", logMessage);
