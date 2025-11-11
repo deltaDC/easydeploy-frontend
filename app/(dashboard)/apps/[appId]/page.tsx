@@ -41,6 +41,7 @@ export default function ApplicationDetailPage() {
 				}));
 				console.log("Converted logs:", convertedLogs);
 				setLogs(convertedLogs);
+				console.log("Logs:", logs);
 			} catch (error) {
 				console.error("Error fetching build logs:", error);
 			} finally {
