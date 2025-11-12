@@ -279,6 +279,16 @@ export default function NewAppWithRepoSelection() {
   const handleSubmit = async () => {
     if (!selectedRepo || !repoDetails) return;
     
+    // Validate required fields
+    if (!buildCommand || buildCommand.trim() === '') {
+      setError("Build Command is required");
+      return;
+    }
+    if (!startCommand || startCommand.trim() === '') {
+      setError("Start Command is required");
+      return;
+    }
+    
     try {
       setSubmitting(true);
       setError(null);
@@ -612,12 +622,13 @@ export default function NewAppWithRepoSelection() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="buildCommand">Build Command</Label>
+                  <Label htmlFor="buildCommand">Build Command <span className="text-red-500">*</span></Label>
                   <Input
                     id="buildCommand"
                     placeholder="npm install && npm run build"
                     value={buildCommand}
                     onChange={(e) => setBuildCommand(e.target.value)}
+                    required
                   />
                   <p className="text-sm text-muted-foreground">
                     Command để build ứng dụng
@@ -625,12 +636,13 @@ export default function NewAppWithRepoSelection() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="startCommand">Start Command</Label>
+                  <Label htmlFor="startCommand">Start Command <span className="text-red-500">*</span></Label>
                   <Input
                     id="startCommand"
                     placeholder="npm start"
                     value={startCommand}
                     onChange={(e) => setStartCommand(e.target.value)}
+                    required
                   />
                   <p className="text-sm text-muted-foreground">
                     Command để start ứng dụng
