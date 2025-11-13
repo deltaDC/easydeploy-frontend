@@ -161,7 +161,20 @@ export default function NewAppWithRepoSelection() {
       const suggestion = repoDetails.suggestion.primarySuggestion;
       setBuildCommand(suggestion.buildCommand);
       setStartCommand(suggestion.startCommand);
+      if (suggestion.publishPath && !publishDir) {
+        setPublishDir(suggestion.publishPath);
+      }
+      if (suggestion.envVars && suggestion.envVars.length > 0) {
+        const portEnv = suggestion.envVars.find(env => env.key === 'PORT');
+        if (portEnv && !exposedPort) {
+          const port = parseInt(portEnv.value);
+          if (!isNaN(port)) {
+            setExposedPort(port);
+          }
+        }
+      }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [repoDetails]);
 
   const handleRepositoryClick = (repo: GithubRepo) => {
@@ -295,8 +308,15 @@ export default function NewAppWithRepoSelection() {
 
       const githubRepoId = repoDetails.id;
 
-      // Auto-redeploy is disabled for public URLs as they don't have webhook support
+      // Auto-redeploy is disabled for public URLs
       const isPublicRepo = usePublicUrl;
+      
+      const normalizedRootDir = rootDir 
+        ? rootDir.replace(/^\.\//, '').replace(/^\/+|\/+$/g, '')
+        : undefined;
+      const normalizedPublishDir = publishDir 
+        ? publishDir.replace(/^\.\//, '').replace(/^\/+|\/+$/g, '')
+        : undefined;
       
       const request: CreateApplicationRequest = {
         githubRepoId,
@@ -305,8 +325,8 @@ export default function NewAppWithRepoSelection() {
         language,
         buildCommand,
         startCommand,
-        publishDir: publishDir || undefined,
-        rootDir: rootDir || undefined,
+        publishDir: normalizedPublishDir || undefined,
+        rootDir: normalizedRootDir || undefined,
         healthCheckPath: healthCheckPath || undefined,
         envVars: envVars.filter(ev => ev.key && ev.value),
         secretFiles: secretFiles.filter(sf => sf.filename && sf.content),
@@ -650,43 +670,75 @@ export default function NewAppWithRepoSelection() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="exposedPort">Exposed Port (Optional)</Label>
+                  <Label htmlFor="exposedPort">Exposed Port <span className="text-muted-foreground">(Optional)</span></Label>
                   <Input
                     id="exposedPort"
                     type="number"
                     placeholder="3000"
+                    min="1"
+                    max="65535"
                     value={exposedPort || ''}
-                    onChange={(e) => setExposedPort(e.target.value ? parseInt(e.target.value) : undefined)}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setExposedPort(value ? parseInt(value) : undefined);
+                    }}
                   />
                   <p className="text-sm text-muted-foreground">
-                    Port mà ứng dụng sẽ lắng nghe
+                    Port mà ứng dụng sẽ lắng nghe (mặc định: 3000 cho Node.js, 8000 cho Python, 8080 cho Java/Go)
                   </p>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="publishDir">Publish Directory (Optional)</Label>
+                  <Label htmlFor="publishDir">
+                    Publish Directory <span className="text-muted-foreground">(Optional - Recommended for static sites)</span>
+                  </Label>
                   <Input
                     id="publishDir"
-                    placeholder="./build or ./dist"
+                    placeholder="build or dist"
                     value={publishDir}
                     onChange={(e) => setPublishDir(e.target.value)}
                   />
-                  <p className="text-sm text-muted-foreground">
-                    The relative path of the directory containing built assets
-                  </p>
+                  <div className="space-y-1">
+                    <p className="text-sm text-muted-foreground">
+                      Thư mục chứa files sau khi build (ví dụ: <code className="text-xs bg-muted px-1 py-0.5 rounded">build</code> cho React, <code className="text-xs bg-muted px-1 py-0.5 rounded">dist</code> cho Vue)
+                    </p>
+                    {language.toLowerCase() === 'javascript' || language.toLowerCase() === 'typescript' ? (
+                      !publishDir && (
+                        <Alert className="mt-2">
+                          <Info className="h-4 w-4" />
+                          <AlertDescription className="text-xs">
+                            <strong>Khuyến nghị:</strong> Nhập <code className="text-xs bg-muted px-1 py-0.5 rounded">build</code> hoặc <code className="text-xs bg-muted px-1 py-0.5 rounded">dist</code> để serve static files. Nếu để trống, app sẽ chạy dev server.
+                          </AlertDescription>
+                        </Alert>
+                      )
+                    ) : null}
+                  </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="rootDir">Root Directory - Optional</Label>
+                  <Label htmlFor="rootDir">
+                    Root Directory <span className="text-muted-foreground">(Optional - For mono repos)</span>
+                  </Label>
                   <Input
                     id="rootDir"
-                    placeholder="./frontend or ./api"
+                    placeholder="frontend or api"
                     value={rootDir}
                     onChange={(e) => setRootDir(e.target.value)}
                   />
-                  <p className="text-sm text-muted-foreground">
-                    If set, EasyDeploy runs commands from this directory instead of the repository root
-                  </p>
+                  <div className="space-y-1">
+                    <p className="text-sm text-muted-foreground">
+                      Thư mục gốc của app trong repo (chỉ cần nếu là mono repo)
+                    </p>
+                    {rootDir && (
+                      <Alert className="mt-2">
+                        <Info className="h-4 w-4" />
+                        <AlertDescription className="text-xs">
+                          <strong>Lưu ý:</strong> Tên thư mục phải <strong>chính xác</strong> (case-sensitive). 
+                          Kiểm tra trên GitHub để đảm bảo tên đúng. Ví dụ: <code className="text-xs bg-muted px-1 py-0.5 rounded">frontend</code> ≠ <code className="text-xs bg-muted px-1 py-0.5 rounded">Frontend</code> ≠ <code className="text-xs bg-muted px-1 py-0.5 rounded">front-end</code>
+                        </AlertDescription>
+                      </Alert>
+                    )}
+                  </div>
                 </div>
 
                 <div className="space-y-2">
