@@ -2,27 +2,11 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { 
-  Github, 
-  GitBranch,
   Loader2,
   ChevronLeft,
-  X,
-  Info,
   CheckCircle,
-  Link as LinkIcon,
 } from "lucide-react";
 import { GithubService } from "@/services/github.service";
 import { ApplicationService } from "@/services/application.service";
@@ -35,6 +19,13 @@ import { EnvironmentVariablesSection } from "./EnvironmentVariablesSection";
 import { SecretFilesSection } from "./SecretFilesSection";
 import PublicRepoUrlInput from "./PublicRepoUrlInput";
 import { useRepositoryManagement } from "@/hooks/useRepositoryManagement";
+import { mapLanguageToFormValue, mapFrameworkToLanguage } from "@/utils/language.utils";
+import { parseGitHubUrl } from "@/utils/github.utils";
+import DeployMethodSelector from "./DeployMethodSelector";
+import RepositoryInfoCard from "./RepositoryInfoCard";
+import AppConfigurationForm from "./AppConfigurationForm";
+import SuggestionsPanel from "./SuggestionsPanel";
+import AutoDeploySettings from "./AutoDeploySettings";
 
 interface GithubRepo {
   id: number;
@@ -148,28 +139,45 @@ export default function NewAppWithRepoSelection() {
     }
   }, [selectedRepo, loadRepositoryDetails]);
 
+
   useEffect(() => {
     if (selectedRepo) {
       const name = selectedRepo.fullName.split('/')[1];
       setAppName(name);
       setSelectedBranch(selectedRepo.defaultBranch);
+      setLanguage("docker");
+      setBuildCommand("");
+      setStartCommand("");
+      setPublishDir("");
+      setExposedPort(undefined);
     }
   }, [selectedRepo]);
 
   useEffect(() => {
-    if (repoDetails?.suggestion?.primarySuggestion) {
-      const suggestion = repoDetails.suggestion.primarySuggestion;
-      setBuildCommand(suggestion.buildCommand);
-      setStartCommand(suggestion.startCommand);
-      if (suggestion.publishPath && !publishDir) {
-        setPublishDir(suggestion.publishPath);
+    if (repoDetails) {
+      if (repoDetails.languages && repoDetails.languages.length > 0) {
+        const primaryLanguage = repoDetails.languages[0];
+        const mappedLanguage = mapLanguageToFormValue(primaryLanguage);
+        if (language === "docker") {
+          setLanguage(mappedLanguage);
+        }
       }
-      if (suggestion.envVars && suggestion.envVars.length > 0) {
-        const portEnv = suggestion.envVars.find(env => env.key === 'PORT');
-        if (portEnv && !exposedPort) {
-          const port = parseInt(portEnv.value);
-          if (!isNaN(port)) {
-            setExposedPort(port);
+
+      // Apply suggestions if available
+      if (repoDetails.suggestion?.primarySuggestion) {
+        const suggestion = repoDetails.suggestion.primarySuggestion;
+        setBuildCommand(suggestion.buildCommand || "");
+        setStartCommand(suggestion.startCommand || "");
+        if (suggestion.publishPath && !publishDir) {
+          setPublishDir(suggestion.publishPath);
+        }
+        if (suggestion.envVars && suggestion.envVars.length > 0) {
+          const portEnv = suggestion.envVars.find((env: any) => env.key === 'PORT' || env.key === 'SERVER_PORT');
+          if (portEnv && !exposedPort) {
+            const port = parseInt(portEnv.value);
+            if (!isNaN(port)) {
+              setExposedPort(port);
+            }
           }
         }
       }
@@ -181,46 +189,6 @@ export default function NewAppWithRepoSelection() {
     setSelectedRepo(repo);
   };
 
-  // Parse GitHub URL to extract owner and repo
-  const parseGitHubUrl = (url: string): { owner: string; repo: string } | null => {
-    try {
-      // Support multiple GitHub URL formats:
-      // https://github.com/owner/repo
-      // https://github.com/owner/repo.git
-      // github.com/owner/repo
-      // owner/repo
-      
-      let cleanUrl = url.trim();
-      
-      // Remove .git suffix if present
-      cleanUrl = cleanUrl.replace(/\.git$/, '');
-      
-      // Extract owner/repo from URL
-      const githubPattern = /(?:github\.com\/|https?:\/\/github\.com\/|git@github\.com:)([^\/]+)\/([^\/\s]+)/;
-      const match = cleanUrl.match(githubPattern);
-      
-      if (match) {
-        return {
-          owner: match[1],
-          repo: match[2].replace('.git', ''),
-        };
-      }
-      
-      // Try direct owner/repo format
-      const parts = cleanUrl.split('/');
-      if (parts.length === 2) {
-        return {
-          owner: parts[0],
-          repo: parts[1],
-        };
-      }
-      
-      return null;
-    } catch (error) {
-      console.error("Error parsing GitHub URL:", error);
-      return null;
-    }
-  };
 
   // Fetch public repository details
   const handleFetchPublicRepo = async (urlOverride?: string) => {
@@ -362,8 +330,24 @@ export default function NewAppWithRepoSelection() {
   };
 
   const handleSelectSuggestion = (suggestion: any) => {
-    setBuildCommand(suggestion.buildCommand);
-    setStartCommand(suggestion.startCommand);
+    setBuildCommand(suggestion.buildCommand || "");
+    setStartCommand(suggestion.startCommand || "");
+    if (suggestion.publishPath) {
+      setPublishDir(suggestion.publishPath);
+    }
+    if (suggestion.framework) {
+      const mappedLanguage = mapFrameworkToLanguage(suggestion.framework);
+      setLanguage(mappedLanguage);
+    }
+    if (suggestion.envVars && suggestion.envVars.length > 0) {
+      const portEnv = suggestion.envVars.find((env: any) => env.key === 'PORT' || env.key === 'SERVER_PORT');
+      if (portEnv) {
+        const port = parseInt(portEnv.value);
+        if (!isNaN(port)) {
+          setExposedPort(port);
+        }
+      }
+    }
   };
 
   const handleInstallProvider = async (providerId: string) => {
@@ -451,48 +435,10 @@ export default function NewAppWithRepoSelection() {
         /* Repository Selection View */
         <div className="space-y-6">
           {/* Toggle between Provider and Public URL */}
-          <Card className="border-slate-200 dark:border-slate-800 bg-gradient-to-br from-slate-50 to-white dark:from-slate-950 dark:to-slate-900">
-            <CardHeader>
-              <div className="space-y-4">
-                <div>
-                  <CardTitle className="text-slate-900 dark:text-slate-100">Chọn phương thức deploy</CardTitle>
-                  <CardDescription className="text-slate-600 dark:text-slate-400">
-                    Chọn repository từ GitHub provider hoặc nhập URL public repository
-                  </CardDescription>
-                </div>
-                
-                {/* Custom Tabs Style */}
-                <div className="inline-flex rounded-lg bg-slate-100 dark:bg-slate-900 p-1 border border-slate-200 dark:border-slate-800">
-                  <button
-                    onClick={() => setUsePublicUrl(false)}
-                    className={`
-                      flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all duration-200
-                      ${!usePublicUrl 
-                        ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 shadow-sm border border-slate-200 dark:border-slate-700' 
-                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
-                      }
-                    `}
-                  >
-                    <Github className="h-4 w-4" />
-                    Provider
-                  </button>
-                  <button
-                    onClick={() => setUsePublicUrl(true)}
-                    className={`
-                      flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all duration-200
-                      ${usePublicUrl 
-                        ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 shadow-sm border border-slate-200 dark:border-slate-700' 
-                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
-                      }
-                    `}
-                  >
-                    <LinkIcon className="h-4 w-4" />
-                    Public URL
-                  </button>
-                </div>
-              </div>
-            </CardHeader>
-          </Card>
+          <DeployMethodSelector
+            usePublicUrl={usePublicUrl}
+            onToggle={setUsePublicUrl}
+          />
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {usePublicUrl ? (
@@ -551,210 +497,33 @@ export default function NewAppWithRepoSelection() {
           {/* Left Column - Configuration Form */}
           <div className="lg:col-span-2 space-y-6">
             {/* Repository Info */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Source Code</CardTitle>
-                <CardDescription>Thông tin repository đã chọn</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between p-3 border rounded-lg bg-muted/30">
-                  <div className="flex items-center gap-3">
-                    <Github className="h-5 w-5 text-muted-foreground" />
-                    <div>
-                      <p className="font-medium">{selectedRepo.fullName}</p>
-                      <p className="text-sm text-muted-foreground">Branch: {selectedRepo.defaultBranch}</p>
-                    </div>
-                  </div>
-                  <Button variant="ghost" size="sm" onClick={() => setSelectedRepo(null)}>
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+            <RepositoryInfoCard
+              repo={selectedRepo}
+              onDeselect={() => setSelectedRepo(null)}
+            />
 
-            {/* App Configuration */}
-            <Card>
-              <CardHeader>
-                <CardTitle>App Configuration</CardTitle>
-                <CardDescription>Cấu hình cơ bản cho ứng dụng</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="appName">Tên ứng dụng</Label>
-                  <Input
-                    id="appName"
-                    placeholder="Tên ứng dụng của bạn"
-                    value={appName}
-                    onChange={(e) => setAppName(e.target.value)}
-                  />
-                  <p className="text-sm text-muted-foreground">
-                    Tên duy nhất cho ứng dụng của bạn
-                  </p>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="branch">Branch</Label>
-                  <Select value={selectedBranch} onValueChange={setSelectedBranch}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Chọn branch" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {repoDetails?.branches.map((branch) => (
-                        <SelectItem key={branch.name} value={branch.name}>
-                          {branch.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <p className="text-sm text-muted-foreground">
-                    Branch sẽ được build và deploy
-                  </p>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="language">Language</Label>
-                  <Select value={language} onValueChange={setLanguage}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Chọn language" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="docker">Docker</SelectItem>
-                      <SelectItem value="node">Node.js</SelectItem>
-                      <SelectItem value="python">Python</SelectItem>
-                      <SelectItem value="java">Java</SelectItem>
-                      <SelectItem value="go">Go</SelectItem>
-                      <SelectItem value="rust">Rust</SelectItem>
-                      <SelectItem value="static">Static Site</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <p className="text-sm text-muted-foreground">
-                    Chọn language/framework cho ứng dụng
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Build & Deploy Configuration */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Build & Deploy Configuration</CardTitle>
-                <CardDescription>Cấu hình build và deploy cho ứng dụng</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="buildCommand">Build Command <span className="text-red-500">*</span></Label>
-                  <Input
-                    id="buildCommand"
-                    placeholder="npm install && npm run build"
-                    value={buildCommand}
-                    onChange={(e) => setBuildCommand(e.target.value)}
-                    required
-                  />
-                  <p className="text-sm text-muted-foreground">
-                    Command để build ứng dụng
-                  </p>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="startCommand">Start Command <span className="text-red-500">*</span></Label>
-                  <Input
-                    id="startCommand"
-                    placeholder="npm start"
-                    value={startCommand}
-                    onChange={(e) => setStartCommand(e.target.value)}
-                    required
-                  />
-                  <p className="text-sm text-muted-foreground">
-                    Command để start ứng dụng
-                  </p>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="exposedPort">Exposed Port <span className="text-muted-foreground">(Optional)</span></Label>
-                  <Input
-                    id="exposedPort"
-                    type="number"
-                    placeholder="3000"
-                    min="1"
-                    max="65535"
-                    value={exposedPort || ''}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      setExposedPort(value ? parseInt(value) : undefined);
-                    }}
-                  />
-                  <p className="text-sm text-muted-foreground">
-                    Port mà ứng dụng sẽ lắng nghe (mặc định: 3000 cho Node.js, 8000 cho Python, 8080 cho Java/Go)
-                  </p>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="publishDir">
-                    Publish Directory <span className="text-muted-foreground">(Optional - Recommended for static sites)</span>
-                  </Label>
-                  <Input
-                    id="publishDir"
-                    placeholder="build or dist"
-                    value={publishDir}
-                    onChange={(e) => setPublishDir(e.target.value)}
-                  />
-                  <div className="space-y-1">
-                    <p className="text-sm text-muted-foreground">
-                      Thư mục chứa files sau khi build (ví dụ: <code className="text-xs bg-muted px-1 py-0.5 rounded">build</code> cho React, <code className="text-xs bg-muted px-1 py-0.5 rounded">dist</code> cho Vue)
-                    </p>
-                    {language.toLowerCase() === 'javascript' || language.toLowerCase() === 'typescript' ? (
-                      !publishDir && (
-                        <Alert className="mt-2">
-                          <Info className="h-4 w-4" />
-                          <AlertDescription className="text-xs">
-                            <strong>Khuyến nghị:</strong> Nhập <code className="text-xs bg-muted px-1 py-0.5 rounded">build</code> hoặc <code className="text-xs bg-muted px-1 py-0.5 rounded">dist</code> để serve static files. Nếu để trống, app sẽ chạy dev server.
-                          </AlertDescription>
-                        </Alert>
-                      )
-                    ) : null}
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="rootDir">
-                    Root Directory <span className="text-muted-foreground">(Optional - For mono repos)</span>
-                  </Label>
-                  <Input
-                    id="rootDir"
-                    placeholder="frontend or api"
-                    value={rootDir}
-                    onChange={(e) => setRootDir(e.target.value)}
-                  />
-                  <div className="space-y-1">
-                    <p className="text-sm text-muted-foreground">
-                      Thư mục gốc của app trong repo (chỉ cần nếu là mono repo)
-                    </p>
-                    {rootDir && (
-                      <Alert className="mt-2">
-                        <Info className="h-4 w-4" />
-                        <AlertDescription className="text-xs">
-                          <strong>Lưu ý:</strong> Tên thư mục phải <strong>chính xác</strong> (case-sensitive). 
-                          Kiểm tra trên GitHub để đảm bảo tên đúng. Ví dụ: <code className="text-xs bg-muted px-1 py-0.5 rounded">frontend</code> ≠ <code className="text-xs bg-muted px-1 py-0.5 rounded">Frontend</code> ≠ <code className="text-xs bg-muted px-1 py-0.5 rounded">front-end</code>
-                        </AlertDescription>
-                      </Alert>
-                    )}
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="healthCheckPath">Health Check Path - Optional</Label>
-                  <Input
-                    id="healthCheckPath"
-                    placeholder="/health"
-                    value={healthCheckPath}
-                    onChange={(e) => setHealthCheckPath(e.target.value)}
-                  />
-                  <p className="text-sm text-muted-foreground">
-                    Provide an HTTP endpoint path that EasyDeploy monitors
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+            {/* App Configuration & Build & Deploy Configuration */}
+            <AppConfigurationForm
+              appName={appName}
+              onAppNameChange={setAppName}
+              selectedBranch={selectedBranch}
+              onBranchChange={setSelectedBranch}
+              language={language}
+              onLanguageChange={setLanguage}
+              buildCommand={buildCommand}
+              onBuildCommandChange={setBuildCommand}
+              startCommand={startCommand}
+              onStartCommandChange={setStartCommand}
+              exposedPort={exposedPort}
+              onExposedPortChange={setExposedPort}
+              publishDir={publishDir}
+              onPublishDirChange={setPublishDir}
+              rootDir={rootDir}
+              onRootDirChange={setRootDir}
+              healthCheckPath={healthCheckPath}
+              onHealthCheckPathChange={setHealthCheckPath}
+              repoDetails={repoDetails}
+            />
 
             {/* Environment Variables */}
             <EnvironmentVariablesSection
@@ -770,130 +539,21 @@ export default function NewAppWithRepoSelection() {
               onError={setError}
             />
 
-            {/* Auto Deploy Toggle - Only show for Provider repos */}
-            {!usePublicUrl && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Cài Đặt Deploy</CardTitle>
-                  <CardDescription>Cấu hình hành vi deploy tự động</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <Label htmlFor="autoRedeploy">Auto-Deploy</Label>
-                      <p className="text-sm text-muted-foreground">
-                        Tự động deploy khi code hoặc cấu hình thay đổi
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => setAutoRedeploy(!autoRedeploy)}
-                      className={`
-                        relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2
-                        ${autoRedeploy ? 'bg-blue-600' : 'bg-slate-200 dark:bg-slate-700'}
-                      `}
-                      role="switch"
-                      aria-checked={autoRedeploy}
-                    >
-                      <span
-                        className={`
-                          pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out
-                          ${autoRedeploy ? 'translate-x-5' : 'translate-x-0'}
-                        `}
-                      />
-                    </button>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Warning for Public URL */}
-            {usePublicUrl && (
-              <Card className="border-amber-200 bg-amber-50/50 dark:bg-amber-950/10">
-                <CardContent className="pt-6">
-                  <div className="flex items-start gap-3">
-                    <Info className="h-5 w-5 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
-                    <div className="space-y-1">
-                      <p className="text-sm font-medium text-amber-900 dark:text-amber-100">
-                        ⚠️ Hạn chế với Public Repository
-                      </p>
-                      <p className="text-sm text-amber-700 dark:text-amber-300">
-                        Auto-deploy không được hỗ trợ cho public repositories. Bạn cần deploy thủ công khi có thay đổi.
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+            {/* Auto Deploy Settings */}
+            <AutoDeploySettings
+              autoRedeploy={autoRedeploy}
+              onAutoRedeployChange={setAutoRedeploy}
+              usePublicUrl={usePublicUrl}
+            />
           </div>
 
           {/* Right Column - Suggestions */}
           <div className="lg:col-span-1">
-            {loadingDetails ? (
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-center">
-                    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-                  </div>
-                </CardContent>
-              </Card>
-            ) : repoDetails?.suggestion && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Info className="h-5 w-5" />
-                    Suggestions
-                  </CardTitle>
-                  <CardDescription>
-                    Gợi ý cấu hình dựa trên repository
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {repoDetails.languages && repoDetails.languages.length > 0 && (
-                    <div>
-                      <p className="text-sm font-medium mb-2">Detected Languages:</p>
-                      <div className="flex flex-wrap gap-2">
-                        {repoDetails.languages.map((lang, idx) => (
-                          <Badge key={idx} variant="secondary">{lang}</Badge>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {repoDetails.suggestion.primarySuggestion && (
-                    <div className="p-4 border rounded-lg bg-primary/5">
-                      <p className="text-sm font-medium mb-2">Primary Suggestion</p>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleSelectSuggestion(repoDetails.suggestion.primarySuggestion)}
-                        className="w-full"
-                      >
-                        Use {repoDetails.suggestion.primarySuggestion.framework}
-                      </Button>
-                    </div>
-                  )}
-
-                  {repoDetails.suggestion.environmentSuggestions && repoDetails.suggestion.environmentSuggestions.length > 0 && (
-                    <div>
-                      <p className="text-sm font-medium mb-2">Environment Options:</p>
-                      <div className="space-y-2">
-                        {repoDetails.suggestion.environmentSuggestions.map((sug: any, idx: number) => (
-                          <Button
-                            key={idx}
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleSelectSuggestion(sug)}
-                            className="w-full justify-start"
-                          >
-                            {sug.framework}
-                          </Button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            )}
+            <SuggestionsPanel
+              repoDetails={repoDetails}
+              loading={loadingDetails}
+              onSelectSuggestion={handleSelectSuggestion}
+            />
           </div>
         </div>
       )}
