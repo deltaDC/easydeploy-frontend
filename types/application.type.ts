@@ -22,7 +22,6 @@ export type DeployConfig = {
 	exposedPort: number;
 	publishDir?: string;
 	rootDir?: string;
-	secretFiles?: string;
 	healthCheckPath?: string;
 	createdAt: string;
 	updatedAt: string;
@@ -80,7 +79,6 @@ export interface CreateApplicationRequest {
   rootDir?: string;
   healthCheckPath?: string;
   envVars?: EnvironmentVariable[];
-  secretFiles?: SecretFile[];
   exposedPort?: number;
   autoRedeploy?: boolean;
 }
@@ -88,11 +86,6 @@ export interface CreateApplicationRequest {
 export interface EnvironmentVariable {
   key: string;
   value: string;
-}
-
-export interface SecretFile {
-  filename: string;
-  content: string;
 }
 
 // Repository Detail Response

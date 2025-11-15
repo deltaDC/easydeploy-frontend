@@ -12,11 +12,10 @@ import { GithubService } from "@/services/github.service";
 import { ApplicationService } from "@/services/application.service";
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
-import { CreateApplicationRequest, EnvironmentVariable, RepositoryDetailResponse, SecretFile } from "@/types/application.type";
+import { CreateApplicationRequest, EnvironmentVariable, RepositoryDetailResponse } from "@/types/application.type";
 import { RepositorySelectionView } from "./RepositorySelectionView";
 import { CredentialsSection } from "./CredentialsSection";
 import { EnvironmentVariablesSection } from "./EnvironmentVariablesSection";
-import { SecretFilesSection } from "./SecretFilesSection";
 import PublicRepoUrlInput from "./PublicRepoUrlInput";
 import { useRepositoryManagement } from "@/hooks/useRepositoryManagement";
 import { mapLanguageToFormValue, mapFrameworkToLanguage } from "@/utils/language.utils";
@@ -96,7 +95,6 @@ export default function NewAppWithRepoSelection() {
   const [exposedPort, setExposedPort] = useState<number | undefined>(undefined);
   const [autoRedeploy, setAutoRedeploy] = useState(true);
   const [envVars, setEnvVars] = useState<EnvironmentVariable[]>([]);
-  const [secretFiles, setSecretFiles] = useState<SecretFile[]>([]);
   const [submitting, setSubmitting] = useState(false);
 
   const loadRepositoryDetails = useCallback(async () => {
@@ -149,7 +147,6 @@ export default function NewAppWithRepoSelection() {
       setBuildCommand("");
       setStartCommand("");
       setPublishDir("");
-      setExposedPort(undefined);
     }
   }, [selectedRepo]);
 
@@ -170,15 +167,6 @@ export default function NewAppWithRepoSelection() {
         setStartCommand(suggestion.startCommand || "");
         if (suggestion.publishPath && !publishDir) {
           setPublishDir(suggestion.publishPath);
-        }
-        if (suggestion.envVars && suggestion.envVars.length > 0) {
-          const portEnv = suggestion.envVars.find((env: any) => env.key === 'PORT' || env.key === 'SERVER_PORT');
-          if (portEnv && !exposedPort) {
-            const port = parseInt(portEnv.value);
-            if (!isNaN(port)) {
-              setExposedPort(port);
-            }
-          }
         }
       }
     }
@@ -297,8 +285,6 @@ export default function NewAppWithRepoSelection() {
         rootDir: normalizedRootDir || undefined,
         healthCheckPath: healthCheckPath || undefined,
         envVars: envVars.filter(ev => ev.key && ev.value),
-        secretFiles: secretFiles.filter(sf => sf.filename && sf.content),
-        exposedPort,
         autoRedeploy: isPublicRepo ? false : autoRedeploy,
         
         // Add repository details for public URLs
@@ -338,15 +324,6 @@ export default function NewAppWithRepoSelection() {
     if (suggestion.framework) {
       const mappedLanguage = mapFrameworkToLanguage(suggestion.framework);
       setLanguage(mappedLanguage);
-    }
-    if (suggestion.envVars && suggestion.envVars.length > 0) {
-      const portEnv = suggestion.envVars.find((env: any) => env.key === 'PORT' || env.key === 'SERVER_PORT');
-      if (portEnv) {
-        const port = parseInt(portEnv.value);
-        if (!isNaN(port)) {
-          setExposedPort(port);
-        }
-      }
     }
   };
 
@@ -514,8 +491,6 @@ export default function NewAppWithRepoSelection() {
               onBuildCommandChange={setBuildCommand}
               startCommand={startCommand}
               onStartCommandChange={setStartCommand}
-              exposedPort={exposedPort}
-              onExposedPortChange={setExposedPort}
               publishDir={publishDir}
               onPublishDirChange={setPublishDir}
               rootDir={rootDir}
@@ -529,13 +504,6 @@ export default function NewAppWithRepoSelection() {
             <EnvironmentVariablesSection
               envVars={envVars}
               onEnvVarsChange={setEnvVars}
-              onError={setError}
-            />
-
-            {/* Secret Files */}
-            <SecretFilesSection
-              secretFiles={secretFiles}
-              onSecretFilesChange={setSecretFiles}
               onError={setError}
             />
 
