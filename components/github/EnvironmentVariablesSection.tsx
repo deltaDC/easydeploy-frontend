@@ -15,19 +15,22 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Trash2, Plus, FileText, Upload, Eye, EyeOff } from "lucide-react";
+import { Trash2, Plus, FileText, Upload, Eye, EyeOff, AlertCircle } from "lucide-react";
 import { EnvironmentVariable } from "@/types/application.type";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface EnvironmentVariablesSectionProps {
   envVars: EnvironmentVariable[];
   onEnvVarsChange: (envVars: EnvironmentVariable[]) => void;
   onError: (error: string) => void;
+  showExternalDbWarning?: boolean;
 }
 
 export function EnvironmentVariablesSection({
   envVars,
   onEnvVarsChange,
   onError,
+  showExternalDbWarning = false,
 }: EnvironmentVariablesSectionProps) {
   const [envModalOpen, setEnvModalOpen] = useState(false);
   const [envContent, setEnvContent] = useState("");
@@ -115,6 +118,17 @@ export function EnvironmentVariablesSection({
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
+        {showExternalDbWarning && (
+          <Alert className="bg-red-50 dark:bg-red-950 border-red-200 dark:border-red-800">
+            <AlertCircle className="h-4 w-4 text-red-600 dark:text-red-400" />
+            <AlertDescription className="text-red-800 dark:text-red-200">
+              <strong>⚠️ External Database Configuration Required</strong>
+              <br />
+              You selected &ldquo;Connect External Database&rdquo; - please add your database connection string below (e.g., DATABASE_URL)
+            </AlertDescription>
+          </Alert>
+        )}
+        
         {envVars.length === 0 ? (
           <div className="space-y-2">
             <div className="flex gap-2">

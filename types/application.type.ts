@@ -81,6 +81,7 @@ export interface CreateApplicationRequest {
   healthCheckPath?: string;
   envVars?: EnvironmentVariable[];
   secretFiles?: SecretFile[];
+  databaseConfig?: DatabaseConfig;
   exposedPort?: number;
   autoRedeploy?: boolean;
 }
@@ -93,6 +94,15 @@ export interface EnvironmentVariable {
 export interface SecretFile {
   filename: string;
   content: string;
+}
+
+export interface DatabaseConfig {
+  type: 'postgres' | 'mysql' | 'mongodb' | 'redis' | 'none' | 'other';
+  databaseName?: string;
+  username?: string;
+  password?: string;
+  isExternalDatabase?: boolean;
+  externalHost?: string;
 }
 
 // Repository Detail Response

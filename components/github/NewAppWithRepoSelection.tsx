@@ -17,6 +17,7 @@ import { RepositorySelectionView } from "./RepositorySelectionView";
 import { CredentialsSection } from "./CredentialsSection";
 import { EnvironmentVariablesSection } from "./EnvironmentVariablesSection";
 import { SecretFilesSection } from "./SecretFilesSection";
+import { DatabaseConfigSection } from "./DatabaseConfigSection";
 import PublicRepoUrlInput from "./PublicRepoUrlInput";
 import { useRepositoryManagement } from "@/hooks/useRepositoryManagement";
 import { mapLanguageToFormValue, mapFrameworkToLanguage } from "@/utils/language.utils";
@@ -97,6 +98,15 @@ export default function NewAppWithRepoSelection() {
   const [autoRedeploy, setAutoRedeploy] = useState(true);
   const [envVars, setEnvVars] = useState<EnvironmentVariable[]>([]);
   const [secretFiles, setSecretFiles] = useState<SecretFile[]>([]);
+  
+  // Database configuration state
+  const [databaseSource, setDatabaseSource] = useState<'none' | 'managed' | 'external'>('none');
+  const [dbType, setDbType] = useState<'postgres' | 'mysql' | 'mongodb' | 'redis' | 'other'>('postgres');
+  const [dbName, setDbName] = useState('');
+  const [dbUsername, setDbUsername] = useState('');
+  const [dbPassword, setDbPassword] = useState('');
+  const [externalHost, setExternalHost] = useState('');
+  
   const [submitting, setSubmitting] = useState(false);
 
   const loadRepositoryDetails = useCallback(async () => {
@@ -286,6 +296,27 @@ export default function NewAppWithRepoSelection() {
         ? publishDir.replace(/^\.\//, '').replace(/^\/+|\/+$/g, '')
         : undefined;
       
+      // Build database configuration
+      let databaseConfig;
+      if (databaseSource === 'none') {
+        databaseConfig = undefined; // No database needed
+      } else if (databaseSource === 'managed') {
+        // Only include fields that have values - don't send empty strings as they become null
+        databaseConfig = {
+          type: dbType,
+          ...(dbName && dbName.trim() !== '' && { databaseName: dbName.trim() }),
+          ...(dbUsername && dbUsername.trim() !== '' && { username: dbUsername.trim() }),
+          ...(dbPassword && dbPassword.trim() !== '' && { password: dbPassword.trim() }),
+          isExternalDatabase: false
+        };
+      } else if (databaseSource === 'external') {
+        // External database - type is not needed, set to 'other' as placeholder
+        databaseConfig = {
+          type: 'other' as const,
+          isExternalDatabase: true
+        };
+      }
+      
       const request: CreateApplicationRequest = {
         githubRepoId,
         appName,
@@ -298,6 +329,7 @@ export default function NewAppWithRepoSelection() {
         healthCheckPath: healthCheckPath || undefined,
         envVars: envVars.filter(ev => ev.key && ev.value),
         secretFiles: secretFiles.filter(sf => sf.filename && sf.content),
+        databaseConfig,
         exposedPort,
         autoRedeploy: isPublicRepo ? false : autoRedeploy,
         
@@ -314,12 +346,32 @@ export default function NewAppWithRepoSelection() {
         } : {})
       };
 
+      // Debug logging
+      console.log('=== CREATE APPLICATION REQUEST ===');
+      console.log('Database Source:', databaseSource);
+      console.log('Database Config:', JSON.stringify(databaseConfig, null, 2));
+      console.log('Full Request:', JSON.stringify(request, null, 2));
+
       await ApplicationService.createApplication(request);
       
       router.push('/apps');
     } catch (err: any) {
-      setError(err.response?.data?.message || "Không thể tạo ứng dụng");
-      console.error(err);
+      console.error('=== CREATE APPLICATION ERROR ===');
+      console.error('Full error:', err);
+      console.error('Error response:', err.response);
+      console.error('Response status:', err.response?.status);
+      console.error('Response headers:', err.response?.headers);
+      console.error('Response data:', err.response?.data);
+      console.error('Error config:', err.config);
+      
+      // Extract detailed validation errors if available
+      const errorMessage = err.response?.data?.message || 
+                          err.response?.data?.details || 
+                          err.response?.data || 
+                          err.message || 
+                          "Không thể tạo ứng dụng";
+      
+      setError(typeof errorMessage === 'string' ? errorMessage : JSON.stringify(errorMessage));
     } finally {
       setSubmitting(false);
     }
@@ -530,6 +582,23 @@ export default function NewAppWithRepoSelection() {
               envVars={envVars}
               onEnvVarsChange={setEnvVars}
               onError={setError}
+              showExternalDbWarning={databaseSource === 'external'}
+            />
+
+            {/* Database Configuration */}
+            <DatabaseConfigSection
+              databaseSource={databaseSource}
+              onDatabaseSourceChange={setDatabaseSource}
+              dbType={dbType}
+              onDbTypeChange={setDbType}
+              dbName={dbName}
+              onDbNameChange={setDbName}
+              dbUsername={dbUsername}
+              onDbUsernameChange={setDbUsername}
+              dbPassword={dbPassword}
+              onDbPasswordChange={setDbPassword}
+              externalHost={externalHost}
+              onExternalHostChange={setExternalHost}
             />
 
             {/* Secret Files */}
