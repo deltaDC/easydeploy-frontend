@@ -25,8 +25,6 @@ interface AppConfigurationFormProps {
   onBuildCommandChange: (value: string) => void;
   startCommand: string;
   onStartCommandChange: (value: string) => void;
-  exposedPort: number | undefined;
-  onExposedPortChange: (value: number | undefined) => void;
   publishDir: string;
   onPublishDirChange: (value: string) => void;
   rootDir: string;
@@ -47,8 +45,6 @@ export default function AppConfigurationForm({
   onBuildCommandChange,
   startCommand,
   onStartCommandChange,
-  exposedPort,
-  onExposedPortChange,
   publishDir,
   onPublishDirChange,
   rootDir,
@@ -156,24 +152,6 @@ export default function AppConfigurationForm({
             </p>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="exposedPort">Exposed Port <span className="text-muted-foreground">(Optional)</span></Label>
-            <Input
-              id="exposedPort"
-              type="number"
-              placeholder="3000"
-              min="1"
-              max="65535"
-              value={exposedPort || ''}
-              onChange={(e) => {
-                const value = e.target.value;
-                onExposedPortChange(value ? parseInt(value) : undefined);
-              }}
-            />
-            <p className="text-sm text-muted-foreground">
-              Port mà ứng dụng sẽ lắng nghe (mặc định: 3000 cho Node.js, 8000 cho Python, 8080 cho Java/Go)
-            </p>
-          </div>
 
           <div className="space-y-2">
             <Label htmlFor="publishDir">
