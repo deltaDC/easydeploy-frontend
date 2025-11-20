@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import Link from "next/link";
-import { ArrowRight, Zap, GitBranch, Activity, Plus, Github } from "lucide-react";
+import { ArrowRight, Zap, GitBranch, Activity, Plus, Github, Database } from "lucide-react";
 
 export default function DashboardHome() {
 	return (
@@ -19,6 +19,12 @@ export default function DashboardHome() {
 								<Link href="/import">
 									<Github className="h-4 w-4" />
 									Import từ GitHub
+								</Link>
+							</Button>
+							<Button asChild variant="outline" className="gap-2">
+								<Link href="/databases/new">
+									<Database className="h-4 w-4" />
+									Deploy Database
 								</Link>
 							</Button>
 							<Button asChild className="gap-2">
@@ -99,16 +105,22 @@ export default function DashboardHome() {
 											<h3 className="text-lg font-semibold">Deploy dự án đầu tiên của bạn</h3>
 											<p className="text-muted-foreground text-sm">Import từ Git provider hoặc chọn một template có sẵn.</p>
 										</div>
-										<div className="flex justify-center gap-3">
-											<Button asChild>
-												<Link href="/import">Import từ GitHub</Link>
-											</Button>
-											<Button asChild variant="outline">
-												<Link href="/apps/new">
-													Next.js Boilerplate
-												</Link>
-											</Button>
-										</div>
+						<div className="flex justify-center gap-3">
+							<Button asChild>
+								<Link href="/import">Import từ GitHub</Link>
+							</Button>
+							<Button asChild variant="outline">
+								<Link href="/apps/new">
+									Next.js Boilerplate
+								</Link>
+							</Button>
+							<Button asChild variant="outline" className="gap-2">
+								<Link href="/databases/new">
+									<Database className="h-4 w-4" />
+									Deploy Database
+								</Link>
+							</Button>
+						</div>
 									</div>
 								</div>
 							</CardContent>
