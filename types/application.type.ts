@@ -79,6 +79,8 @@ export interface CreateApplicationRequest {
   rootDir?: string;
   healthCheckPath?: string;
   envVars?: EnvironmentVariable[];
+
+  databaseConfig?: DatabaseConfig;
   exposedPort?: number;
   autoRedeploy?: boolean;
 }
@@ -86,6 +88,16 @@ export interface CreateApplicationRequest {
 export interface EnvironmentVariable {
   key: string;
   value: string;
+}
+
+
+export interface DatabaseConfig {
+  type: 'postgres' | 'mysql' | 'mongodb' | 'redis' | 'none' | 'other';
+  databaseName?: string;
+  username?: string;
+  password?: string;
+  isExternalDatabase?: boolean;
+  externalHost?: string;
 }
 
 // Repository Detail Response
