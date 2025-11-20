@@ -1,10 +1,10 @@
 "use client";
-import { ReactNode, useState } from "react";
+import { ReactNode, useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { LogOut, User, Home, Settings, Activity, Server, Menu, X, Users, BarChart3, Monitor, ChevronRight as BreadcrumbChevron } from "lucide-react";
+import { LogOut, User, Home, Settings, Activity, Server, Menu, X, Users, BarChart3, Monitor, Database, ChevronRight as BreadcrumbChevron, ChevronLeft, ChevronRight } from "lucide-react";
 
 function NavLink({ 
 	href, 
@@ -53,6 +53,9 @@ function NavLink({
 export default function DashboardLayout({ children }: { children: ReactNode }) {
 	const { user, isAuthenticated, logout, isAdmin } = useAuth();
 	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+	const [canScrollLeft, setCanScrollLeft] = useState(false);
+	const [canScrollRight, setCanScrollRight] = useState(false);
+	const scrollContainerRef = useRef<HTMLDivElement>(null);
 	const pathname = usePathname();
 
 	const getNavLinks = () => {
@@ -68,7 +71,8 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 		}
 		
 		links.push(
-			{ href: "/apps", label: "Ứng dụng", icon: Server }
+			{ href: "/apps", label: "Ứng dụng", icon: Server },
+			{ href: "/databases", label: "Databases", icon: Database }
 		);
 		
 		if (isAdmin()) {
@@ -81,6 +85,80 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 		);
 		
 		return links;
+	};
+
+	const getOrderedNavLinks = () => {
+		const links = getNavLinks();
+		const isActive = (href: string) => {
+			if (href === "/admin" || href === "/dashboard") {
+				return pathname === "/admin" || pathname === "/dashboard" || pathname === "/";
+			}
+			return pathname.startsWith(href);
+		};
+
+		const activeIndex = links.findIndex(link => isActive(link.href));
+		
+		if (activeIndex === -1) {
+			return links;
+		}
+
+		const activeLink = links[activeIndex];
+		const beforeActive = links.slice(0, activeIndex);
+		const afterActive = links.slice(activeIndex + 1);
+		
+		return [activeLink, ...afterActive, ...beforeActive];
+	};
+
+	const checkScrollButtons = () => {
+		const container = scrollContainerRef.current;
+		if (!container) return;
+
+		setCanScrollLeft(container.scrollLeft > 0);
+		setCanScrollRight(
+			container.scrollLeft < container.scrollWidth - container.clientWidth - 1
+		);
+	};
+
+	useEffect(() => {
+		const container = scrollContainerRef.current;
+		if (container) {
+			setTimeout(() => {
+				container.scrollTo({
+					left: 0,
+					behavior: "smooth",
+				});
+				checkScrollButtons();
+			}, 100);
+		}
+	}, [pathname]);
+
+	useEffect(() => {
+		checkScrollButtons();
+		const container = scrollContainerRef.current;
+		if (container) {
+			container.addEventListener("scroll", checkScrollButtons);
+			window.addEventListener("resize", checkScrollButtons);
+			return () => {
+				container.removeEventListener("scroll", checkScrollButtons);
+				window.removeEventListener("resize", checkScrollButtons);
+			};
+		}
+	}, []);
+
+	const scroll = (direction: "left" | "right") => {
+		const container = scrollContainerRef.current;
+		if (!container) return;
+
+		const scrollAmount = 200;
+		const newScrollLeft =
+			direction === "left"
+				? container.scrollLeft - scrollAmount
+				: container.scrollLeft + scrollAmount;
+
+		container.scrollTo({
+			left: newScrollLeft,
+			behavior: "smooth",
+		});
 	};
 
 	const generateBreadcrumbs = () => {
@@ -101,6 +179,15 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 			breadcrumbs.push({ href: "/apps", label: "Ứng dụng" });
 			if (pathSegments.length > 1 && pathSegments[1] !== "new") {
 				breadcrumbs.push({ href: pathname, label: pathSegments[1] });
+			}
+		} else if (pathname.startsWith("/databases")) {
+			breadcrumbs.push({ href: "/databases", label: "Databases" });
+			if (pathSegments.length > 1) {
+				if (pathSegments[1] === "new") {
+					breadcrumbs.push({ href: "/databases/new", label: "Triển khai Cơ sở dữ liệu mới" });
+				} else {
+					breadcrumbs.push({ href: pathname, label: pathSegments[1] });
+				}
 			}
 		} else if (pathname.startsWith("/logs")) {
 			breadcrumbs.push({ href: "/logs", label: "Logs" });
@@ -128,37 +215,59 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 							<Link href="/" className="text-lg font-semibold text-gray-900 dark:text-gray-100">EasyDeploy</Link>
 						</div>
 
-					{/* Desktop Navigation Links */}
-					<div className="hidden md:flex items-center flex-1 justify-center mx-4">
-						<nav className="flex items-center gap-2" role="navigation" aria-label="Main navigation">
-							<NavLink href={isAdmin() ? "/admin" : "/dashboard"} icon={Home} pathname={pathname}>
-								Dashboard
-							</NavLink>
-							{isAdmin() && (
-								<>
-									<NavLink href="/admin/users" icon={Users} pathname={pathname}>
-										Quản lý User
-									</NavLink>
-									<NavLink href="/monitoring" icon={Monitor} pathname={pathname}>
-										Monitoring
-									</NavLink>
-								</>
+					{/* Desktop Navigation Links - Scrollable with Active First */}
+					<div className="hidden md:flex items-center flex-1 justify-center mx-4" style={{ width: '600px' }}>
+						<div className="relative w-full flex items-center gap-2">
+							{/* Left Scroll Button */}
+							{canScrollLeft && (
+								<Button
+									variant="ghost"
+									size="icon"
+									className="h-8 w-8 flex-shrink-0"
+									onClick={() => scroll("left")}
+									aria-label="Scroll left"
+								>
+									<ChevronLeft className="h-4 w-4" />
+								</Button>
 							)}
-							<NavLink href="/apps" icon={Server} pathname={pathname}>
-								Ứng dụng
-							</NavLink>
-							{isAdmin() && (
-								<NavLink href="/admin/stats" icon={BarChart3} pathname={pathname}>
-									Thống kê
-								</NavLink>
+							
+							{/* Scrollable Container */}
+							<div
+								ref={scrollContainerRef}
+								className="flex items-center gap-2 overflow-x-auto scrollbar-hide flex-1"
+								style={{
+									scrollbarWidth: 'none',
+									msOverflowStyle: 'none',
+									WebkitOverflowScrolling: 'touch',
+								}}
+								role="navigation"
+								aria-label="Main navigation"
+							>
+								{getOrderedNavLinks().map((link) => (
+									<NavLink
+										key={link.href}
+										href={link.href}
+										icon={link.icon}
+										pathname={pathname}
+									>
+										{link.label}
+									</NavLink>
+								))}
+							</div>
+
+							{/* Right Scroll Button */}
+							{canScrollRight && (
+								<Button
+									variant="ghost"
+									size="icon"
+									className="h-8 w-8 flex-shrink-0"
+									onClick={() => scroll("right")}
+									aria-label="Scroll right"
+								>
+									<ChevronRight className="h-4 w-4" />
+								</Button>
 							)}
-							<NavLink href="/logs" icon={Activity} pathname={pathname}>
-								Logs
-							</NavLink>
-							<NavLink href="/settings" icon={Settings} pathname={pathname}>
-								Cài đặt
-							</NavLink>
-						</nav>
+						</div>
 					</div>
 
 						{/* Desktop User Menu - Fixed */}
@@ -226,6 +335,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 							)}
 							<NavLink href="/apps" icon={Server} mobile pathname={pathname} onMobileMenuClose={() => setIsMobileMenuOpen(false)}>
 								Ứng dụng
+							</NavLink>
+							<NavLink href="/databases" icon={Database} mobile pathname={pathname} onMobileMenuClose={() => setIsMobileMenuOpen(false)}>
+								Databases
 							</NavLink>
 							{isAdmin() && (
 								<NavLink href="/admin/stats" icon={BarChart3} mobile pathname={pathname} onMobileMenuClose={() => setIsMobileMenuOpen(false)}>
