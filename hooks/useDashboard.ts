@@ -4,14 +4,14 @@ import type { DashboardOverview } from '@/types/dashboard';
 
 /**
  * Hook to fetch dashboard overview data
- * Auto-refresh every 30 seconds for realtime updates
+ * Auto-refresh every 5 seconds for realtime updates
  */
 export function useDashboardOverview() {
   const { data, error, isLoading, mutate } = useSWR<DashboardOverview>(
     '/dashboard',
     () => DashboardService.getOverview(),
     {
-      refreshInterval: 30000, // Auto-refresh every 30 seconds
+      refreshInterval: 5000, // Auto-refresh every 5 seconds for realtime container status
       revalidateOnFocus: true,
       revalidateOnReconnect: true,
     }
