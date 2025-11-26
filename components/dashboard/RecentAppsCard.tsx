@@ -39,16 +39,40 @@ export function RecentAppsCard({ apps, onUpdate }: RecentAppsCardProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [appToDelete, setAppToDelete] = useState<RecentApplication | null>(null);
 
-  const getStatusBadge = (status: DeploymentStatus) => {
+  const getStatusBadge = (app: RecentApplication) => {
+    // Prioritize containerStatus over deployment status
+    if (app.containerStatus) {
+      const statusLower = app.containerStatus.toLowerCase();
+      const isRunning = statusLower.includes('running') || statusLower.includes('up');
+      const isStopped = statusLower.includes('exited') || statusLower.includes('stopped') || statusLower.includes('created');
+      
+      if (isRunning) {
+        return (
+          <Badge variant="default" className="gap-1">
+            <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+            Đang chạy
+          </Badge>
+        );
+      } else if (isStopped) {
+        return (
+          <Badge variant="secondary" className="gap-1">
+            <div className="h-2 w-2 rounded-full bg-gray-500" />
+            Đã dừng
+          </Badge>
+        );
+      }
+    }
+    
+    // Fallback to deployment status
     const variants = {
       SUCCESS: { 
         variant: 'default' as const, 
-        label: 'Đang chạy', 
+        label: 'Thành công', 
         color: 'bg-green-500' 
       },
       PENDING: { 
         variant: 'secondary' as const, 
-        label: 'Đã dừng', 
+        label: 'Chờ xử lý', 
         color: 'bg-gray-500' 
       },
       FAILED: { 
@@ -62,7 +86,7 @@ export function RecentAppsCard({ apps, onUpdate }: RecentAppsCardProps) {
         color: 'bg-blue-500' 
       },
     };
-    const config = variants[status];
+    const config = variants[app.status];
     return (
       <Badge variant={config.variant} className="gap-1">
         <div className={`h-2 w-2 rounded-full ${config.color}`} />
@@ -187,7 +211,7 @@ export function RecentAppsCard({ apps, onUpdate }: RecentAppsCardProps) {
                   </div>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
-                  {getStatusBadge(app.status)}
+                  {getStatusBadge(app)}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button

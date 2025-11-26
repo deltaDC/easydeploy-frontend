@@ -16,7 +16,7 @@ export function StatsCards({ stats }: StatsCardsProps) {
       bgColor: 'bg-blue-100 dark:bg-blue-900/20',
     },
     {
-      title: 'Đang chạy',
+      title: 'Thành công',
       value: stats.runningApplications,
       icon: CheckCircle2,
       color: 'text-green-600',
@@ -24,11 +24,11 @@ export function StatsCards({ stats }: StatsCardsProps) {
       description: 'SUCCESS',
     },
     {
-      title: 'Đã dừng',
+      title: 'Đang deploy',
       value: stats.stoppedApplications,
       icon: Pause,
-      color: 'text-yellow-600',
-      bgColor: 'bg-yellow-100 dark:bg-yellow-900/20',
+      color: 'text-purple-600',
+      bgColor: 'bg-purple-100 dark:bg-purple-900/20',
       description: 'PENDING',
     },
     {
@@ -39,18 +39,11 @@ export function StatsCards({ stats }: StatsCardsProps) {
       bgColor: 'bg-red-100 dark:bg-red-900/20',
       description: 'FAILED',
     },
-    {
-      title: 'Đang deploy',
-      value: stats.deployingApplications,
-      icon: Loader2,
-      color: 'text-purple-600',
-      bgColor: 'bg-purple-100 dark:bg-purple-900/20',
-      description: 'IN_PROGRESS',
-    },
+    
   ];
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       {cards.map((card) => (
         <Card key={card.title}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">

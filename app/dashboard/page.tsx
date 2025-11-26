@@ -87,7 +87,7 @@ export default function DashboardPage() {
                     📊 Deployment logs và biểu đồ hoạt động sẽ được thêm trong phiên bản tiếp theo
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Dashboard tự động refresh mỗi 30 giây
+                    Dashboard tự động refresh mỗi 5 giây
                   </p>
                 </div>
               </CardContent>

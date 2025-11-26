@@ -187,7 +187,7 @@ export default function MonitoringPage() {
   if (isInitialLoading) {
     return (
       <div className="py-6">
-        <div className="container-page space-y-6">
+        <div className="container mx-auto px-4 space-y-6 max-w-[1600px]">
           <PageHeader
             title="System Monitoring"
             description="Giám sát log và tài nguyên hệ thống"
@@ -205,7 +205,7 @@ export default function MonitoringPage() {
 
   return (
     <div className="py-6">
-      <div className="container-page space-y-6">
+      <div className="container mx-auto px-4 space-y-6 max-w-[1600px]">
         <PageHeader
           title="System Monitoring"
           description="Giám sát log và tài nguyên hệ thống"

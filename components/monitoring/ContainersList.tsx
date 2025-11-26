@@ -81,20 +81,22 @@ function ContainersList({ containers, onViewDetail }: ContainersListProps) {
         {currentContainers.map((container) => (
         <Card 
           key={container.containerId} 
-          className="hover:shadow-md transition-all"
+          className="hover:shadow-md transition-all overflow-hidden"
         >
           <CardHeader className="pb-3">
-            <div className="flex items-start justify-between">
-              <div className="space-y-1 flex-1">
-                <CardTitle className="text-base font-semibold flex items-center gap-2">
-                  <Server className="h-4 w-4" />
-                  {container.appName || container.containerName}
-                </CardTitle>
+            <div className="flex items-start justify-between gap-3 min-w-0">
+              <div className="space-y-1 flex-1 min-w-0">
+                <div className="flex items-center gap-2 min-w-0">
+                  <Server className="h-4 w-4 flex-shrink-0" />
+                  <CardTitle className="text-base font-semibold truncate">
+                    {container.appName || container.containerName}
+                  </CardTitle>
+                </div>
                 <p className="text-xs text-muted-foreground truncate">
                   {container.containerName}
                 </p>
               </div>
-              <Badge variant={getStatusVariant(container.status)} className="capitalize">
+              <Badge variant={getStatusVariant(container.status)} className="capitalize flex-shrink-0 self-start">
                 {container.status}
               </Badge>
             </div>

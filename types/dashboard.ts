@@ -15,6 +15,7 @@ export interface RecentApplication {
   id: string; // UUID from backend
   name: string;
   status: DeploymentStatus;
+  containerStatus?: string; // Docker container status: running, exited, etc.
   publicUrl?: string;
   updatedAt: string; // ISO date string
   createdAt: string; // ISO date string
