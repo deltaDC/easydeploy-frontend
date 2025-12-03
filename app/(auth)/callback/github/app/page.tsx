@@ -30,7 +30,7 @@ function AppCallbackInner() {
 				
 				if (success === "true" && installationId) {
 					setStatus("GitHub App installation thành công! Đang chuyển hướng...");
-					setTimeout(() => router.replace("/apps/new"), 2000);
+					setTimeout(() => router.replace(`/apps/new?success=true&installation_id=${installationId}`), 2000);
 				} else {
 					throw new Error("Thiếu thông tin installation từ GitHub");
 				}
