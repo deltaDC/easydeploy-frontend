@@ -11,7 +11,7 @@ import {
 import { GithubService } from "@/services/github.service";
 import { ApplicationService } from "@/services/application.service";
 import { useAuth } from "@/hooks/useAuth";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { CreateApplicationRequest, EnvironmentVariable, RepositoryDetailResponse } from "@/types/application.type";
 import { RepositorySelectionView } from "./RepositorySelectionView";
 import { CredentialsSection } from "./CredentialsSection";
@@ -53,6 +53,7 @@ interface ProviderInstallation {
 export default function NewAppWithRepoSelection() {
   const { user } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
   
   // Use custom hook for repository management
   const {
@@ -100,14 +101,61 @@ export default function NewAppWithRepoSelection() {
 
   
   // Database configuration state
-  const [databaseSource, setDatabaseSource] = useState<'none' | 'managed' | 'external'>('none');
+  const [databaseSource, setDatabaseSource] = useState<'none' | 'managed' | 'external' | 'existing'>('none');
   const [dbType, setDbType] = useState<'postgres' | 'mysql' | 'mongodb' | 'redis' | 'other'>('postgres');
   const [dbName, setDbName] = useState('');
   const [dbUsername, setDbUsername] = useState('');
   const [dbPassword, setDbPassword] = useState('');
   const [externalHost, setExternalHost] = useState('');
+  const [selectedDatabaseId, setSelectedDatabaseId] = useState<string | undefined>(undefined);
   
   const [submitting, setSubmitting] = useState(false);
+
+  // Track previous installations count to detect changes
+  const [prevInstallationsCount, setPrevInstallationsCount] = useState<number>(0);
+  
+  useEffect(() => {
+    const setupAction = searchParams.get('setup_action');
+    const installationId = searchParams.get('installation_id');
+    const success = searchParams.get('success');
+    
+    if (setupAction === 'install' || installationId || success === 'true') {
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, '', newUrl);
+      
+      const timer = setTimeout(() => {
+        loadData(false);
+        setSuccessMessage('GitHub installation completed! Repositories are being refreshed...');
+        setTimeout(() => setSuccessMessage(null), 5000);
+      }, 1000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [searchParams, loadData]);
+  
+  // Detect installation changes by comparing installations count
+  useEffect(() => {
+    if (installations.length > prevInstallationsCount && prevInstallationsCount > 0) {
+      loadData(false);
+      setSuccessMessage('New GitHub installation detected! Repositories are being refreshed...');
+      setTimeout(() => setSuccessMessage(null), 5000);
+    }
+    setPrevInstallationsCount(installations.length);
+  }, [installations.length, prevInstallationsCount, loadData]);
+  
+  // Auto-refresh when window gains focus
+  useEffect(() => {
+    const handleFocus = () => {
+      if (window.location.pathname === '/apps/new') {
+        setTimeout(() => {
+          loadData(false);
+        }, 500);
+      }
+    };
+    
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, [loadData]);
 
   const loadRepositoryDetails = useCallback(async () => {
     if (!selectedRepo) return;
@@ -290,6 +338,15 @@ export default function NewAppWithRepoSelection() {
       let databaseConfig;
       if (databaseSource === 'none') {
         databaseConfig = undefined; // No database needed
+      } else if (databaseSource === 'existing') {
+        if (!selectedDatabaseId) {
+          throw new Error('Please select a database');
+        }
+        databaseConfig = {
+          type: dbType,
+          databaseId: selectedDatabaseId,
+          isExternalDatabase: false
+        };
       } else if (databaseSource === 'managed') {
         // Only include fields that have values - don't send empty strings as they become null
         databaseConfig = {
@@ -422,9 +479,13 @@ export default function NewAppWithRepoSelection() {
       setSuccessMessage(null);
       
       await GithubService.deleteInstallation(installationId);
-      setSuccessMessage("Đã ngắt kết nối thành công");
+      setSuccessMessage("Đã ngắt kết nối thành công. Đang làm mới danh sách repositories...");
       
-      setTimeout(() => setSuccessMessage(null), 3000);
+      setTimeout(() => {
+        loadData(false);
+        setSuccessMessage("Đã ngắt kết nối thành công");
+        setTimeout(() => setSuccessMessage(null), 3000);
+      }, 500);
     } catch (err) {
       setError("Không thể ngắt kết nối");
     }
@@ -566,6 +627,8 @@ export default function NewAppWithRepoSelection() {
             {/* Database Configuration */}
             <DatabaseConfigSection
               databaseSource={databaseSource}
+              envVars={envVars}
+              onEnvVarsChange={setEnvVars}
               onDatabaseSourceChange={setDatabaseSource}
               dbType={dbType}
               onDbTypeChange={setDbType}
@@ -577,6 +640,8 @@ export default function NewAppWithRepoSelection() {
               onDbPasswordChange={setDbPassword}
               externalHost={externalHost}
               onExternalHostChange={setExternalHost}
+              selectedDatabaseId={selectedDatabaseId}
+              onSelectedDatabaseIdChange={setSelectedDatabaseId}
             />
 
             {/* Auto Deploy Settings */}

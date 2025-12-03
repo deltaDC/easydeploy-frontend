@@ -98,6 +98,7 @@ export interface DatabaseConfig {
   password?: string;
   isExternalDatabase?: boolean;
   externalHost?: string;
+  databaseId?: string;
 }
 
 // Repository Detail Response
