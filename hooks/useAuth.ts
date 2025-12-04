@@ -78,12 +78,9 @@ const handleRegister = async (email: string, password: string) => {
 			isActive: true
 		};
 		
+		// Store user and token in Zustand store
+		// This automatically persists to localStorage via Zustand persist middleware
 		login(user, response.token);
-		
-		// Store tokens
-		if (typeof window !== "undefined") {
-			localStorage.setItem("auth_token", response.token);
-		}
 		
 		// Redirect based on role
 		if (typeof window !== "undefined") {
@@ -92,7 +89,9 @@ const handleRegister = async (email: string, password: string) => {
 			} else {
 				window.location.href = "/dashboard";
 			}
-		}			return response;
+		}
+		
+		return response;
 		} catch (error) {
 			throw error;
 		} finally {

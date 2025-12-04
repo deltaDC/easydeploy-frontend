@@ -24,6 +24,11 @@ export const AuthService = {
 
 	/**
 	 * Đăng xuất
+	 * 
+	 * Note: Token cleanup is handled by Zustand store's logout() method
+	 * which automatically clears the persisted localStorage data.
+	 * The legacy localStorage keys (auth_token, refresh_token) are cleaned
+	 * here for backward compatibility.
 	 */
 	logout: async (): Promise<void> => {
 		const token = localStorage.getItem("auth_token");
@@ -35,7 +40,7 @@ export const AuthService = {
 			});
 		}
 		
-		// Clear local storage/cookies
+		// Clear legacy storage keys (backward compatibility)
 		if (typeof window !== "undefined") {
 			localStorage.removeItem("auth_token");
 			localStorage.removeItem("refresh_token");

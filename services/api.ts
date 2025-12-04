@@ -27,9 +27,20 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-    // Attach auth token from localStorage - check both possible keys
+    /**
+     * Attach JWT token to request headers
+     * 
+     * Token Storage Strategy:
+     * 1. Primary: Read from Zustand persist storage (key: "auth-storage")
+     * 2. Fallback: Read from legacy direct localStorage (key: "auth_token")
+     * 
+     * The fallback exists for backward compatibility during migration.
+     * All new token writes go through Zustand store only.
+     * 
+     * See /docs/JWT_STORAGE_STRATEGY.md for details
+     */
     if (typeof window !== "undefined") {
-        // Try Zustand persist key first
+        // Try Zustand persist key first (primary storage)
         const authStorage = localStorage.getItem("auth-storage");
         if (authStorage) {
             try {
@@ -43,7 +54,7 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
             }
         }
         
-        // Fallback to direct token key
+        // Fallback to direct token key (legacy support)
         if (!config.headers.Authorization) {
             const token = localStorage.getItem("auth_token");
             if (token) {

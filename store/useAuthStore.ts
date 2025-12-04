@@ -3,6 +3,28 @@ import { persist } from "zustand/middleware";
 import type { User, UserRole } from "@/types/user.type";
 import { normalizeRoles } from "@/utils/auth";
 
+/**
+ * Authentication State Management with Zustand
+ * 
+ * This store manages all authentication-related state including user info, JWT token,
+ * and authentication status. The state is automatically persisted to localStorage
+ * using Zustand's persist middleware.
+ * 
+ * Storage Location: localStorage with key "auth-storage"
+ * 
+ * Structure in localStorage:
+ * {
+ *   "state": {
+ *     "user": { id, email, roles, ... },
+ *     "token": "eyJhbGc...",
+ *     "isAuthenticated": true
+ *   },
+ *   "version": 0
+ * }
+ * 
+ * See /docs/JWT_STORAGE_STRATEGY.md for complete documentation
+ */
+
 type AuthState = {
 	user: User | null;
 	token: string | null;
@@ -75,12 +97,13 @@ export const useAuthStore = create<AuthState>()(
 			},
 		}),
 		{
-			name: 'auth-storage',
-			skipHydration: true,
+			name: 'auth-storage', // localStorage key
+			skipHydration: true, // Prevent SSR hydration issues with Next.js
 			partialize: (state) => ({ 
+				// Only persist these fields (exclude isLoading)
 				user: state.user ? {
 					...state.user,
-					roles: Array.from(state.user.roles)
+					roles: Array.from(state.user.roles) // Convert Set to Array for JSON serialization
 				} : null, 
 				token: state.token,
 				isAuthenticated: state.isAuthenticated 

@@ -2,6 +2,10 @@
 
 EasyDeploy là nền tảng giúp developer tự động triển khai ứng dụng web bằng GitHub repo hoặc Docker image. Frontend này được xây bằng Next.js 15 (App Router), React 19, TypeScript, TailwindCSS v4, Zustand v5, SWR và Axios.
 
+## 📚 Documentation
+
+- **[JWT Storage Strategy](/docs/JWT_STORAGE_STRATEGY.md)** - Hướng dẫn chi tiết về cách JWT tokens được lưu trữ và quản lý
+
 ## Mục tiêu (MVP)
 - Đăng ký/Đăng nhập, OAuth GitHub (callback scaffold)
 - Kết nối GitHub, chọn repository
@@ -81,6 +85,7 @@ npm run start
 ```
 
 ## Ghi chú triển khai
+- **JWT Token Storage**: JWT tokens từ server được lưu trong Zustand store với persist middleware (localStorage key: `auth-storage`). Xem chi tiết tại `/docs/JWT_STORAGE_STRATEGY.md`.
 - `middleware.ts` hiện đang comment chặn auth để dễ demo UI; khi tích hợp backend, bật lại kiểm tra cookie `ed_auth`.
 - Trang `/(auth)/callback/github` đã bọc Suspense và có redirect; cần backend endpoint để exchange `code` -> token và set cookie.
 - Dynamic routes trên Next 15 dùng `params: Promise<...>` với React 19: các page `apps/[appId]` và `apps/[appId]/log` đã cập nhật dùng `use(params)`.
