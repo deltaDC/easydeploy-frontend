@@ -9,12 +9,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Database, DatabaseStatus } from "@/types/database.type";
 import DatabaseService from "@/services/database.service";
 import { formatDateDDMMYYYYHHMMSS } from "@/utils/date";
-import { ArrowLeft, Play, Square, RotateCw, Trash2, Database as DatabaseIcon } from "lucide-react";
+import { ArrowLeft, Play, Square, RotateCw, Trash2, Database as DatabaseIcon, Activity, Terminal } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import ErrorDialog from "@/components/database/ErrorDialog";
 import ConnectionInfoDialog from "@/components/database/ConnectionInfoDialog";
 import DeleteConfirmDialog from "@/components/database/DeleteConfirmDialog";
+import { DatabaseMetricsChart } from "@/components/database-monitoring/DatabaseMetricsChart";
+import { DatabaseLogsViewer } from "@/components/database-monitoring/DatabaseLogsViewer";
+import { SQLQueryEditor } from "@/components/database-monitoring/SQLQueryEditor";
+import { TableBrowser } from "@/components/database-monitoring/TableBrowser";
 
 export default function DatabaseDetailPage() {
   const params = useParams();
@@ -236,7 +240,19 @@ export default function DatabaseDetailPage() {
       <Tabs defaultValue="overview" className="space-y-4">
         <TabsList>
           <TabsTrigger value="overview">Tổng quan</TabsTrigger>
-          <TabsTrigger value="logs">Nhật ký</TabsTrigger>
+          {/* Show Query/Data tab for all database types */}
+          <TabsTrigger value="query">
+            <DatabaseIcon className="h-4 w-4 mr-2" />
+            {database.type === "MONGODB" ? "Data" : database.type === "REDIS" ? "Keys" : "Query"}
+          </TabsTrigger>
+          <TabsTrigger value="metrics">
+            <Activity className="h-4 w-4 mr-2" />
+            Metrics
+          </TabsTrigger>
+          <TabsTrigger value="logs">
+            <Terminal className="h-4 w-4 mr-2" />
+            Nhật ký
+          </TabsTrigger>
           <TabsTrigger value="connection">Kết nối</TabsTrigger>
         </TabsList>
 
@@ -280,11 +296,94 @@ export default function DatabaseDetailPage() {
           </div>
         </TabsContent>
 
+        <TabsContent value="query" className="space-y-4">
+          {database && ["deploying", "pending", "stopped"].includes(database.status.toLowerCase()) ? (
+            <Card>
+              <CardContent className="py-12">
+                <div className="text-center">
+                  <div className="mx-auto mb-4 h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center">
+                    <DatabaseIcon className="h-6 w-6 text-blue-600" />
+                  </div>
+                  <h3 className="text-lg font-semibold mb-2">
+                    {database.status === DatabaseStatus.STOPPED ? "Database đã dừng" : "Database đang được triển khai"}
+                  </h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    {database.status === DatabaseStatus.STOPPED 
+                      ? "Vui lòng khởi động database để sử dụng Query Editor."
+                      : "Query Editor sẽ khả dụng sau khi database được khởi động."}
+                  </p>
+                  <Badge className="bg-blue-100 text-blue-800">
+                    {database.status}
+                  </Badge>
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <>
+              <SQLQueryEditor databaseId={id} databaseType={database.type} />
+              {/* Only show TableBrowser for SQL databases */}
+              {database.type !== "MONGODB" && database.type !== "REDIS" && (
+                <TableBrowser databaseId={id} />
+              )}
+            </>
+          )}
+        </TabsContent>
+
+        <TabsContent value="metrics" className="space-y-4">
+          {database && ["deploying", "pending"].includes(database.status.toLowerCase()) ? (
+            <Card>
+              <CardContent className="py-12">
+                <div className="text-center">
+                  <div className="mx-auto mb-4 h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center">
+                    <Activity className="h-6 w-6 text-blue-600 animate-pulse" />
+                  </div>
+                  <h3 className="text-lg font-semibold mb-2">Database đang được triển khai</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Dữ liệu metrics sẽ khả dụng sau khi quá trình triển khai hoàn tất.
+                  </p>
+                  <Badge className="bg-blue-100 text-blue-800">
+                    {database.status}
+                  </Badge>
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <DatabaseMetricsChart databaseId={id} />
+          )}
+        </TabsContent>
+
         <TabsContent value="logs">
+          {database && ["deploying", "pending"].includes(database.status.toLowerCase()) ? (
+            <Card>
+              <CardHeader>
+                <CardTitle>Nhật ký</CardTitle>
+                <CardDescription>Nhật ký container</CardDescription>
+              </CardHeader>
+              <CardContent className="py-12">
+                <div className="text-center">
+                  <div className="mx-auto mb-4 h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center">
+                    <Terminal className="h-6 w-6 text-blue-600 animate-pulse" />
+                  </div>
+                  <h3 className="text-lg font-semibold mb-2">Database đang được triển khai</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Logs sẽ khả dụng sau khi database được khởi động.
+                  </p>
+                  <Badge className="bg-blue-100 text-blue-800">
+                    {database.status}
+                  </Badge>
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <DatabaseLogsViewer databaseId={id} maxLines={500} />
+          )}
+        </TabsContent>
+
+        <TabsContent value="logs-old">
           <Card>
             <CardHeader>
-              <CardTitle>Nhật ký</CardTitle>
-              <CardDescription>Nhật ký container</CardDescription>
+              <CardTitle>Nhật ký (Legacy)</CardTitle>
+              <CardDescription>Nhật ký container - Phiên bản cũ</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="bg-muted p-4 rounded-md font-mono text-sm max-h-96 overflow-y-auto">
