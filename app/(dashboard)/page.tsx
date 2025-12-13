@@ -24,13 +24,13 @@ export default function DashboardHome() {
 							<Button asChild variant="outline" className="gap-2">
 								<Link href="/databases/new">
 									<Database className="h-4 w-4" />
-									Deploy Database
+									Triển khai Database
 								</Link>
 							</Button>
 							<Button asChild className="gap-2">
 								<Link href="/apps/new">
 									<Plus className="h-4 w-4" />
-									Deploy mới
+									Triển khai mới
 								</Link>
 							</Button>
 						</div>
@@ -44,13 +44,13 @@ export default function DashboardHome() {
 							<CardHeader className="pb-3">
 								<CardTitle className="text-lg font-semibold flex items-center gap-2">
 									<Activity className="h-5 w-5" />
-									Usage (30 ngày)
+									Sử dụng (30 ngày)
 								</CardTitle>
 							</CardHeader>
 							<CardContent className="space-y-4">
 								<div className="space-y-2">
 									<div className="flex items-center justify-between text-sm">
-										<span className="text-muted-foreground">Data Transfer</span>
+										<span className="text-muted-foreground">Truyền dữ liệu</span>
 										<span className="font-medium">0 / 100 GB</span>
 									</div>
 									<Progress value={0} className="h-2" />
@@ -83,11 +83,11 @@ export default function DashboardHome() {
 							<CardHeader className="pb-3">
 								<CardTitle className="text-lg font-semibold flex items-center gap-2">
 									<GitBranch className="h-5 w-5" />
-									Recent Previews
+									Xem trước gần đây
 								</CardTitle>
 							</CardHeader>
 							<CardContent>
-								<p className="text-muted-foreground text-sm">Chưa có preview nào gần đây.</p>
+								<p className="text-muted-foreground text-sm">Chưa có xem trước nào gần đây.</p>
 							</CardContent>
 						</Card>
 					</div>
@@ -102,12 +102,12 @@ export default function DashboardHome() {
 											<Zap className="h-6 w-6 text-muted-foreground" />
 										</div>
 										<div className="space-y-2">
-											<h3 className="text-lg font-semibold">Deploy dự án đầu tiên của bạn</h3>
-											<p className="text-muted-foreground text-sm">Import từ Git provider hoặc chọn một template có sẵn.</p>
+											<h3 className="text-lg font-semibold">Triển khai dự án đầu tiên của bạn</h3>
+											<p className="text-muted-foreground text-sm">Nhập từ Git provider hoặc chọn một template có sẵn.</p>
 										</div>
 						<div className="flex justify-center gap-3">
 							<Button asChild>
-								<Link href="/import">Import từ GitHub</Link>
+								<Link href="/import">Nhập từ GitHub</Link>
 							</Button>
 							<Button asChild variant="outline">
 								<Link href="/apps/new">
@@ -117,7 +117,7 @@ export default function DashboardHome() {
 							<Button asChild variant="outline" className="gap-2">
 								<Link href="/databases/new">
 									<Database className="h-4 w-4" />
-									Deploy Database
+									Triển khai Database
 								</Link>
 							</Button>
 						</div>
@@ -134,11 +134,11 @@ export default function DashboardHome() {
 								</CardHeader>
 								<CardContent className="space-y-3">
 									<div className="flex items-center justify-between">
-										<span className="text-sm text-muted-foreground">Status</span>
-										<Badge variant="secondary">Not deployed</Badge>
+										<span className="text-sm text-muted-foreground">Trạng thái</span>
+										<Badge variant="secondary">Chưa triển khai</Badge>
 									</div>
 									<Button variant="outline" className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-										Deploy
+										Triển khai
 									</Button>
 								</CardContent>
 							</Card>
@@ -150,11 +150,11 @@ export default function DashboardHome() {
 								</CardHeader>
 								<CardContent className="space-y-3">
 									<div className="flex items-center justify-between">
-										<span className="text-sm text-muted-foreground">Status</span>
-										<Badge variant="secondary">Not deployed</Badge>
+										<span className="text-sm text-muted-foreground">Trạng thái</span>
+										<Badge variant="secondary">Chưa triển khai</Badge>
 									</div>
 									<Button variant="outline" className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-										Deploy
+										Triển khai
 									</Button>
 								</CardContent>
 							</Card>

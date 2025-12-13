@@ -101,6 +101,20 @@ export interface DatabaseConfig {
   databaseId?: string;
 }
 
+export interface RunningApplication {
+  id: string;
+  name: string;
+  status: string;
+  publicUrl: string;
+  language?: string;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+export interface ConnectedAppConfig {
+  appId?: string;
+}
+
 // Repository Detail Response
 export interface RepositoryDetailResponse {
   id: number; // GitHub repo ID

@@ -15,7 +15,7 @@ import {
 	PaginationPrevious,
 	PaginationEllipsis 
 } from "@/components/ui/pagination";
-import { Search, List, Grid3X3, Play, Pause, AlertCircle, View } from "lucide-react";
+import { Search, List, Grid3X3, Play, Pause, AlertCircle, View, ExternalLink } from "lucide-react";
 import ApplicationService from "@/services/application.service";
 import { SortDirection } from "@/types/enum/sort-direction.enum";
 import { 
@@ -26,6 +26,7 @@ import {
 } from "@/types/application.type";
 import { formatDateDDMMYYYYHHMMSS } from "@/utils/date";
 import Link from "next/link";
+import { translateStatus } from "@/lib/status-translations";
 
 export default function ApplicationsTable() {
 	const [query, setQuery] = useState("");
@@ -111,7 +112,7 @@ export default function ApplicationsTable() {
 					<div className="relative">
 						<Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
 						<Input 
-							placeholder="Search applications..." 
+							placeholder="Tìm kiếm ứng dụng..." 
 							value={query} 
 							onChange={(e) => setQuery(e.target.value)}
 							className="pl-10 w-64"
@@ -122,11 +123,11 @@ export default function ApplicationsTable() {
 							<SelectValue />
 						</SelectTrigger>
 						<SelectContent>
-							<SelectItem value="all">All</SelectItem>
-							<SelectItem value="SUCCESS">Success</SelectItem>
-							<SelectItem value="FAILED">Failed</SelectItem>
-							<SelectItem value="PENDING">Pending</SelectItem>
-							<SelectItem value="IN_PROGRESS">In Progress</SelectItem>
+							<SelectItem value="all">Tất cả</SelectItem>
+							<SelectItem value="SUCCESS">Thành công</SelectItem>
+							<SelectItem value="FAILED">Thất bại</SelectItem>
+							<SelectItem value="PENDING">Chờ xử lý</SelectItem>
+							<SelectItem value="IN_PROGRESS">Đang xử lý</SelectItem>
 						</SelectContent>
 					</Select>
 				</div>
@@ -138,7 +139,7 @@ export default function ApplicationsTable() {
 						className="gap-2"
 					>
 						<List className="h-4 w-4" />
-						List
+						Danh sách
 					</Button>
 					<Button 
 						variant={view === "grid" ? "default" : "outline"} 
@@ -147,7 +148,7 @@ export default function ApplicationsTable() {
 						className="gap-2"
 					>
 						<Grid3X3 className="h-4 w-4" />
-						Grid
+						Lưới
 					</Button>
 				</div>
 			</div>
@@ -181,11 +182,11 @@ export default function ApplicationsTable() {
 					<Table>
 						<TableHeader>
 							<TableRow>
-								<TableHead>Service name</TableHead>
-								<TableHead>Status</TableHead>
-								<TableHead>Public URL</TableHead>
-								<TableHead>Created At</TableHead>
-								<TableHead className="w-[100px]">Actions</TableHead>
+								<TableHead>Tên ứng dụng</TableHead>
+								<TableHead>Trạng thái</TableHead>
+								<TableHead>URL</TableHead>
+								<TableHead>Ngày tạo</TableHead>
+								<TableHead className="w-[100px]">Thao tác</TableHead>
 							</TableRow>
 						</TableHeader>
 						<TableBody>
@@ -199,13 +200,24 @@ export default function ApplicationsTable() {
 									<TableCell>
 										<Badge variant="secondary" className="gap-1">
 											<Pause className="h-3 w-3" />
-											{application.status}
+											{translateStatus(application.status)}
 										</Badge>
 									</TableCell>
-									{/* <TableCell>
-										<Badge variant="outline">{application.publicUrl}</Badge>
-									</TableCell> */}
-									<TableCell className="text-muted-foreground">{application.publicUrl}</TableCell>
+									<TableCell>
+										{application.publicUrl ? (
+											<a
+												href={application.publicUrl}
+												target="_blank"
+												rel="noopener noreferrer"
+												className="text-primary hover:underline flex items-center gap-1"
+											>
+												{application.publicUrl}
+												<ExternalLink className="h-3 w-3" />
+											</a>
+										) : (
+											<span className="text-muted-foreground">N/A</span>
+										)}
+									</TableCell>
 									<TableCell className="text-muted-foreground">{formatDateDDMMYYYYHHMMSS(application.createdAt)}</TableCell>
 									<TableCell>
 										<Button variant="outline" size="sm" asChild>
@@ -232,18 +244,30 @@ export default function ApplicationsTable() {
 									</CardTitle>
 									<Badge variant="secondary" className="gap-1">
 										<Pause className="h-3 w-3" />
-										{application.status}
+										{translateStatus(application.status)}
 									</Badge>
 								</div>
 								<CardDescription className="flex items-center gap-2">
-									<Badge variant="outline" className="text-xs">{application.publicUrl}</Badge>
+									{application.publicUrl ? (
+										<a
+											href={application.publicUrl}
+											target="_blank"
+											rel="noopener noreferrer"
+											className="text-xs text-primary hover:underline flex items-center gap-1"
+										>
+											{application.publicUrl}
+											<ExternalLink className="h-3 w-3" />
+										</a>
+									) : (
+										<span className="text-xs text-muted-foreground">N/A</span>
+									)}
 									<span className="text-xs text-muted-foreground">{formatDateDDMMYYYYHHMMSS(application.createdAt)}</span>
 								</CardDescription>
 							</CardHeader>
 							<CardContent className="pt-0">
 								<Button variant="outline" size="sm" className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
 									<Play className="h-4 w-4 mr-2" />
-									Deploy
+									Triển khai
 								</Button>
 							</CardContent>
 						</Card>
@@ -256,10 +280,10 @@ export default function ApplicationsTable() {
 				<div className="flex flex-col gap-4">
 					<div className="flex items-center justify-between">
 						<div className="text-sm text-muted-foreground">
-							Showing {pageInfo.number * pageInfo.size + 1} to {Math.min((pageInfo.number + 1) * pageInfo.size, pageInfo.totalElements)} of {pageInfo.totalElements} results
+							Hiển thị {pageInfo.number * pageInfo.size + 1} đến {Math.min((pageInfo.number + 1) * pageInfo.size, pageInfo.totalElements)} trong tổng số {pageInfo.totalElements} kết quả
 						</div>
 						<div className="flex items-center gap-2">
-							<span className="text-sm text-muted-foreground">Items per page:</span>
+							<span className="text-sm text-muted-foreground">Số mục mỗi trang:</span>
 							<Select value={paginationRequest.size.toString()} onValueChange={(value) => handleSizeChange(parseInt(value))}>
 								<SelectTrigger className="w-20">
 									<SelectValue />

@@ -148,6 +148,81 @@ body {
 }
 
 @layer utilities {
+  /* Typography Scale */
+  .text-display {
+    @apply text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight;
+  }
+  
+  .text-h1 {
+    @apply text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight;
+  }
+  
+  .text-h2 {
+    @apply text-3xl md:text-4xl font-bold tracking-tight;
+  }
+  
+  .text-h3 {
+    @apply text-2xl md:text-3xl font-semibold;
+  }
+  
+  .text-h4 {
+    @apply text-xl md:text-2xl font-semibold;
+  }
+  
+  .text-body-lg {
+    @apply text-lg leading-relaxed;
+  }
+  
+  .text-body {
+    @apply text-base leading-normal;
+  }
+  
+  .text-body-sm {
+    @apply text-sm leading-normal;
+  }
+  
+  .text-caption {
+    @apply text-xs leading-tight;
+  }
+
+  .space-section {
+    @apply py-16 md:py-20 lg:py-24;
+  }
+  
+  .space-section-sm {
+    @apply py-12 md:py-16;
+  }
+
+  .shadow-elevation-1 {
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  }
+  
+  .shadow-elevation-2 {
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+  }
+  
+  .shadow-elevation-3 {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  }
+  
+  .shadow-elevation-4 {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .shadow-elevation-5 {
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  }
+
+  .transition-smooth {
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 200ms;
+  }
+  
+  .transition-smooth-slow {
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 500ms;
+  }
+
   .line-clamp-2 {
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -185,12 +260,12 @@ body {
   }
   
   .scrollbar-hide {
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
   
   .scrollbar-hide::-webkit-scrollbar {
-    display: none;  /* Chrome, Safari, Opera */
+    display: none;
   }
   
   .animate-fade-in {
@@ -209,7 +284,7 @@ body {
   }
   
   .animate-slide-up {
-    animation: slideUp 0.2s ease-out;
+    animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
   
   @keyframes slideUp {
@@ -223,12 +298,91 @@ body {
     }
   }
   
-  .scrollbar-hide {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+  .animate-slide-in-left {
+    animation: slideInLeft 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
   
-  .scrollbar-hide::-webkit-scrollbar {
-    display: none;
+  @keyframes slideInLeft {
+    from {
+      opacity: 0;
+      transform: translateX(-30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  
+  .animate-slide-in-right {
+    animation: slideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  @keyframes slideInRight {
+    from {
+      opacity: 0;
+      transform: translateX(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  
+  .animate-scale-in {
+    animation: scaleIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+  
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+  
+  .animate-pulse-slow {
+    animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  
+  /* Hover Effects */
+  .hover-lift {
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .hover-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .hover-scale {
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .hover-scale:hover {
+    transform: scale(1.05);
+  }
+  
+  .hover-glow {
+    transition: box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .hover-glow:hover {
+    box-shadow: 0 0 20px rgba(var(--primary-rgb, 14, 165, 233), 0.3);
   }
 }

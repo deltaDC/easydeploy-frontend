@@ -189,7 +189,7 @@ export default function MonitoringPage() {
       <div className="py-6">
         <div className="container mx-auto px-4 space-y-6 max-w-[1600px]">
           <PageHeader
-            title="System Monitoring"
+            title="Giám sát hệ thống"
             description="Giám sát log và tài nguyên hệ thống"
           />
           <div className="flex items-center justify-center h-[400px]">
@@ -207,7 +207,7 @@ export default function MonitoringPage() {
     <div className="py-6">
       <div className="container mx-auto px-4 space-y-6 max-w-[1600px]">
         <PageHeader
-          title="System Monitoring"
+          title="Giám sát hệ thống"
           description="Giám sát log và tài nguyên hệ thống"
           actions={
             <div className="flex items-center gap-3">
@@ -216,25 +216,25 @@ export default function MonitoringPage() {
                 {isConnected ? (
                   <>
                     <Wifi className="h-3 w-3" />
-                    Real-time
+                    Thời gian thực
                   </>
                 ) : (
                   <>
                     <WifiOff className="h-3 w-3" />
-                    Disconnected
+                    Đã ngắt kết nối
                   </>
                 )}
               </Badge>
               
               {lastUpdate && isConnected && (
                 <span className="text-xs text-muted-foreground">
-                  Last update: {lastUpdate.toLocaleTimeString()}
+                  Cập nhật lần cuối: {lastUpdate.toLocaleTimeString()}
                 </span>
               )}
               
               <Button onClick={handleRefreshAll} variant="outline" size="sm" disabled={isLoading}>
                 <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-                Refresh
+                Làm mới
               </Button>
             </div>
           }
@@ -242,9 +242,9 @@ export default function MonitoringPage() {
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
           <TabsList>
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="containers">Containers</TabsTrigger>
-            <TabsTrigger value="logs">System Logs</TabsTrigger>
+            <TabsTrigger value="overview">Tổng quan</TabsTrigger>
+            <TabsTrigger value="containers">Container</TabsTrigger>
+            <TabsTrigger value="logs">Nhật ký hệ thống</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-4">
@@ -256,21 +256,21 @@ export default function MonitoringPage() {
                 {/* Time Series Charts */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <MetricChart
-                    title="Process CPU Usage"
+                    title="Sử dụng CPU tiến trình"
                     data={prometheusMetrics.cpuHistory}
                     unit="%"
                     color="#3b82f6"
                   />
                   <MetricChart
-                    title="JVM Heap Memory"
+                    title="Bộ nhớ JVM Heap"
                     data={prometheusMetrics.memoryHistory}
                     unit="%"
                     color="#10b981"
                   />
                   <MetricChart
-                    title="Request Rate"
+                    title="Tỷ lệ yêu cầu"
                     data={prometheusMetrics.requestRateHistory}
-                    unit=" req/s"
+                    unit=" yêu cầu/s"
                     color="#8b5cf6"
                   />
                 </div>

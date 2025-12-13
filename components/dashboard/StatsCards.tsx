@@ -21,15 +21,15 @@ export function StatsCards({ stats }: StatsCardsProps) {
       icon: CheckCircle2,
       color: 'text-green-600',
       bgColor: 'bg-green-100 dark:bg-green-900/20',
-      description: 'SUCCESS',
+      description: 'Thành công',
     },
     {
-      title: 'Đang deploy',
+      title: 'Đang triển khai',
       value: stats.stoppedApplications,
       icon: Pause,
       color: 'text-purple-600',
       bgColor: 'bg-purple-100 dark:bg-purple-900/20',
-      description: 'PENDING',
+      description: 'Chờ xử lý',
     },
     {
       title: 'Lỗi/Crash',
@@ -37,7 +37,7 @@ export function StatsCards({ stats }: StatsCardsProps) {
       icon: XCircle,
       color: 'text-red-600',
       bgColor: 'bg-red-100 dark:bg-red-900/20',
-      description: 'FAILED',
+      description: 'Thất bại',
     },
     
   ];

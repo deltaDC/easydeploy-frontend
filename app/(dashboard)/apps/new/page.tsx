@@ -9,7 +9,7 @@ function NewAppContent() {
 
 export default function NewAppPage() {
 	return (
-		<Suspense fallback={<div className="flex items-center justify-center min-h-[400px]">Loading...</div>}>
+		<Suspense fallback={<div className="flex items-center justify-center min-h-[400px]">Đang tải...</div>}>
 			<NewAppContent />
 		</Suspense>
 	);

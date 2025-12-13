@@ -17,6 +17,7 @@ export function DatabaseLogsViewer({ databaseId, maxLines = 100 }: DatabaseLogsV
   const [error, setError] = useState<string | null>(null);
   const [isPaused, setIsPaused] = useState(false);
   const [autoScroll, setAutoScroll] = useState(true);
+  const [databaseStatus, setDatabaseStatus] = useState<{ isHealthy: boolean; healthMessage: string } | null>(null);
   
   const eventSourceRef = useRef<EventSource | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -81,6 +82,25 @@ export function DatabaseLogsViewer({ databaseId, maxLines = 100 }: DatabaseLogsV
   }, [databaseId, maxLines, isPaused]);
 
   useEffect(() => {
+    const checkDatabaseStatus = async () => {
+      try {
+        const metrics = await DatabaseMonitoringService.getDatabaseMetrics(databaseId);
+        setDatabaseStatus({
+          isHealthy: metrics.isHealthy,
+          healthMessage: metrics.healthMessage || ""
+        });
+      } catch (err) {
+        console.error("Failed to get database status:", err);
+      }
+    };
+    
+    checkDatabaseStatus();
+    const interval = setInterval(checkDatabaseStatus, 10000);
+    
+    return () => clearInterval(interval);
+  }, [databaseId]);
+
+  useEffect(() => {
     if (autoScroll && scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
@@ -127,18 +147,27 @@ export function DatabaseLogsViewer({ databaseId, maxLines = 100 }: DatabaseLogsV
               Database Logs
             </CardTitle>
             <CardDescription className="flex items-center gap-2 mt-2">
-              {isConnected && (
-                <span className="inline-flex items-center gap-1">
-                  <span className="h-2 w-2 bg-green-500 rounded-full animate-pulse"></span>
-                  <span className="text-xs text-green-600">Live</span>
-                </span>
-              )}
-              {error && (
-                <Badge variant="destructive" className="text-xs">{error}</Badge>
-              )}
-              {isPaused && (
-                <Badge variant="secondary" className="text-xs">Paused</Badge>
-              )}
+              {(() => {
+                const displayConnected = databaseStatus?.isHealthy || isConnected;
+                const displayError = error && (!databaseStatus || !databaseStatus.isHealthy) ? error : null;
+                
+                return (
+                  <>
+                    {displayConnected && !displayError && (
+                      <span className="inline-flex items-center gap-1">
+                        <span className="h-2 w-2 bg-green-500 rounded-full animate-pulse"></span>
+                        <span className="text-xs text-green-600">Live</span>
+                      </span>
+                    )}
+                    {displayError && (
+                      <Badge variant="destructive" className="text-xs">{displayError}</Badge>
+                    )}
+                    {isPaused && (
+                      <Badge variant="secondary" className="text-xs">Paused</Badge>
+                    )}
+                  </>
+                );
+              })()}
             </CardDescription>
           </div>
           <div className="flex gap-2">
