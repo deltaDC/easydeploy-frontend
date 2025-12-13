@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, ExternalLink, Play, Pause, RotateCcw, Settings, Activity, Terminal, FileText, Trash2 } from "lucide-react";
+import { ArrowLeft, ExternalLink, Play, Pause, RotateCcw, Settings, Activity, Terminal, FileText, Trash2, History } from "lucide-react";
 import Link from "next/link";
 import ApplicationService from "@/services/application.service";
 import BuildLogService from "@/services/build-log.service";
@@ -17,6 +17,7 @@ import { translateStatus } from "@/lib/status-translations";
 import { useBuildLogWebSocket } from "@/hooks/useBuildLogWebSocket";
 import { AppMetricsChartCard } from "@/components/app-monitoring/AppMetricsChartCard";
 import { AppLogsViewer } from "@/components/app-monitoring/AppLogsViewer";
+import { DeploymentHistoryTab } from "@/components/app-monitoring/DeploymentHistoryTab";
 import { AppControlActions } from "@/components/app-monitoring/AppControlActions";
 
 export default function ApplicationDetailPage() {
@@ -239,7 +240,7 @@ export default function ApplicationDetailPage() {
 			)}
 
 			<Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-				<TabsList className="grid w-full grid-cols-4">
+				<TabsList className="grid w-full grid-cols-5">
 					<TabsTrigger value="overview" className="flex items-center gap-2">
 						<FileText className="h-4 w-4" />
 						Tổng quan
@@ -255,6 +256,10 @@ export default function ApplicationDetailPage() {
 					<TabsTrigger value="build-logs" className="flex items-center gap-2">
 						<FileText className="h-4 w-4" />
 						Nhật ký build
+					</TabsTrigger>
+					<TabsTrigger value="history" className="flex items-center gap-2">
+						<History className="h-4 w-4" />
+						Lịch sử
 					</TabsTrigger>
 				</TabsList>
 
@@ -505,6 +510,11 @@ export default function ApplicationDetailPage() {
 							)}
 						</CardContent>
 					</Card>
+				</TabsContent>
+
+				{/* History Tab */}
+				<TabsContent value="history" className="space-y-6" forceMount hidden={activeTab !== "history"}>
+					<DeploymentHistoryTab appId={appId} />
 				</TabsContent>
 			</Tabs>
 		</div>
