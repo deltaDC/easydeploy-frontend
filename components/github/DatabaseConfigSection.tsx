@@ -217,12 +217,12 @@ export function DatabaseConfigSection({
           <CardTitle>Database Configuration</CardTitle>
         </div>
         <CardDescription>
-          Choose to use a platform-managed database or connect your own external database
+          Chọn sử dụng cơ sở dữ liệu được quản lý bởi nền tảng hoặc kết nối cơ sở dữ liệu bên ngoài của riêng bạn
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-3">
-          <Label>Database Option</Label>
+          <Label>Tùy chọn cơ sở dữ liệu</Label>
           <RadioGroup value={databaseSource} onValueChange={(value: string) => {
             onDatabaseSourceChange(value as 'none' | 'managed' | 'external' | 'existing');
             if (value !== 'existing') {
@@ -233,22 +233,22 @@ export function DatabaseConfigSection({
             <div className="flex items-center space-x-2 py-2">
               <RadioGroupItem value="none" id="db-none" />
               <Label htmlFor="db-none" className="font-normal cursor-pointer">
-                No Database
+                Không sử dụng cơ sở dữ liệu
               </Label>
             </div>
             <div className="flex items-center space-x-2 py-2">
               <RadioGroupItem value="existing" id="db-existing" />
               <Label htmlFor="db-existing" className="font-normal cursor-pointer">
-                Use Existing Deployed Database
+                Sử dụng cơ sở dữ liệu đã triển khai
                 <span className="text-muted-foreground text-sm ml-2">
-                  (Select from your deployed databases)
+                  (Chọn từ các cơ sở dữ liệu đã triển khai của bạn)
                 </span>
               </Label>
             </div>
             <div className="flex items-center space-x-2 py-2">
               <RadioGroupItem value="managed" id="db-managed" />
               <Label htmlFor="db-managed" className="font-normal cursor-pointer">
-                Create New Platform Database
+                Tạo cơ sở dữ liệu nền tảng mới
                 <span className="text-muted-foreground text-sm ml-2">
                   (PostgreSQL, MySQL, MongoDB, Redis)
                 </span>
@@ -257,9 +257,9 @@ export function DatabaseConfigSection({
             <div className="flex items-center space-x-2 py-2">
               <RadioGroupItem value="external" id="db-external" />
               <Label htmlFor="db-external" className="font-normal cursor-pointer">
-                Connect External Database
+                Kết nối cơ sở dữ liệu bên ngoài
                 <span className="text-muted-foreground text-sm ml-2">
-                  (AWS RDS, Azure Database, etc.)
+                  (AWS RDS, Azure Database, v.v.)
                 </span>
               </Label>
             </div>
@@ -278,13 +278,13 @@ export function DatabaseConfigSection({
               ) : loadingConnectionInfo ? (
                 <div className="flex items-center space-x-2 text-sm text-muted-foreground">
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  <span>Loading connection info...</span>
+                  <span>Đang tải thông tin kết nối...</span>
                 </div>
               ) : databases.length === 0 ? (
                 <Alert className="bg-yellow-50 dark:bg-yellow-950 border-yellow-200 dark:border-yellow-800">
                   <AlertCircle className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
                   <AlertDescription className="text-yellow-800 dark:text-yellow-200">
-                    No databases found. Please deploy a database first.
+                    Không tìm thấy cơ sở dữ liệu. Vui lòng triển khai một cơ sở dữ liệu trước.
                   </AlertDescription>
                 </Alert>
               ) : (
@@ -293,13 +293,13 @@ export function DatabaseConfigSection({
                   onValueChange={handleDatabaseSelect}
                 >
                   <SelectTrigger id="existing-db">
-                    <SelectValue placeholder="Select a database" />
+                    <SelectValue placeholder="Chọn một cơ sở dữ liệu" />
                   </SelectTrigger>
                   <SelectContent>
                     {runningDatabases.length > 0 && (
                       <>
                         <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
-                          Running Databases
+                          Cơ sở dữ liệu đang chạy
                         </div>
                         {runningDatabases.map((db) => (
                           <SelectItem key={db.id} value={db.id}>
@@ -317,14 +317,14 @@ export function DatabaseConfigSection({
                       <>
                         {runningDatabases.length > 0 && <Separator className="my-1" />}
                         <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
-                          Stopped Databases
+                          Cơ sở dữ liệu đã dừng
                         </div>
                         {stoppedDatabases.map((db) => (
                           <SelectItem key={db.id} value={db.id}>
                             <div className="flex items-center justify-between w-full">
                               <span>{db.name}</span>
                               <span className="text-xs text-muted-foreground ml-2">
-                                {getTypeLabel(db.type)} {db.version} (Stopped)
+                                {getTypeLabel(db.type)} {db.version} (Đã dừng)
                               </span>
                             </div>
                           </SelectItem>
@@ -356,7 +356,7 @@ export function DatabaseConfigSection({
                   Database &quot;{selectedDatabase.name}&quot; ({getTypeLabel(selectedDatabase.type)}) đang chạy và sẵn sàng kết nối.
                   <br />
                   <br />
-                  Connection details đã được tự động thêm vào Environment Variables section. Bạn có thể xem và chỉnh sửa nếu cần.
+                  Chi tiết kết nối đã được tự động thêm vào phần Biến môi trường. Bạn có thể xem và chỉnh sửa nếu cần.
                 </AlertDescription>
               </Alert>
             )}
@@ -366,10 +366,10 @@ export function DatabaseConfigSection({
         {databaseSource === 'managed' && (
           <div className="space-y-4 pt-4 border-t">
             <div className="space-y-2">
-              <Label htmlFor="db-type">Database Type *</Label>
+              <Label htmlFor="db-type">Loại cơ sở dữ liệu *</Label>
               <Select value={dbType} onValueChange={(value) => onDbTypeChange(value as 'postgres' | 'mysql' | 'mongodb' | 'redis')}>
                 <SelectTrigger id="db-type">
-                  <SelectValue placeholder="Select database type" />
+                  <SelectValue placeholder="Chọn loại cơ sở dữ liệu" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="postgres">PostgreSQL</SelectItem>
@@ -381,35 +381,35 @@ export function DatabaseConfigSection({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="db-name">Database Name (optional)</Label>
+              <Label htmlFor="db-name">Tên cơ sở dữ liệu (tùy chọn)</Label>
               <Input
                 id="db-name"
-                placeholder="Leave empty for auto-generated name"
+                placeholder="Để trống để tự động tạo tên"
                 value={dbName}
                 onChange={(e) => onDbNameChange(e.target.value)}
               />
               <p className="text-xs text-muted-foreground">
-                If not provided, a name will be auto-generated based on your app name
+                Nếu không cung cấp, tên sẽ được tự động tạo dựa trên tên ứng dụng của bạn
               </p>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="db-username">Username (optional)</Label>
+                <Label htmlFor="db-username">Tên người dùng (tùy chọn)</Label>
                 <Input
                   id="db-username"
-                  placeholder="Default: admin"
+                  placeholder="Mặc định: admin"
                   value={dbUsername}
                   onChange={(e) => onDbUsernameChange(e.target.value)}
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="db-password">Password (optional)</Label>
+                <Label htmlFor="db-password">Mật khẩu (tùy chọn)</Label>
                 <Input
                   id="db-password"
                   type="password"
-                  placeholder="Default: admin123"
+                  placeholder="Mặc định: admin123"
                   value={dbPassword}
                   onChange={(e) => onDbPasswordChange(e.target.value)}
                 />
@@ -419,17 +419,17 @@ export function DatabaseConfigSection({
             <Alert className="bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800">
               <Info className="h-4 w-4 text-green-600 dark:text-green-400" />
               <AlertDescription className="text-green-800 dark:text-green-200">
-                <strong>Automatic Setup:</strong> The database will be created automatically and connection details will be injected as environment variables.
+                <strong>Thiết lập tự động:</strong> Cơ sở dữ liệu sẽ được tạo tự động và chi tiết kết nối sẽ được chèn dưới dạng biến môi trường.
                 <br />
                 <br />
-                <strong>You do NOT need to add DATABASE_URL in Environment Variables section.</strong>
+                <strong>Bạn KHÔNG cần thêm DATABASE_URL trong phần Biến môi trường.</strong>
                 <br />
                 <br />
-                Auto-injected variables:
+                Các biến được tự động chèn:
                 <ul className="list-disc list-inside text-xs mt-1 space-y-0.5">
                   <li><code className="bg-green-100 dark:bg-green-900 px-1 rounded">DATABASE_URL</code></li>
-                  <li><code className="bg-green-100 dark:bg-green-900 px-1 rounded">SPRING_DATASOURCE_URL</code> (for Java apps)</li>
-                  <li><code className="bg-green-100 dark:bg-green-900 px-1 rounded">MONGO_URI</code> (for MongoDB)</li>
+                  <li><code className="bg-green-100 dark:bg-green-900 px-1 rounded">SPRING_DATASOURCE_URL</code> (cho ứng dụng Java)</li>
+                  <li><code className="bg-green-100 dark:bg-green-900 px-1 rounded">MONGO_URI</code> (cho MongoDB)</li>
                 </ul>
               </AlertDescription>
             </Alert>
@@ -441,13 +441,13 @@ export function DatabaseConfigSection({
             <Alert className="bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800">
               <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />
               <AlertDescription className="text-blue-800 dark:text-blue-200">
-                <strong>📝 Using Your Own Database:</strong>
+                <strong>📝 Sử dụng cơ sở dữ liệu của riêng bạn:</strong>
                 <br />
                 <br />
-                When using an external database, you only need to provide the connection string in the <strong>Environment Variables section</strong>.
+                Khi sử dụng cơ sở dữ liệu bên ngoài, bạn chỉ cần cung cấp chuỗi kết nối trong <strong>phần Biến môi trường</strong>.
                 <br />
                 <br />
-                <strong>Examples:</strong>
+                <strong>Ví dụ:</strong>
                 <div className="mt-2 space-y-2 text-xs">
                   <div>
                     <strong>PostgreSQL:</strong>

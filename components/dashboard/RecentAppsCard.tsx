@@ -191,13 +191,15 @@ export function RecentAppsCard({ apps, onUpdate }: RecentAppsCardProps) {
                       {app.name}
                     </Link>
                     {app.publicUrl && (
-                      <Link
+                      <a
                         href={app.publicUrl}
                         target="_blank"
+                        rel="noopener noreferrer"
                         className="text-muted-foreground hover:text-foreground shrink-0"
+                        title={app.publicUrl}
                       >
                         <ExternalLink className="h-3 w-3" />
-                      </Link>
+                      </a>
                     )}
                   </div>
                   <div className="flex items-center gap-3 text-xs text-muted-foreground">

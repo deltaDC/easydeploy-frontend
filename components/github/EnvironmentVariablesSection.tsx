@@ -133,12 +133,12 @@ export function EnvironmentVariablesSection({
           <div className="space-y-2">
             <div className="flex gap-2">
               <Input
-                placeholder="NAME_OF_VARIABLE"
+                placeholder="TÊN_BIẾN"
                 disabled
                 className="flex-1"
               />
               <Input
-                placeholder="value"
+                placeholder="Giá trị"
                 disabled
                 className="flex-1"
               />
@@ -150,7 +150,7 @@ export function EnvironmentVariablesSection({
             return (
               <div key={index} className="flex gap-2 items-center">
                 <Input
-                  placeholder="NAME_OF_VARIABLE"
+                  placeholder="TÊN_BIẾN"
                   value={envVar.key}
                   onChange={(e) => handleEnvVarChange(index, 'key', e.target.value)}
                   style={{ 
@@ -162,7 +162,7 @@ export function EnvironmentVariablesSection({
                 />
                 <div className="relative" style={{ width: '350px', height: '40px' }}>
                   <Textarea
-                    placeholder="value"
+                    placeholder="Giá trị"
                     value={isHidden ? maskValue(envVar.value) : envVar.value}
                     onChange={(e) => {
                       if (!isHidden) {
@@ -191,7 +191,7 @@ export function EnvironmentVariablesSection({
                     className="absolute right-2 top-1/2 -translate-y-1/2 h-7 w-7 hover:bg-muted"
                     onClick={() => toggleEnvVarVisibility(index)}
                     type="button"
-                    title={isHidden ? "Show value" : "Hide value"}
+                    title={isHidden ? "Hiển thị giá trị" : "Ẩn giá trị"}
                   >
                     {isHidden ? (
                       <Eye className="h-4 w-4 text-muted-foreground" />

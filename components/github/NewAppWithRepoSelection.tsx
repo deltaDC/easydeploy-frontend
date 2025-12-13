@@ -18,6 +18,7 @@ import { CredentialsSection } from "./CredentialsSection";
 import { EnvironmentVariablesSection } from "./EnvironmentVariablesSection";
 
 import { DatabaseConfigSection } from "./DatabaseConfigSection";
+import { ConnectedAppSection } from "./ConnectedAppSection";
 import PublicRepoUrlInput from "./PublicRepoUrlInput";
 import { useRepositoryManagement } from "@/hooks/useRepositoryManagement";
 import { mapLanguageToFormValue, mapFrameworkToLanguage } from "@/utils/language.utils";
@@ -108,30 +109,75 @@ export default function NewAppWithRepoSelection() {
   const [dbPassword, setDbPassword] = useState('');
   const [externalHost, setExternalHost] = useState('');
   const [selectedDatabaseId, setSelectedDatabaseId] = useState<string | undefined>(undefined);
+  const [appConnectionMode, setAppConnectionMode] = useState<'none' | 'existing'>('none');
+  const [connectedAppId, setConnectedAppId] = useState<string | undefined>(undefined);
   
   const [submitting, setSubmitting] = useState(false);
 
   // Track previous installations count to detect changes
   const [prevInstallationsCount, setPrevInstallationsCount] = useState<number>(0);
+  const [hasProcessedCallback, setHasProcessedCallback] = useState<string | null>(null);
   
   useEffect(() => {
     const setupAction = searchParams.get('setup_action');
     const installationId = searchParams.get('installation_id');
     const success = searchParams.get('success');
     
-    if (setupAction === 'install' || installationId || success === 'true') {
+    const callbackKey = `${setupAction || ''}_${installationId || ''}_${success || ''}`;
+    
+    if ((setupAction === 'install' || installationId || success === 'true') && hasProcessedCallback !== callbackKey) {
+      console.log('Component: Detected GitHub callback, processing immediately...', { setupAction, installationId, success });
+      setHasProcessedCallback(callbackKey);
+      
+      if (typeof window !== 'undefined' && user?.id) {
+        const cacheKey = `repos_${user.id}`;
+        sessionStorage.removeItem(cacheKey);
+      }
+      
       const newUrl = window.location.pathname;
       window.history.replaceState({}, '', newUrl);
       
-      const timer = setTimeout(() => {
-        loadData(false);
-        setSuccessMessage('GitHub installation completed! Repositories are being refreshed...');
-        setTimeout(() => setSuccessMessage(null), 5000);
-      }, 1000);
+      setSuccessMessage('Đang tải danh sách repositories...');
       
-      return () => clearTimeout(timer);
+      const loadDataWithRetry = async (retryCount = 0) => {
+        try {
+          if (retryCount === 0) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+          }
+          
+          console.log(`Component: Loading data (attempt ${retryCount + 1})...`);
+          await loadData(false);
+          
+          await new Promise(resolve => setTimeout(resolve, 100));
+          
+          console.log('Component: Data load completed');
+          setSuccessMessage('GitHub installation completed! Repositories loaded successfully.');
+          setTimeout(() => setSuccessMessage(null), 3000);
+        } catch (error: any) {
+          console.error(`Component: Error loading data (attempt ${retryCount + 1}):`, error);
+          
+          if (retryCount < 3) {
+            const delay = (retryCount + 1) * 200;
+            setTimeout(() => loadDataWithRetry(retryCount + 1), delay);
+          } else {
+            console.log('Component: Max retries reached, syncing repositories...');
+            try {
+              await GithubService.syncRepositories();
+              await loadData(false);
+              setSuccessMessage('GitHub installation completed! Repositories loaded.');
+              setTimeout(() => setSuccessMessage(null), 3000);
+            } catch (syncError) {
+              console.error('Component: Sync error:', syncError);
+              setSuccessMessage('GitHub installation completed! Please refresh if repositories are not shown.');
+              setTimeout(() => setSuccessMessage(null), 5000);
+            }
+          }
+        }
+      };
+      
+      loadDataWithRetry();
     }
-  }, [searchParams, loadData]);
+  }, [searchParams, loadData, user?.id, hasProcessedCallback]);
   
   // Detect installation changes by comparing installations count
   useEffect(() => {
@@ -145,17 +191,45 @@ export default function NewAppWithRepoSelection() {
   
   // Auto-refresh when window gains focus
   useEffect(() => {
+    let focusTimeout: NodeJS.Timeout;
+    
     const handleFocus = () => {
       if (window.location.pathname === '/apps/new') {
-        setTimeout(() => {
+        if (typeof window !== 'undefined' && user?.id) {
+          const cacheKey = `repos_${user.id}`;
+          sessionStorage.removeItem(cacheKey);
+        }
+        if (focusTimeout) clearTimeout(focusTimeout);
+        focusTimeout = setTimeout(() => {
+          console.log('Window focus: Reloading data...');
+          loadData(false);
+        }, 500);
+      }
+    };
+    
+    const handleVisibilityChange = () => {
+      if (!document.hidden && window.location.pathname === '/apps/new') {
+        if (typeof window !== 'undefined' && user?.id) {
+          const cacheKey = `repos_${user.id}`;
+          sessionStorage.removeItem(cacheKey);
+        }
+        if (focusTimeout) clearTimeout(focusTimeout);
+        focusTimeout = setTimeout(() => {
+          console.log('Tab visible: Reloading data...');
           loadData(false);
         }, 500);
       }
     };
     
     window.addEventListener('focus', handleFocus);
-    return () => window.removeEventListener('focus', handleFocus);
-  }, [loadData]);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      if (focusTimeout) clearTimeout(focusTimeout);
+    };
+  }, [loadData, user?.id]);
 
   const loadRepositoryDetails = useCallback(async () => {
     if (!selectedRepo) return;
@@ -642,6 +716,16 @@ export default function NewAppWithRepoSelection() {
               onExternalHostChange={setExternalHost}
               selectedDatabaseId={selectedDatabaseId}
               onSelectedDatabaseIdChange={setSelectedDatabaseId}
+            />
+
+            {/* Connect with Existing Application */}
+            <ConnectedAppSection
+              connectionMode={appConnectionMode}
+              onConnectionModeChange={setAppConnectionMode}
+              selectedAppId={connectedAppId}
+              onSelectedAppIdChange={setConnectedAppId}
+              envVars={envVars}
+              onEnvVarsChange={setEnvVars}
             />
 
             {/* Auto Deploy Settings */}

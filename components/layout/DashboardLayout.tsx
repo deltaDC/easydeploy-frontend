@@ -60,19 +60,19 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
 	const getNavLinks = () => {
 		const links: Array<{ href: string; label: string; icon: React.ElementType }> = [
-			{ href: isAdmin() ? "/admin" : "/dashboard", label: "Dashboard", icon: Home },
+			{ href: isAdmin() ? "/admin" : "/dashboard", label: "Bảng điều khiển", icon: Home },
 		];
 		
 		if (isAdmin()) {
 			links.push(
-				{ href: "/admin/users", label: "Quản lý User", icon: Users },
-				{ href: "/monitoring", label: "Monitoring", icon: Monitor }
+				{ href: "/admin/users", label: "Quản lý người dùng", icon: Users },
+				{ href: "/monitoring", label: "Giám sát", icon: Monitor }
 			);
 		}
 		
 		links.push(
 			{ href: "/apps", label: "Ứng dụng", icon: Server },
-			{ href: "/databases", label: "Databases", icon: Database }
+			{ href: "/databases", label: "Cơ sở dữ liệu", icon: Database }
 		);
 		
 		if (isAdmin()) {
@@ -80,7 +80,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 		}
 		
 		links.push(
-			{ href: "/logs", label: "Logs", icon: Activity },
+			{ href: "/logs", label: "Nhật ký", icon: Activity },
 			{ href: "/settings", label: "Cài đặt", icon: Settings }
 		);
 		
@@ -165,23 +165,23 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 		const breadcrumbs: Array<{ href: string; label: string }> = [];
 		const navLinks = getNavLinks();
 		
-		breadcrumbs.push({ href: isAdmin() ? "/admin" : "/dashboard", label: "Dashboard" });
+		breadcrumbs.push({ href: isAdmin() ? "/admin" : "/dashboard", label: "Bảng điều khiển" });
 		
 		const pathSegments = pathname.split("/").filter(Boolean);
 		
 		if (pathname.startsWith("/admin/stats")) {
 			breadcrumbs.push({ href: "/admin/stats", label: "Thống kê" });
 		} else if (pathname.startsWith("/admin/users")) {
-			breadcrumbs.push({ href: "/admin/users", label: "Quản lý User" });
+			breadcrumbs.push({ href: "/admin/users", label: "Quản lý người dùng" });
 		} else if (pathname.startsWith("/monitoring")) {
-			breadcrumbs.push({ href: "/monitoring", label: "Monitoring" });
+			breadcrumbs.push({ href: "/monitoring", label: "Giám sát" });
 		} else if (pathname.startsWith("/apps")) {
 			breadcrumbs.push({ href: "/apps", label: "Ứng dụng" });
 			if (pathSegments.length > 1 && pathSegments[1] !== "new") {
 				breadcrumbs.push({ href: pathname, label: pathSegments[1] });
 			}
 		} else if (pathname.startsWith("/databases")) {
-			breadcrumbs.push({ href: "/databases", label: "Databases" });
+			breadcrumbs.push({ href: "/databases", label: "Cơ sở dữ liệu" });
 			if (pathSegments.length > 1) {
 				if (pathSegments[1] === "new") {
 					breadcrumbs.push({ href: "/databases/new", label: "Triển khai Cơ sở dữ liệu mới" });
@@ -190,7 +190,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 				}
 			}
 		} else if (pathname.startsWith("/logs")) {
-			breadcrumbs.push({ href: "/logs", label: "Logs" });
+			breadcrumbs.push({ href: "/logs", label: "Nhật ký" });
 		} else if (pathname.startsWith("/settings")) {
 			breadcrumbs.push({ href: "/settings", label: "Cài đặt" });
 		} else if (pathname.startsWith("/profile")) {
@@ -225,7 +225,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 									size="icon"
 									className="h-8 w-8 flex-shrink-0"
 									onClick={() => scroll("left")}
-									aria-label="Scroll left"
+									aria-label="Cuộn trái"
 								>
 									<ChevronLeft className="h-4 w-4" />
 								</Button>
@@ -241,7 +241,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 									WebkitOverflowScrolling: 'touch',
 								}}
 								role="navigation"
-								aria-label="Main navigation"
+								aria-label="Điều hướng chính"
 							>
 								{getOrderedNavLinks().map((link) => (
 									<NavLink
@@ -262,7 +262,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 									size="icon"
 									className="h-8 w-8 flex-shrink-0"
 									onClick={() => scroll("right")}
-									aria-label="Scroll right"
+									aria-label="Cuộn phải"
 								>
 									<ChevronRight className="h-4 w-4" />
 								</Button>
@@ -321,15 +321,15 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 					<div className="md:hidden border-t border-gray-200 dark:border-gray-700 py-4 bg-white dark:bg-gray-900">
 						<div className="space-y-2">
 							<NavLink href={isAdmin() ? "/admin" : "/dashboard"} icon={Home} mobile pathname={pathname} onMobileMenuClose={() => setIsMobileMenuOpen(false)}>
-								Dashboard
+								Bảng điều khiển
 							</NavLink>
 							{isAdmin() && (
 								<>
 									<NavLink href="/admin/users" icon={Users} mobile pathname={pathname} onMobileMenuClose={() => setIsMobileMenuOpen(false)}>
-										Quản lý User
+										Quản lý người dùng
 									</NavLink>
 									<NavLink href="/monitoring" icon={Monitor} mobile pathname={pathname} onMobileMenuClose={() => setIsMobileMenuOpen(false)}>
-										Monitoring
+										Giám sát
 									</NavLink>
 								</>
 							)}
@@ -337,7 +337,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 								Ứng dụng
 							</NavLink>
 							<NavLink href="/databases" icon={Database} mobile pathname={pathname} onMobileMenuClose={() => setIsMobileMenuOpen(false)}>
-								Databases
+								Cơ sở dữ liệu
 							</NavLink>
 							{isAdmin() && (
 								<NavLink href="/admin/stats" icon={BarChart3} mobile pathname={pathname} onMobileMenuClose={() => setIsMobileMenuOpen(false)}>
@@ -345,7 +345,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 								</NavLink>
 							)}
 							<NavLink href="/logs" icon={Activity} mobile pathname={pathname} onMobileMenuClose={() => setIsMobileMenuOpen(false)}>
-								Logs
+								Nhật ký
 							</NavLink>
 							<NavLink href="/settings" icon={Settings} mobile pathname={pathname} onMobileMenuClose={() => setIsMobileMenuOpen(false)}>
 								Cài đặt
@@ -368,7 +368,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 												className="w-full flex items-center gap-2"
 											>
 												<User className="h-4 w-4" />
-												Profile
+												Hồ sơ
 											</Button>
 										</Link>
 										<Button 
