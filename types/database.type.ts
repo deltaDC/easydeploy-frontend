@@ -23,6 +23,7 @@ export interface Database {
   storageGb?: number;
   memoryMb?: number;
   host?: string;
+  externalHost?: string;
   port?: number;
   databaseName?: string;
   createdAt: string;
@@ -50,6 +51,9 @@ export interface ConnectionInfoResponse {
   connectionString: string;
   completeConnectionString?: string;
   host: string;
+  externalConnectionString?: string;
+  externalCompleteConnectionString?: string;
+  externalHost?: string;
   port: number;
   databaseName: string;
   username: string;
