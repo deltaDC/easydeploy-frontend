@@ -19,6 +19,9 @@ import { DatabaseMetricsChart } from "@/components/database-monitoring/DatabaseM
 import { DatabaseLogsViewer } from "@/components/database-monitoring/DatabaseLogsViewer";
 import { SQLQueryEditor } from "@/components/database-monitoring/SQLQueryEditor";
 import { TableBrowser } from "@/components/database-monitoring/TableBrowser";
+import { isValidExternalHost, isDockerInternalHost, isLocalOrPrivateHost, getHostWarningMessage } from "@/utils/hostValidation";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle, AlertTriangle } from "lucide-react";
 
 export default function DatabaseDetailPage() {
   const params = useParams();
@@ -30,14 +33,20 @@ export default function DatabaseDetailPage() {
   const [errorDialog, setErrorDialog] = useState({ open: false, message: "" });
   const [connectionInfoDialog, setConnectionInfoDialog] = useState<{
     open: boolean;
-    connectionString: string;
-    completeConnectionString?: string;
+    externalConnectionString?: string;
+    externalCompleteConnectionString?: string;
+    externalHost?: string;
+    port?: number;
+    databaseName?: string;
     username: string;
     password: string;
   }>({
     open: false,
-    connectionString: "",
-    completeConnectionString: undefined,
+    externalConnectionString: undefined,
+    externalCompleteConnectionString: undefined,
+    externalHost: undefined,
+    port: undefined,
+    databaseName: undefined,
     username: "",
     password: "",
   });
@@ -161,10 +170,22 @@ export default function DatabaseDetailPage() {
   const handleViewConnectionInfo = async () => {
     try {
       const info = await DatabaseService.getConnectionInfo(id);
+      
+      if (isDockerInternalHost(info.externalHost)) {
+        setErrorDialog({
+          open: true,
+          message: "Server chưa được cấu hình public hostname/IP. Không thể kết nối từ máy của bạn.",
+        });
+        return;
+      }
+      
       setConnectionInfoDialog({
         open: true,
-        connectionString: info.connectionString,
-        completeConnectionString: info.completeConnectionString,
+        externalConnectionString: info.externalConnectionString,
+        externalCompleteConnectionString: info.externalCompleteConnectionString,
+        externalHost: info.externalHost,
+        port: info.port,
+        databaseName: info.databaseName,
         username: info.username,
         password: info.password,
       });
@@ -273,7 +294,11 @@ export default function DatabaseDetailPage() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Máy chủ:</span>
-                  <span>{database.host}</span>
+                  <span>
+                    {isDockerInternalHost(database?.externalHost) 
+                      ? "Chưa cấu hình public host"
+                      : database?.externalHost || "Chưa cấu hình public host"}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Cổng:</span>
@@ -405,20 +430,60 @@ export default function DatabaseDetailPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div>
-                  <Label className="text-sm font-medium">Chuỗi kết nối</Label>
-                  <Input
-                    value={`${database.host}:${database.port}/${database.databaseName}`}
-                    readOnly
-                    className="mt-1 font-mono"
-                  />
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  Nhấp &quot;Xem Thông tin Kết nối&quot; để xem đầy đủ thông tin kết nối cùng thông tin đăng nhập
-                </div>
-                <Button onClick={handleViewConnectionInfo}>
-                  Xem Thông tin Kết nối
-                </Button>
+                {isDockerInternalHost(database?.externalHost) ? (
+                  <>
+                    <Alert variant="destructive">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertDescription>
+                        Server chưa được cấu hình public hostname/IP. Không thể kết nối từ máy của bạn.
+                        <br />
+                        <span className="text-xs mt-1 block">
+                          Vui lòng liên hệ admin để cấu hình public hostname/IP hoặc sử dụng kết nối nội bộ cho backend.
+                        </span>
+                      </AlertDescription>
+                    </Alert>
+                    <Button onClick={handleViewConnectionInfo} disabled>
+                      Xem Thông tin Kết nối (Không khả dụng)
+                    </Button>
+                  </>
+                ) : database?.externalHost ? (
+                  <>
+                    {isLocalOrPrivateHost(database.externalHost) && (
+                      <Alert>
+                        <AlertTriangle className="h-4 w-4" />
+                        <AlertDescription>
+                          {getHostWarningMessage(database.externalHost)}
+                        </AlertDescription>
+                      </Alert>
+                    )}
+                    <div>
+                      <Label className="text-sm font-medium">Chuỗi kết nối</Label>
+                      <Input
+                        value={`${database.externalHost}:${database.port}/${database.databaseName}`}
+                        readOnly
+                        className="mt-1 font-mono"
+                      />
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Nhấp &quot;Xem Thông tin Kết nối&quot; để xem đầy đủ thông tin kết nối cùng thông tin đăng nhập
+                    </div>
+                    <Button onClick={handleViewConnectionInfo}>
+                      Xem Thông tin Kết nối
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Alert variant="destructive">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertDescription>
+                        Server chưa được cấu hình public hostname/IP. Không thể kết nối từ máy của bạn.
+                      </AlertDescription>
+                    </Alert>
+                    <Button onClick={handleViewConnectionInfo} disabled>
+                      Xem Thông tin Kết nối (Không khả dụng)
+                    </Button>
+                  </>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -434,7 +499,11 @@ export default function DatabaseDetailPage() {
       <ConnectionInfoDialog
         open={connectionInfoDialog.open}
         onOpenChange={(open) => setConnectionInfoDialog({ ...connectionInfoDialog, open })}
-        connectionString={connectionInfoDialog.connectionString}
+        externalConnectionString={connectionInfoDialog.externalConnectionString}
+        externalCompleteConnectionString={connectionInfoDialog.externalCompleteConnectionString}
+        externalHost={connectionInfoDialog.externalHost}
+        port={connectionInfoDialog.port}
+        databaseName={connectionInfoDialog.databaseName}
         username={connectionInfoDialog.username}
         password={connectionInfoDialog.password}
       />
