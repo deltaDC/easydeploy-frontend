@@ -1,8 +1,7 @@
 "use client";
-
 import { useState, useCallback } from "react";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -16,6 +15,8 @@ import {
   Lock,
   Globe,
   Star,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 interface GithubRepo {
@@ -44,7 +45,30 @@ interface RepositorySelectionViewProps {
   onRefresh: () => void;
 }
 
-const ITEMS_PER_PAGE = 10;
+// Language color mapping
+const getLanguageColor = (language?: string) => {
+  if (!language) return 'text-charcoal/40';
+  const colors: Record<string, string> = {
+    'JavaScript': 'text-yellow-500',
+    'TypeScript': 'text-blue-500',
+    'Python': 'text-blue-400',
+    'Java': 'text-orange-500',
+    'Go': 'text-cyan-500',
+    'Rust': 'text-orange-600',
+    'PHP': 'text-indigo-500',
+    'Ruby': 'text-red-500',
+    'C++': 'text-blue-600',
+    'C#': 'text-purple-500',
+    'Swift': 'text-orange-400',
+    'Kotlin': 'text-purple-400',
+    'Dart': 'text-blue-400',
+    'HTML': 'text-orange-400',
+    'CSS': 'text-blue-400',
+    'Vue': 'text-green-500',
+    'React': 'text-cyan-400',
+  };
+  return colors[language] || 'text-misty-sage';
+};
 
 export function RepositorySelectionView({
   repositories,
@@ -57,6 +81,9 @@ export function RepositorySelectionView({
   onRepositoryClick,
   onRefresh,
 }: RepositorySelectionViewProps) {
+  const [hoveredRepo, setHoveredRepo] = useState<number | null>(null);
+  const [showPagination, setShowPagination] = useState(false);
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
@@ -70,17 +97,17 @@ export function RepositorySelectionView({
   };
 
   return (
-    <Card className="h-fit">
-      <CardHeader>
-        <div className="flex items-center justify-between">
+    <div className="bg-white/80 backdrop-blur-xl rounded-3xl border border-white/30 shadow-inner-glow-soft overflow-hidden">
+      <div className="p-6">
+        <div className="flex items-center justify-between mb-6">
           <div>
-            <CardTitle className="flex items-center gap-2">
-              <Github className="h-5 w-5" />
+            <h3 className="text-lg font-semibold text-charcoal flex items-center gap-2 mb-1">
+              <Github className="h-5 w-5 text-misty-sage" strokeWidth={1.5} />
               Chọn Repository
-            </CardTitle>
-            <CardDescription>
+            </h3>
+            <p className="text-sm text-charcoal/70">
               {repositories.length} repositories có sẵn
-            </CardDescription>
+            </p>
           </div>
           <Button
             onClick={(e) => {
@@ -90,138 +117,185 @@ export function RepositorySelectionView({
             variant="outline"
             size="sm"
             disabled={loading}
+            className="bg-white/40 backdrop-blur-sm border-white/30 hover:bg-white/60"
           >
-            <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} strokeWidth={1.5} />
             Làm mới
           </Button>
         </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {/* Search Bar */}
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+
+        {/* Search Bar - Pill Shape */}
+        <div className="relative mb-6">
+          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-charcoal/40 z-10" strokeWidth={1.5} />
           <Input
-            placeholder="Tìm kiếm repositories..."
+            placeholder="Tìm kiếm kho lưu trữ..."
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="pl-10"
+            className="pl-11 pr-4 h-11 rounded-full border-0 bg-white/60 backdrop-blur-sm shadow-inner-sm focus:ring-2 focus:ring-misty-sage/20 focus:bg-white/80 transition-all"
           />
         </div>
 
-        {/* Repository Table */}
-        <div className="border rounded-lg overflow-hidden">
-          <div 
-            className="max-h-96 overflow-y-auto"
-            onScroll={onScroll}
-          >
-            {loading ? (
-              <div className="divide-y">
-                {[...Array(5)].map((_, i) => (
-                  <div key={i} className="p-4">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1 min-w-0 space-y-2">
-                        <div className="flex items-center gap-2">
-                          <Skeleton className="h-4 w-4" />
-                          <Skeleton className="h-4 w-32" />
-                          <Skeleton className="h-3 w-16" />
-                          <Skeleton className="h-5 w-12" />
-                        </div>
-                        <Skeleton className="h-4 w-3/4" />
-                        <div className="flex items-center gap-4">
-                          <Skeleton className="h-3 w-20" />
-                          <Skeleton className="h-3 w-24" />
-                          <Skeleton className="h-3 w-16" />
-                        </div>
-                      </div>
-                      <Skeleton className="h-8 w-8" />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : displayedRepos.length === 0 ? (
-              <div className="text-center py-12 text-muted-foreground">
-                <Github className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p className="text-lg font-medium">Không tìm thấy repositories</p>
-                <p className="text-sm">
-                  {searchTerm ? "Thử điều chỉnh từ khóa tìm kiếm" : "Kết nối GitHub để xem repositories"}
-                </p>
-              </div>
-            ) : (
-              <div className="divide-y">
-                {displayedRepos.map((repo) => (
-                  <div
+        {/* Repository Grid */}
+        <div 
+          className="max-h-[600px] overflow-y-auto scrollbar-misty space-y-3"
+          onScroll={onScroll}
+          onMouseEnter={() => setShowPagination(true)}
+          onMouseLeave={() => setShowPagination(false)}
+        >
+          {loading ? (
+            <div className="space-y-3">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="bg-white/40 backdrop-blur-sm rounded-2xl p-4">
+                  <Skeleton className="h-6 w-3/4 mb-2" />
+                  <Skeleton className="h-4 w-full mb-2" />
+                  <Skeleton className="h-3 w-1/2" />
+                </div>
+              ))}
+            </div>
+          ) : displayedRepos.length === 0 ? (
+            <div className="text-center py-12 text-charcoal/60">
+              <Github className="h-12 w-12 mx-auto mb-4 opacity-40" strokeWidth={1} />
+              <p className="text-lg font-medium text-charcoal mb-1">Không tìm thấy repositories</p>
+              <p className="text-sm">
+                {searchTerm ? "Thử điều chỉnh từ khóa tìm kiếm" : "Kết nối GitHub để xem repositories"}
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {displayedRepos.map((repo, index) => {
+                const isHovered = hoveredRepo === repo.id;
+                const languageColor = getLanguageColor(repo.language);
+                
+                return (
+                  <motion.div
                     key={repo.id}
-                    className="p-4 hover:bg-muted/50 cursor-pointer transition-colors"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.03 }}
+                    onMouseEnter={() => setHoveredRepo(repo.id)}
+                    onMouseLeave={() => setHoveredRepo(null)}
+                    className="group cursor-pointer"
                     onClick={() => onRepositoryClick(repo)}
                   >
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Github className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                          <h4 className="font-medium text-sm truncate">{repo.fullName}</h4>
-                          {repo.isPrivate ? (
-                            <Lock className="h-3 w-3 text-muted-foreground flex-shrink-0" />
-                          ) : (
-                            <Globe className="h-3 w-3 text-muted-foreground flex-shrink-0" />
-                          )}
-                          {repo.language && (
-                            <Badge variant="outline" className="text-xs">
-                              {repo.language}
-                            </Badge>
-                          )}
-                        </div>
-                        
-                        {repo.description && (
-                          <p className="text-sm text-muted-foreground mb-2 line-clamp-2">
-                            {repo.description}
-                          </p>
-                        )}
-                        
-                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                          <div className="flex items-center gap-1">
-                            <GitBranch className="h-3 w-3" />
-                            <span>{repo.defaultBranch}</span>
+                    <motion.div
+                      whileHover={{ y: -4 }}
+                      className="bg-white/60 backdrop-blur-xl rounded-2xl p-4 border border-white/30 hover:border-misty-sage/30 hover:bg-white/80 transition-all duration-300 relative overflow-hidden"
+                    >
+                      {/* Inner glow on hover */}
+                      {isHovered && (
+                        <motion.div
+                          className="absolute inset-0 bg-misty-sage/5 pointer-events-none"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                        />
+                      )}
+
+                      <div className="flex items-start justify-between relative z-10">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Github className="h-4 w-4 text-charcoal/60 flex-shrink-0" strokeWidth={1.5} />
+                            <h4 className="font-semibold text-charcoal truncate">{repo.fullName}</h4>
+                            {repo.isPrivate ? (
+                              <Lock className="h-3 w-3 text-charcoal/40 flex-shrink-0" strokeWidth={1.5} />
+                            ) : (
+                              <Globe className="h-3 w-3 text-charcoal/40 flex-shrink-0" strokeWidth={1.5} />
+                            )}
                           </div>
-                          <div className="flex items-center gap-1">
-                            <Calendar className="h-3 w-3" />
-                            <span>{formatDate(repo.updatedAt)}</span>
-                          </div>
-                          {repo.stargazersCount !== undefined && repo.stargazersCount > 0 && (
-                            <div className="flex items-center gap-1">
-                              <Star className="h-3 w-3" />
-                              <span>{repo.stargazersCount}</span>
+                          
+                          {repo.description && (
+                            <p className="text-sm text-charcoal/70 mb-3 line-clamp-2">
+                              {repo.description}
+                            </p>
+                          )}
+                          
+                          <div className="flex items-center gap-4 flex-wrap">
+                            {/* Language Badge with Glow */}
+                            {repo.language && (
+                              <motion.div
+                                animate={{
+                                  scale: isHovered ? 1.05 : 1,
+                                }}
+                                className="flex items-center gap-1.5"
+                              >
+                                <div className={`h-2 w-2 rounded-full ${languageColor.replace('text-', 'bg-')} ${isHovered ? 'animate-pulse' : ''}`} />
+                                <Badge 
+                                  variant="outline" 
+                                  className={`text-xs border-0 bg-white/40 backdrop-blur-sm ${isHovered ? languageColor : 'text-charcoal/60'}`}
+                                >
+                                  {repo.language}
+                                </Badge>
+                              </motion.div>
+                            )}
+                            
+                            <div className="flex items-center gap-1 text-xs text-charcoal/60">
+                              <GitBranch className="h-3 w-3" strokeWidth={1.5} />
+                              <span>{repo.defaultBranch}</span>
                             </div>
-                          )}
+                            
+                            <div className="flex items-center gap-1 text-xs text-charcoal/60">
+                              <Calendar className="h-3 w-3" strokeWidth={1.5} />
+                              <span>{formatDate(repo.updatedAt)}</span>
+                            </div>
+                            
+                            {repo.stargazersCount !== undefined && repo.stargazersCount > 0 && (
+                              <div className="flex items-center gap-1 text-xs text-charcoal/60">
+                                <Star className="h-3 w-3" strokeWidth={1.5} />
+                                <span>{repo.stargazersCount}</span>
+                              </div>
+                            )}
+                          </div>
                         </div>
+                        
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            window.open(repo.htmlUrl, '_blank');
+                          }}
+                          className="h-8 w-8 p-0 ml-2 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <ExternalLink className="h-4 w-4" strokeWidth={1.5} />
+                        </Button>
                       </div>
-                      
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          window.open(repo.htmlUrl, '_blank');
-                        }}
-                      >
-                        <ExternalLink className="h-4 w-4" />
-                      </Button>
-                    </div>
+                    </motion.div>
+                  </motion.div>
+                );
+              })}
+              
+              {loadingMore && (
+                <div className="flex items-center justify-center py-8">
+                  <div className="text-center">
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-misty-sage mx-auto"></div>
+                    <p className="mt-2 text-sm text-charcoal/60">Đang tải thêm...</p>
                   </div>
-                ))}
-                {loadingMore && (
-                  <div className="flex items-center justify-center py-8">
-                    <div className="text-center">
-                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mx-auto"></div>
-                      <p className="mt-2 text-sm text-muted-foreground">Đang tải thêm...</p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
-      </CardContent>
-    </Card>
+
+        {/* Pagination Arrows - Only visible on hover */}
+        {displayedRepos.length > 0 && (
+          <div className={`flex items-center justify-center gap-2 mt-4 transition-opacity duration-300 ${showPagination ? 'opacity-100' : 'opacity-0'}`}>
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              className="p-2 rounded-full bg-white/40 backdrop-blur-sm border border-white/30 hover:bg-white/60 text-charcoal/60 hover:text-charcoal transition-all"
+            >
+              <ChevronLeft className="h-4 w-4" strokeWidth={1.5} />
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              className="p-2 rounded-full bg-white/40 backdrop-blur-sm border border-white/30 hover:bg-white/60 text-charcoal/60 hover:text-charcoal transition-all"
+            >
+              <ChevronRight className="h-4 w-4" strokeWidth={1.5} />
+            </motion.button>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
-

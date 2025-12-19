@@ -237,13 +237,37 @@ body {
     overflow: hidden;
   }
   
+  /* Misty Morning Custom Scrollbar */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #92AFAD40 transparent;
+  }
+  
+  *::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+  
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  *::-webkit-scrollbar-thumb {
+    background-color: #92AFAD40;
+    border-radius: 2px;
+  }
+  
+  *::-webkit-scrollbar-thumb:hover {
+    background-color: #92AFAD60;
+  }
+
   .scrollbar-thin {
     scrollbar-width: thin;
-    scrollbar-color: hsl(var(--muted-foreground)) transparent;
+    scrollbar-color: #92AFAD40 transparent;
   }
   
   .scrollbar-thin::-webkit-scrollbar {
-    width: 6px;
+    width: 4px;
   }
   
   .scrollbar-thin::-webkit-scrollbar-track {
@@ -251,12 +275,12 @@ body {
   }
   
   .scrollbar-thin::-webkit-scrollbar-thumb {
-    background-color: hsl(var(--muted-foreground));
-    border-radius: 3px;
+    background-color: #92AFAD40;
+    border-radius: 2px;
   }
   
   .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-    background-color: hsl(var(--foreground));
+    background-color: #92AFAD60;
   }
   
   .scrollbar-hide {
@@ -384,5 +408,144 @@ body {
   
   .hover-glow:hover {
     box-shadow: 0 0 20px rgba(var(--primary-rgb, 14, 165, 233), 0.3);
+  }
+
+  /* Misty Morning Typography */
+  .font-serif {
+    font-family: 'Playfair Display', serif;
+  }
+
+  /* Misty Morning Utilities */
+  .text-misty-sage {
+    color: #92AFAD;
+  }
+
+  .bg-misty-sage {
+    background-color: #92AFAD;
+  }
+
+  .border-misty-sage {
+    border-color: #92AFAD;
+  }
+
+  /* Noise Texture Utility */
+  .noise-texture {
+    position: relative;
+  }
+
+  .noise-texture::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    opacity: 0.03;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .noise-texture-light::before {
+    opacity: 0.02;
+  }
+
+  .noise-texture-medium::before {
+    opacity: 0.03;
+  }
+
+  .noise-texture-strong::before {
+    opacity: 0.05;
+  }
+
+  /* Shimmer Effect */
+  .animate-shimmer {
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.2) 50%,
+      transparent 100%
+    );
+    background-size: 1000px 100%;
+    animation: shimmer 2s linear infinite;
+  }
+
+  @keyframes shimmer {
+    0% {
+      background-position: -1000px 0;
+    }
+    100% {
+      background-position: 1000px 0;
+    }
+  }
+
+  /* Emerald Shadow Utilities */
+  .shadow-emerald-sm {
+    box-shadow: 0 4px 6px -1px rgba(5, 150, 105, 0.1), 0 2px 4px -2px rgba(5, 150, 105, 0.06);
+  }
+
+  .shadow-emerald-md {
+    box-shadow: 0 10px 15px -3px rgba(5, 150, 105, 0.15), 0 4px 6px -4px rgba(5, 150, 105, 0.1);
+  }
+
+  .shadow-emerald-lg {
+    box-shadow: 0 20px 25px -5px rgba(5, 150, 105, 0.2), 0 8px 10px -6px rgba(5, 150, 105, 0.15);
+  }
+
+  .shadow-emerald-xl {
+    box-shadow: 0 25px 50px -12px rgba(5, 150, 105, 0.25);
+  }
+
+  /* Inner Shadow Utilities */
+  .shadow-inner-sm {
+    box-shadow: inset 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  }
+
+  .shadow-inner-md {
+    box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+  }
+
+  /* Ripple Effect */
+  .ripple-effect {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .ripple-effect::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+  }
+
+  .ripple-effect:active::after {
+    width: 300px;
+    height: 300px;
+  }
+
+  /* Step Transition Utilities */
+  .step-transition-enter {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+
+  .step-transition-enter-active {
+    opacity: 1;
+    transform: translateX(0);
+    transition: opacity 0.3s, transform 0.3s;
+  }
+
+  .step-transition-exit {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .step-transition-exit-active {
+    opacity: 0;
+    transform: translateX(-20px);
+    transition: opacity 0.3s, transform 0.3s;
   }
 }

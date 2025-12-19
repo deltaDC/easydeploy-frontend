@@ -1,13 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Database, Info, AlertCircle, Loader2 } from "lucide-react";
+import { motion } from "framer-motion";
+import { Database, Info, AlertCircle, Loader2, Check } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import DatabaseService from "@/services/database.service";
 import { Database as DatabaseType, DatabaseStatus } from "@/types/database.type";
@@ -31,6 +31,7 @@ interface DatabaseConfigSectionProps {
   onSelectedDatabaseIdChange: (databaseId: string | undefined) => void;
   envVars?: EnvironmentVariable[];
   onEnvVarsChange?: (envVars: EnvironmentVariable[]) => void;
+  embedded?: boolean;
 }
 
 export function DatabaseConfigSection({
@@ -50,6 +51,7 @@ export function DatabaseConfigSection({
   onSelectedDatabaseIdChange,
   envVars = [],
   onEnvVarsChange,
+  embedded = false,
 }: DatabaseConfigSectionProps) {
   const [databases, setDatabases] = useState<DatabaseType[]>([]);
   const [loadingDatabases, setLoadingDatabases] = useState(false);
@@ -209,67 +211,114 @@ export function DatabaseConfigSection({
       }
     }
   };
-  return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center gap-2">
-          <Database className="h-5 w-5 text-primary" />
-          <CardTitle>Database Configuration</CardTitle>
-        </div>
-        <CardDescription>
-          Chọn sử dụng cơ sở dữ liệu được quản lý bởi nền tảng hoặc kết nối cơ sở dữ liệu bên ngoài của riêng bạn
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="space-y-3">
-          <Label>Tùy chọn cơ sở dữ liệu</Label>
-          <RadioGroup value={databaseSource} onValueChange={(value: string) => {
-            onDatabaseSourceChange(value as 'none' | 'managed' | 'external' | 'existing');
-            if (value !== 'existing') {
-              onSelectedDatabaseIdChange(undefined);
-              setSelectedDatabase(null);
-            }
-          }}>
-            <div className="flex items-center space-x-2 py-2">
-              <RadioGroupItem value="none" id="db-none" />
-              <Label htmlFor="db-none" className="font-normal cursor-pointer">
-                Không sử dụng cơ sở dữ liệu
-              </Label>
-            </div>
-            <div className="flex items-center space-x-2 py-2">
-              <RadioGroupItem value="existing" id="db-existing" />
-              <Label htmlFor="db-existing" className="font-normal cursor-pointer">
-                Sử dụng cơ sở dữ liệu đã triển khai
-                <span className="text-muted-foreground text-sm ml-2">
-                  (Chọn từ các cơ sở dữ liệu đã triển khai của bạn)
-                </span>
-              </Label>
-            </div>
-            <div className="flex items-center space-x-2 py-2">
-              <RadioGroupItem value="managed" id="db-managed" />
-              <Label htmlFor="db-managed" className="font-normal cursor-pointer">
-                Tạo cơ sở dữ liệu nền tảng mới
-                <span className="text-muted-foreground text-sm ml-2">
-                  (PostgreSQL, MySQL, MongoDB, Redis)
-                </span>
-              </Label>
-            </div>
-            <div className="flex items-center space-x-2 py-2">
-              <RadioGroupItem value="external" id="db-external" />
-              <Label htmlFor="db-external" className="font-normal cursor-pointer">
-                Kết nối cơ sở dữ liệu bên ngoài
-                <span className="text-muted-foreground text-sm ml-2">
-                  (AWS RDS, Azure Database, v.v.)
-                </span>
-              </Label>
+  const databaseOptions = [
+    {
+      value: 'none' as const,
+      label: 'Không sử dụng',
+      description: 'Ứng dụng không cần cơ sở dữ liệu',
+    },
+    {
+      value: 'existing' as const,
+      label: 'Sử dụng cơ sở dữ liệu hệ thống',
+      description: 'Chọn từ các cơ sở dữ liệu đã triển khai của bạn',
+    },
+    {
+      value: 'managed' as const,
+      label: 'Tạo cơ sở dữ liệu hệ thống mới',
+      description: 'Tạo mới PostgreSQL, MySQL, MongoDB, Redis',
+    },
+    {
+      value: 'external' as const,
+      label: 'Kết nối cơ sở dữ liệu bên ngoài',
+      description: 'AWS RDS, Azure Database, hoặc cơ sở dữ liệu khác',
+    },
+  ];
+
+  const content = (
+        <div className="space-y-6">
+          <div className="space-y-3">
+            <Label className="text-sm font-medium text-charcoal mb-4 block">Tùy chọn cơ sở dữ liệu</Label>
+          <RadioGroup
+            value={databaseSource}
+            onValueChange={(value: string) => {
+              onDatabaseSourceChange(value as 'none' | 'managed' | 'external' | 'existing');
+              if (value !== 'existing') {
+                onSelectedDatabaseIdChange(undefined);
+                setSelectedDatabase(null);
+              }
+            }}
+          >
+            <div className="grid grid-cols-1 gap-3">
+              {databaseOptions.map((option) => {
+                const isSelected = databaseSource === option.value;
+                return (
+                  <motion.div
+                    key={option.value}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <label
+                      htmlFor={`db-${option.value}`}
+                      className={`block cursor-pointer rounded-2xl p-4 border-2 transition-all duration-300 ${
+                        isSelected
+                          ? 'bg-emerald-50/50 border-emerald-300 shadow-emerald-md'
+                          : 'bg-white/70 backdrop-blur-sm border-white/40 hover:border-misty-sage/30 hover:bg-white/80'
+                      }`}
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className="relative flex-shrink-0 mt-0.5">
+                          <RadioGroupItem
+                            value={option.value}
+                            id={`db-${option.value}`}
+                            className="sr-only"
+                          />
+                        <div
+                          className={`h-5 w-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                            isSelected
+                              ? 'border-emerald-500 bg-emerald-500'
+                              : 'border-charcoal/30 bg-white/80'
+                          }`}
+                        >
+                          {isSelected && (
+                            <Check className="h-3 w-3 text-white" strokeWidth={3} />
+                          )}
+                        </div>
+                        {isSelected && (
+                          <motion.div
+                            className="absolute inset-0 rounded-full bg-emerald-400/30 blur-md -z-10"
+                            initial={{ scale: 0.8, opacity: 0 }}
+                            animate={{ scale: 1.2, opacity: 0.6 }}
+                            transition={{ duration: 0.3 }}
+                          />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className={`font-semibold text-sm ${
+                            isSelected ? 'text-emerald-700' : 'text-charcoal'
+                          }`}>
+                            {option.label}
+                          </span>
+                        </div>
+                        <p className={`text-xs ${
+                          isSelected ? 'text-emerald-600' : 'text-charcoal/60'
+                        }`}>
+                          {option.description}
+                        </p>
+                      </div>
+                    </div>
+                  </label>
+                </motion.div>
+              );
+            })}
             </div>
           </RadioGroup>
-        </div>
+          </div>
 
-        {databaseSource === 'existing' && (
-          <div className="space-y-4 pt-4 border-t">
+          {databaseSource === 'existing' && (
+          <div className="space-y-4 pt-4 border-t border-white/20">
             <div className="space-y-2">
-              <Label htmlFor="existing-db">Select Database *</Label>
+              <Label htmlFor="existing-db" className="text-sm font-medium text-charcoal">Chọn Cơ sở dữ liệu *</Label>
               {loadingDatabases ? (
                 <div className="flex items-center space-x-2 text-sm text-muted-foreground">
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -292,7 +341,7 @@ export function DatabaseConfigSection({
                   value={selectedDatabaseId || ''}
                   onValueChange={handleDatabaseSelect}
                 >
-                  <SelectTrigger id="existing-db">
+                  <SelectTrigger id="existing-db" aria-label="Chọn cơ sở dữ liệu đã tồn tại">
                     <SelectValue placeholder="Chọn một cơ sở dữ liệu" />
                   </SelectTrigger>
                   <SelectContent>
@@ -364,11 +413,11 @@ export function DatabaseConfigSection({
         )}
 
         {databaseSource === 'managed' && (
-          <div className="space-y-4 pt-4 border-t">
+          <div className="space-y-4 pt-4 border-t border-white/20">
             <div className="space-y-2">
               <Label htmlFor="db-type">Loại cơ sở dữ liệu *</Label>
               <Select value={dbType} onValueChange={(value) => onDbTypeChange(value as 'postgres' | 'mysql' | 'mongodb' | 'redis')}>
-                <SelectTrigger id="db-type">
+                <SelectTrigger id="db-type" aria-label="Chọn loại cơ sở dữ liệu">
                   <SelectValue placeholder="Chọn loại cơ sở dữ liệu" />
                 </SelectTrigger>
                 <SelectContent>
@@ -437,7 +486,7 @@ export function DatabaseConfigSection({
         )}
 
         {databaseSource === 'external' && (
-          <div className="space-y-4 pt-4 border-t">
+          <div className="space-y-4 pt-4 border-t border-white/20">
             <Alert className="bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800">
               <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />
               <AlertDescription className="text-blue-800 dark:text-blue-200">
@@ -482,7 +531,25 @@ export function DatabaseConfigSection({
             </Alert>
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+  );
+
+  if (embedded) {
+    return content;
+  }
+
+  return (
+    <div className="bg-white/95 backdrop-blur-xl rounded-3xl border-2 border-white/50 shadow-inner-glow-soft overflow-hidden relative z-30">
+      <div className="p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <Database className="h-5 w-5 text-misty-sage" strokeWidth={1.5} />
+          <h3 className="text-lg font-semibold text-charcoal">Cấu hình Cơ sở dữ liệu</h3>
+        </div>
+        <p className="text-sm text-charcoal/70 mb-6">
+          Chọn sử dụng cơ sở dữ liệu được quản lý bởi nền tảng hoặc kết nối cơ sở dữ liệu bên ngoài của riêng bạn
+        </p>
+        {content}
+      </div>
+    </div>
   );
 }

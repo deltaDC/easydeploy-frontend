@@ -1,167 +1,226 @@
-import PageHeader from "@/components/layout/PageHeader";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import Link from "next/link";
-import { ArrowRight, Zap, GitBranch, Activity, Plus, Github, Database } from "lucide-react";
+"use client";
+import { useDashboardOverview } from '@/hooks/useDashboard';
+import { StatsCards } from '@/components/dashboard/StatsCards';
+import { RecentAppsCard } from '@/components/dashboard/RecentAppsCard';
+import { ActivityFeed } from '@/components/dashboard/ActivityFeed';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Plus, RefreshCw, Rocket, Github, BookOpen, Zap, ArrowRight } from 'lucide-react';
+import Link from 'next/link';
+import { Skeleton } from '@/components/ui/skeleton';
+import { motion } from 'framer-motion';
 
-export default function DashboardHome() {
-	return (
-		<div className="py-6">
-			<div className="container-page grid gap-6">
-				<PageHeader 
-					title="Tổng quan" 
-					description="Tình trạng hệ thống, tài nguyên sử dụng và dự án gần đây" 
-					actions={
-						<div className="flex gap-2">
-							<Button asChild variant="outline" className="gap-2">
-								<Link href="/import">
-									<Github className="h-4 w-4" />
-									Import từ GitHub
-								</Link>
-							</Button>
-							<Button asChild variant="outline" className="gap-2">
-								<Link href="/databases/new">
-									<Database className="h-4 w-4" />
-									Triển khai Database
-								</Link>
-							</Button>
-							<Button asChild className="gap-2">
-								<Link href="/apps/new">
-									<Plus className="h-4 w-4" />
-									Triển khai mới
-								</Link>
-							</Button>
-						</div>
-					} 
-				/>
+export default function DashboardPage() {
+  const { overview, isLoading, isError, mutate } = useDashboardOverview();
 
-				<div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
-					{/* Left column: Usage + Recent */}
-					<div className="lg:col-span-4 grid gap-4">
-						<Card>
-							<CardHeader className="pb-3">
-								<CardTitle className="text-lg font-semibold flex items-center gap-2">
-									<Activity className="h-5 w-5" />
-									Sử dụng (30 ngày)
-								</CardTitle>
-							</CardHeader>
-							<CardContent className="space-y-4">
-								<div className="space-y-2">
-									<div className="flex items-center justify-between text-sm">
-										<span className="text-muted-foreground">Truyền dữ liệu</span>
-										<span className="font-medium">0 / 100 GB</span>
-									</div>
-									<Progress value={0} className="h-2" />
-								</div>
-								<div className="space-y-2">
-									<div className="flex items-center justify-between text-sm">
-										<span className="text-muted-foreground">Origin Transfer</span>
-										<span className="font-medium">0 / 10 GB</span>
-									</div>
-									<Progress value={0} className="h-2" />
-								</div>
-								<div className="space-y-2">
-									<div className="flex items-center justify-between text-sm">
-										<span className="text-muted-foreground">Edge Requests</span>
-										<span className="font-medium">0 / 1M</span>
-									</div>
-									<Progress value={0} className="h-2" />
-								</div>
-								<div className="space-y-2">
-									<div className="flex items-center justify-between text-sm">
-										<span className="text-muted-foreground">Edge CPU</span>
-										<span className="font-medium">0 / 1h</span>
-									</div>
-									<Progress value={0} className="h-2" />
-								</div>
-							</CardContent>
-						</Card>
+  const handleRefresh = () => {
+    mutate();
+  };
 
-						<Card>
-							<CardHeader className="pb-3">
-								<CardTitle className="text-lg font-semibold flex items-center gap-2">
-									<GitBranch className="h-5 w-5" />
-									Xem trước gần đây
-								</CardTitle>
-							</CardHeader>
-							<CardContent>
-								<p className="text-muted-foreground text-sm">Chưa có xem trước nào gần đây.</p>
-							</CardContent>
-						</Card>
-					</div>
+  if (isError) {
+    return (
+      <div className="py-6">
+        <div className="container-page">
+          <Card className="border-destructive bg-white/60 backdrop-blur-xl">
+            <CardContent className="pt-6">
+              <div className="text-center space-y-3">
+                <p className="text-destructive font-medium">
+                  Không thể tải dữ liệu dashboard
+                </p>
+                <Button onClick={handleRefresh} variant="outline" size="sm">
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Thử lại
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
-					{/* Right column: Projects */}
-					<div className="lg:col-span-8 grid gap-4">
-						<Card className="border-dashed">
-							<CardContent className="pt-6">
-								<div className="grid place-items-center py-8 text-center">
-									<div className="space-y-4">
-										<div className="mx-auto h-12 w-12 bg-muted rounded-full flex items-center justify-center">
-											<Zap className="h-6 w-6 text-muted-foreground" />
-										</div>
-										<div className="space-y-2">
-											<h3 className="text-lg font-semibold">Triển khai dự án đầu tiên của bạn</h3>
-											<p className="text-muted-foreground text-sm">Nhập từ Git provider hoặc chọn một template có sẵn.</p>
-										</div>
-						<div className="flex justify-center gap-3">
-							<Button asChild>
-								<Link href="/import">Nhập từ GitHub</Link>
-							</Button>
-							<Button asChild variant="outline">
-								<Link href="/apps/new">
-									Next.js Boilerplate
-								</Link>
-							</Button>
-							<Button asChild variant="outline" className="gap-2">
-								<Link href="/databases/new">
-									<Database className="h-4 w-4" />
-									Triển khai Database
-								</Link>
-							</Button>
-						</div>
-									</div>
-								</div>
-							</CardContent>
-						</Card>
+  return (
+    <div className="space-y-8">
+      {/* Welcome Header */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="space-y-2"
+      >
+        <h1 className="font-serif text-4xl md:text-5xl font-semibold text-charcoal">
+          Chào mừng trở lại
+        </h1>
+        <p className="text-lg text-charcoal/70">
+          Tổng quan về ứng dụng và triển khai của bạn
+        </p>
+      </motion.div>
 
-						<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-							<Card className="group hover:shadow-md transition-shadow">
-								<CardHeader className="pb-3">
-									<CardTitle className="text-lg font-semibold">AI Chatbot</CardTitle>
-									<CardDescription>Full-featured Next.js AI chatbot</CardDescription>
-								</CardHeader>
-								<CardContent className="space-y-3">
-									<div className="flex items-center justify-between">
-										<span className="text-sm text-muted-foreground">Trạng thái</span>
-										<Badge variant="secondary">Chưa triển khai</Badge>
-									</div>
-									<Button variant="outline" className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-										Triển khai
-									</Button>
-								</CardContent>
-							</Card>
-							
-							<Card className="group hover:shadow-md transition-shadow">
-								<CardHeader className="pb-3">
-									<CardTitle className="text-lg font-semibold">Express.js</CardTitle>
-									<CardDescription>Template Express trên EasyDeploy</CardDescription>
-								</CardHeader>
-								<CardContent className="space-y-3">
-									<div className="flex items-center justify-between">
-										<span className="text-sm text-muted-foreground">Trạng thái</span>
-										<Badge variant="secondary">Chưa triển khai</Badge>
-									</div>
-									<Button variant="outline" className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-										Triển khai
-									</Button>
-								</CardContent>
-							</Card>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	);
+      {/* Action Buttons */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.1 }}
+        className="flex flex-wrap gap-3"
+      >
+        <Button
+          onClick={handleRefresh}
+          variant="outline"
+          size="sm"
+          disabled={isLoading}
+          className="bg-white/60 backdrop-blur-sm border-misty-grey/30"
+        >
+          <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+          Làm mới
+        </Button>
+        <Button asChild size="sm" className="bg-gradient-to-br from-emerald-600 to-emerald-500 hover:from-emerald-700 hover:to-emerald-600 text-white shadow-emerald-md">
+          <Link href="/apps/new" className="gap-2">
+            <Plus className="h-4 w-4" />
+            Deploy mới
+          </Link>
+        </Button>
+      </motion.div>
+
+      {isLoading ? (
+        <DashboardSkeleton />
+      ) : overview ? (
+        <div className="grid gap-6 lg:grid-cols-12">
+          {/* Stats Cards - Full Width */}
+          <div className="lg:col-span-12">
+            <StatsCards stats={overview.stats} />
+          </div>
+
+          {/* Quick Actions - Show when no apps or always as guide */}
+          {overview.recentApplications.length === 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="lg:col-span-12"
+            >
+              <QuickActionsCard />
+            </motion.div>
+          )}
+
+          {/* Recent Apps - Left Column */}
+          <div className={`${overview.recentApplications.length === 0 ? 'lg:col-span-12' : 'lg:col-span-8'}`}>
+            <RecentAppsCard 
+              apps={overview.recentApplications} 
+              onUpdate={handleRefresh} 
+            />
+          </div>
+
+          {/* Activity Feed - Right Column */}
+          {overview.recentApplications.length > 0 && (
+            <div className="lg:col-span-4">
+              <ActivityFeed />
+            </div>
+          )}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function QuickActionsCard() {
+  const quickActions = [
+    {
+      title: "Tạo ứng dụng đầu tiên",
+      description: "Deploy ứng dụng từ GitHub trong vài phút",
+      icon: Rocket,
+      href: "/apps/new",
+      color: "text-emerald-600",
+      bgColor: "bg-emerald-500/10",
+      hoverBg: "hover:bg-emerald-500/20",
+    },
+    {
+      title: "Kết nối GitHub",
+      description: "Liên kết tài khoản để truy cập repositories",
+      icon: Github,
+      href: "/apps/new",
+      color: "text-charcoal",
+      bgColor: "bg-charcoal/10",
+      hoverBg: "hover:bg-charcoal/20",
+    },
+    {
+      title: "Xem tài liệu",
+      description: "Hướng dẫn chi tiết về cách sử dụng EasyDeploy",
+      icon: BookOpen,
+      href: "#",
+      color: "text-soft-blue",
+      bgColor: "bg-soft-blue/10",
+      hoverBg: "hover:bg-soft-blue/20",
+    },
+  ];
+
+  return (
+    <Card className="bg-white/60 backdrop-blur-xl border-0 rounded-3xl shadow-inner-glow-soft overflow-hidden">
+      <CardContent className="p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <div className="p-2 rounded-xl bg-misty-sage/10">
+            <Zap className="h-5 w-5 text-misty-sage" strokeWidth={1.5} />
+          </div>
+          <h3 className="text-lg font-semibold text-charcoal">Bắt đầu nhanh</h3>
+        </div>
+        
+        <div className="grid gap-3 md:grid-cols-3">
+          {quickActions.map((action, index) => {
+            const Icon = action.icon;
+            return (
+              <motion.div
+                key={action.title}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+              >
+                <Link href={action.href}>
+                  <div className={`group p-4 rounded-2xl bg-white/40 backdrop-blur-sm border border-white/30 ${action.hoverBg} transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md cursor-pointer`}>
+                    <div className={`w-10 h-10 rounded-xl ${action.bgColor} flex items-center justify-center mb-3`}>
+                      <Icon className={`h-5 w-5 ${action.color}`} strokeWidth={1.5} />
+                    </div>
+                    <h4 className="font-medium text-charcoal text-sm mb-1">{action.title}</h4>
+                    <p className="text-xs text-charcoal/60 mb-2">{action.description}</p>
+                    <div className="flex items-center gap-1 text-xs font-medium text-misty-sage group-hover:text-emerald-600 transition-colors">
+                      <span>Bắt đầu</span>
+                      <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
+                    </div>
+                  </div>
+                </Link>
+              </motion.div>
+            );
+          })}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function DashboardSkeleton() {
+  return (
+    <>
+      {/* Stats Skeleton */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        {[1, 2, 3, 4].map((i) => (
+          <Card key={i} className="bg-white/60 backdrop-blur-xl">
+            <CardContent className="pt-6">
+              <Skeleton className="h-4 w-20 mb-2" />
+              <Skeleton className="h-8 w-12" />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Apps Skeleton */}
+      <Card className="bg-white/60 backdrop-blur-xl">
+        <CardContent className="pt-6">
+          <Skeleton className="h-6 w-32 mb-4" />
+          <div className="space-y-3">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <Skeleton key={i} className="h-16 w-full" />
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    </>
+  );
 }

@@ -15,7 +15,9 @@ import {
 	PaginationPrevious,
 	PaginationEllipsis 
 } from "@/components/ui/pagination";
-import { Search, List, Grid3X3, Play, Pause, AlertCircle, View, ExternalLink } from "lucide-react";
+import { Search, List, Grid3X3, Play, Pause, AlertCircle, View, ExternalLink, FileCode, Server, Settings, Globe, RefreshCw, FileText } from "lucide-react";
+import { motion } from "framer-motion";
+import { EmptyState } from "@/components/apps/EmptyState";
 import ApplicationService from "@/services/application.service";
 import { SortDirection } from "@/types/enum/sort-direction.enum";
 import { 
@@ -110,12 +112,12 @@ export default function ApplicationsTable() {
 			<div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
 				<div className="flex items-center gap-2">
 					<div className="relative">
-						<Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+						<Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-charcoal/40 z-10" strokeWidth={1.5} />
 						<Input 
 							placeholder="Tìm kiếm ứng dụng..." 
 							value={query} 
 							onChange={(e) => setQuery(e.target.value)}
-							className="pl-10 w-64"
+							className="pl-11 pr-4 h-11 w-64 rounded-full border-0 bg-white/60 backdrop-blur-sm shadow-inner-sm focus:ring-2 focus:ring-misty-sage/20 focus:bg-white/80 transition-all"
 						/>
 					</div>
 					<Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -162,116 +164,245 @@ export default function ApplicationsTable() {
 					</div>
 				</div>
 			) : applications.length === 0 ? (
-				<Card>
-					<CardContent className="flex flex-col items-center justify-center py-12">
-						<AlertCircle className="h-12 w-12 text-muted-foreground mb-4" />
-						<h3 className="text-lg font-semibold mb-2">Chưa có dự án nào</h3>
-						<p className="text-muted-foreground text-center mb-4">
-							Bạn chưa có dự án nào được triển khai. Hãy tạo dự án đầu tiên của bạn!
-						</p>
-						<Button asChild>
-							<Link href="/apps/new">
-								<Play className="h-4 w-4 mr-2" />
-								Tạo dự án mới
-							</Link>
-						</Button>
-					</CardContent>
-				</Card>
+				<EmptyState />
 			) : view === "list" ? (
-				<Card>
+				<Card className="bg-white/60 backdrop-blur-xl border-0 rounded-3xl shadow-inner-glow-soft overflow-hidden">
 					<Table>
 						<TableHeader>
-							<TableRow>
-								<TableHead>Tên ứng dụng</TableHead>
-								<TableHead>Trạng thái</TableHead>
-								<TableHead>URL</TableHead>
-								<TableHead>Ngày tạo</TableHead>
-								<TableHead className="w-[100px]">Thao tác</TableHead>
+							<TableRow className="border-b border-misty-grey/10 hover:bg-transparent">
+								<TableHead className="text-charcoal/70 font-medium py-4">Tên ứng dụng</TableHead>
+								<TableHead className="text-charcoal/70 font-medium py-4">Trạng thái</TableHead>
+								<TableHead className="text-charcoal/70 font-medium py-4">URL</TableHead>
+								<TableHead className="text-charcoal/70 font-medium py-4">Ngày tạo</TableHead>
+								<TableHead className="w-[140px] text-charcoal/70 font-medium py-4">Thao tác</TableHead>
 							</TableRow>
 						</TableHeader>
 						<TableBody>
-							{applications.map((application) => (
-								<TableRow key={application.id}>
-									<TableCell className="font-medium">
-										<Link href={`/apps/${application.id}`} className="text-primary hover:underline">
-											{application.name}
-										</Link>
-									</TableCell>
-									<TableCell>
-										<Badge variant="secondary" className="gap-1">
-											<Pause className="h-3 w-3" />
-											{translateStatus(application.status)}
-										</Badge>
-									</TableCell>
-									<TableCell>
-										{application.publicUrl ? (
-											<a
-												href={application.publicUrl}
-												target="_blank"
-												rel="noopener noreferrer"
-												className="text-primary hover:underline flex items-center gap-1"
-											>
-												{application.publicUrl}
-												<ExternalLink className="h-3 w-3" />
-											</a>
-										) : (
-											<span className="text-muted-foreground">N/A</span>
-										)}
-									</TableCell>
-									<TableCell className="text-muted-foreground">{formatDateDDMMYYYYHHMMSS(application.createdAt)}</TableCell>
-									<TableCell>
-										<Button variant="outline" size="sm" asChild>
-											<Link href={`/apps/${application.id}`} className="inline-flex items-center">
-												<View className="h-4 w-4" />
+							{applications.map((application) => {
+								const isRunning = application.status === 'SUCCESS';
+								return (
+									<TableRow 
+										key={application.id} 
+										className="border-0 hover:bg-misty-sage/5 transition-colors duration-200 group"
+									>
+										<TableCell className="font-medium py-5">
+											<Link href={`/apps/${application.id}`} className="text-charcoal hover:text-misty-sage transition-colors">
+												{application.name}
 											</Link>
-										</Button>
-									</TableCell>
-								</TableRow>
-							))}
+										</TableCell>
+										<TableCell className="py-5">
+											<Badge 
+												variant="secondary" 
+												className={`gap-1.5 border-0 ${
+													isRunning 
+														? 'bg-emerald-100/80 text-emerald-700' 
+														: 'bg-misty-sage/10 text-charcoal'
+												}`}
+											>
+												{isRunning ? (
+													<>
+														<div className="relative">
+															<div className="absolute inset-0 h-2 w-2 rounded-full bg-emerald-500 animate-ping-slow opacity-75" />
+															<div className="relative h-2 w-2 rounded-full bg-emerald-500" />
+														</div>
+														<span>Đang chạy</span>
+													</>
+												) : (
+													<>
+														<Pause className="h-3 w-3" strokeWidth={1.5} />
+														{translateStatus(application.status)}
+													</>
+												)}
+											</Badge>
+										</TableCell>
+										<TableCell className="py-5">
+											{application.publicUrl ? (
+												<a
+													href={application.publicUrl}
+													target="_blank"
+													rel="noopener noreferrer"
+													className="text-charcoal/70 hover:text-misty-sage flex items-center gap-1 transition-colors"
+												>
+													<span className="truncate max-w-[200px]">{application.publicUrl}</span>
+													<ExternalLink className="h-3 w-3 flex-shrink-0" strokeWidth={1.5} />
+												</a>
+											) : (
+												<span className="text-charcoal/40">—</span>
+											)}
+										</TableCell>
+										<TableCell className="text-charcoal/60 py-5">{formatDateDDMMYYYYHHMMSS(application.createdAt)}</TableCell>
+										<TableCell className="py-5">
+											<div className="flex items-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
+												<Button 
+													variant="ghost" 
+													size="sm" 
+													className="h-8 w-8 p-0 text-charcoal/60 hover:text-charcoal hover:bg-misty-sage/10 rounded-lg" 
+													asChild
+													title="Xem Logs"
+												>
+													<Link href={`/apps/${application.id}/log`}>
+														<FileText className="h-4 w-4" strokeWidth={1.5} />
+													</Link>
+												</Button>
+												<Button 
+													variant="ghost" 
+													size="sm" 
+													className="h-8 w-8 p-0 text-charcoal/60 hover:text-charcoal hover:bg-misty-sage/10 rounded-lg" 
+													asChild
+													title="Cài đặt"
+												>
+													<Link href={`/apps/${application.id}`}>
+														<Settings className="h-4 w-4" strokeWidth={1.5} />
+													</Link>
+												</Button>
+											</div>
+										</TableCell>
+									</TableRow>
+								);
+							})}
 						</TableBody>
 					</Table>
 				</Card>
 			) : (
-				<div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-					{applications.map((application) => (
-						<Card key={application.id} className="group hover:shadow-md transition-shadow">
-							<CardHeader className="pb-3">
-								<div className="flex items-center justify-between">
-									<CardTitle className="text-base">
-										<Link href={`/apps/${application.id}`} className="text-primary hover:underline">
-											{application.name}
-										</Link>
-									</CardTitle>
-									<Badge variant="secondary" className="gap-1">
-										<Pause className="h-3 w-3" />
-										{translateStatus(application.status)}
-									</Badge>
-								</div>
-								<CardDescription className="flex items-center gap-2">
-									{application.publicUrl ? (
-										<a
-											href={application.publicUrl}
-											target="_blank"
-											rel="noopener noreferrer"
-											className="text-xs text-primary hover:underline flex items-center gap-1"
-										>
-											{application.publicUrl}
-											<ExternalLink className="h-3 w-3" />
-										</a>
-									) : (
-										<span className="text-xs text-muted-foreground">N/A</span>
+				<div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+					{applications.map((application, index) => {
+						// Detect framework from name (simple heuristic)
+						const getFrameworkIcon = (name: string) => {
+							const lowerName = name.toLowerCase();
+							if (lowerName.includes('next') || lowerName.includes('react')) {
+								return { icon: FileCode, color: 'text-blue-500', bgColor: 'bg-blue-500/10' };
+							}
+							if (lowerName.includes('nest') || lowerName.includes('express')) {
+								return { icon: Server, color: 'text-red-500', bgColor: 'bg-red-500/10' };
+							}
+							return { icon: FileCode, color: 'text-misty-sage', bgColor: 'bg-misty-sage/10' };
+						};
+
+						const framework = getFrameworkIcon(application.name);
+						const FrameworkIcon = framework.icon;
+						const isRunning = application.status === 'SUCCESS';
+
+						return (
+							<motion.div
+								key={application.id}
+								initial={{ opacity: 0, y: 20 }}
+								animate={{ opacity: 1, y: 0 }}
+								transition={{ delay: index * 0.05 }}
+							>
+								<Card className="group bg-white/60 backdrop-blur-xl border-0 rounded-3xl shadow-inner-glow-soft relative overflow-hidden hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
+									{/* Shimmer effect when loading */}
+									{isLoading && (
+										<div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" />
 									)}
-									<span className="text-xs text-muted-foreground">{formatDateDDMMYYYYHHMMSS(application.createdAt)}</span>
-								</CardDescription>
-							</CardHeader>
-							<CardContent className="pt-0">
-								<Button variant="outline" size="sm" className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-									<Play className="h-4 w-4 mr-2" />
-									Triển khai
-								</Button>
-							</CardContent>
-						</Card>
-					))}
+
+									<CardHeader className="pb-4 px-6 pt-6">
+										<div className="flex items-start justify-between mb-3">
+											<div className="flex items-center gap-3 flex-1 min-w-0">
+												{/* Framework Icon with 3D effect */}
+												<div className={`h-12 w-12 rounded-xl ${framework.bgColor} flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow`}>
+													<FrameworkIcon className={`h-6 w-6 ${framework.color}`} strokeWidth={1.5} />
+												</div>
+												<div className="flex-1 min-w-0">
+													<CardTitle className="text-lg font-semibold text-charcoal truncate">
+														<Link href={`/apps/${application.id}`} className="hover:text-misty-sage transition-colors">
+															{application.name}
+														</Link>
+													</CardTitle>
+													<p className="text-xs text-misty-sage font-medium mt-1">ID: {application.id}</p>
+												</div>
+											</div>
+											{/* Running status with ping animation */}
+											{isRunning && (
+												<div className="relative flex-shrink-0">
+													<div className="absolute inset-0 flex items-center justify-center">
+														<div className="h-3 w-3 rounded-full bg-emerald-500 animate-ping-slow" />
+													</div>
+													<div className="relative h-3 w-3 rounded-full bg-emerald-500" />
+												</div>
+											)}
+										</div>
+										<CardDescription className="text-xs text-charcoal/60 space-y-1">
+											{application.publicUrl ? (
+												<a
+													href={application.publicUrl}
+													target="_blank"
+													rel="noopener noreferrer"
+													className="flex items-center gap-1 hover:text-misty-sage transition-colors"
+												>
+													<Globe className="h-3 w-3" strokeWidth={1.5} />
+													<span className="truncate">{application.publicUrl}</span>
+													<ExternalLink className="h-3 w-3 flex-shrink-0" />
+												</a>
+											) : (
+												<span>URL: N/A</span>
+											)}
+											<div className="text-xs text-charcoal/60">
+												{formatDateDDMMYYYYHHMMSS(application.createdAt)}
+											</div>
+										</CardDescription>
+									</CardHeader>
+								<CardContent className="px-6 pb-6 pt-0">
+									{/* Status badge - always visible */}
+									<Badge variant="secondary" className="gap-1.5 bg-misty-sage/10 text-charcoal border-0 mb-3">
+										{isRunning ? (
+											<>
+												<div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+												<span className="text-xs">Đang chạy</span>
+											</>
+										) : (
+											<>
+												<Pause className="h-3 w-3" strokeWidth={1.5} />
+												<span className="text-xs">{translateStatus(application.status)}</span>
+											</>
+										)}
+									</Badge>
+
+									{/* Hover Overlay with Quick Actions */}
+									<div className="absolute inset-0 bg-gradient-to-t from-charcoal/80 via-charcoal/40 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 rounded-3xl flex items-end justify-center pb-6">
+										<div className="flex items-center gap-2">
+											<Button 
+												variant="secondary" 
+												size="sm" 
+												className="h-9 px-3 bg-white/90 backdrop-blur-sm hover:bg-white text-charcoal rounded-xl shadow-lg" 
+												asChild
+												title="Xem Logs"
+											>
+												<Link href={`/apps/${application.id}/log`}>
+													<FileText className="h-4 w-4 mr-1.5" strokeWidth={1.5} />
+													<span className="text-xs font-medium">Logs</span>
+												</Link>
+											</Button>
+											<Button 
+												variant="secondary" 
+												size="sm" 
+												className="h-9 px-3 bg-white/90 backdrop-blur-sm hover:bg-white text-charcoal rounded-xl shadow-lg" 
+												asChild
+												title="Redeploy"
+											>
+												<Link href={`/apps/${application.id}`}>
+													<RefreshCw className="h-4 w-4 mr-1.5" strokeWidth={1.5} />
+													<span className="text-xs font-medium">Redeploy</span>
+												</Link>
+											</Button>
+											<Button 
+												variant="secondary" 
+												size="sm" 
+												className="h-9 px-3 bg-white/90 backdrop-blur-sm hover:bg-white text-charcoal rounded-xl shadow-lg" 
+												asChild
+												title="Cài đặt"
+											>
+												<Link href={`/apps/${application.id}`}>
+													<Settings className="h-4 w-4 mr-1.5" strokeWidth={1.5} />
+													<span className="text-xs font-medium">Cài đặt</span>
+												</Link>
+											</Button>
+										</div>
+									</div>
+								</CardContent>
+								</Card>
+							</motion.div>
+						);
+					})}
 				</div>
 			)}
 
