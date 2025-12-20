@@ -1,7 +1,6 @@
 "use client";
-
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { 
@@ -13,7 +12,11 @@ import {
   RefreshCw,
   Users,
   Building,
+  Cloud,
+  Info,
 } from "lucide-react";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Tooltip } from "@/components/ui/tooltip";
 
 interface ProviderInstallation {
   id: number;
@@ -49,181 +52,239 @@ export function CredentialsSection({
   const getProviderIcon = (provider: string) => {
     switch (provider) {
       case "github":
-        return <Github className="h-4 w-4" />;
+        return <Github className="h-4 w-4" strokeWidth={1.5} />;
       default:
-        return <Github className="h-4 w-4" />;
-    }
-  };
-
-  const getProviderColor = (provider: string) => {
-    switch (provider) {
-      case "github":
-        return "text-gray-900";
-      default:
-        return "text-gray-600";
+        return <Github className="h-4 w-4" strokeWidth={1.5} />;
     }
   };
 
   const getAccountIcon = (accountType: string) => {
     switch (accountType.toLowerCase()) {
       case "organization":
-        return <Building className="h-3 w-3" />;
+        return <Building className="h-3 w-3" strokeWidth={1.5} />;
       case "user":
-        return <Users className="h-3 w-3" />;
+        return <Users className="h-3 w-3" strokeWidth={1.5} />;
       default:
-        return <Users className="h-3 w-3" />;
+        return <Users className="h-3 w-3" strokeWidth={1.5} />;
     }
   };
 
   return (
-    <Card className="h-fit">
-      <CardHeader>
-        <div className="flex items-center gap-2">
-          <Settings className="h-5 w-5" />
-          <CardTitle>Credentials</CardTitle>
+    <div className="bg-white/80 backdrop-blur-xl rounded-3xl border border-white/30 shadow-inner-glow-soft overflow-hidden">
+      <div className="p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <Settings className="h-5 w-5 text-misty-sage" strokeWidth={1.5} />
+          <h3 className="text-lg font-semibold text-charcoal">Quản lý kết nối</h3>
           {installations.length > 0 && (
-            <Badge variant="secondary" className="text-xs">
-              {installations.length} connected
+            <Badge variant="secondary" className="text-xs bg-emerald-200/20 text-emerald-700 border-0">
+              {installations.length} đã kết nối
             </Badge>
           )}
         </div>
-        <CardDescription>
-          Quản lý kết nối Git provider của bạn
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="p-0">
-        <div className="max-h-96 overflow-y-auto">
-          <div className="p-6 space-y-4">
-            {error && (
-              <Alert variant="destructive">
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
 
-            {successMessage && (
-              <Alert className="border-green-200 bg-green-50">
-                <CheckCircle className="h-4 w-4 text-green-600" />
-                <AlertDescription className="text-green-800">{successMessage}</AlertDescription>
-              </Alert>
-            )}
+        <div className="space-y-4 max-h-[600px] overflow-y-auto scrollbar-misty">
+          {error && (
+            <Alert variant="destructive" className="bg-rose-50 border-rose-200 text-rose-700">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
 
-            {/* Provider Status Overview */}
-            <div className="p-3 border rounded-lg">
-              <div className="flex items-center gap-2 mb-1">
-                <Github className="h-4 w-4 text-gray-900" />
-                <span className="text-sm font-medium">GitHub</span>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                {installations.filter(inst => inst.provider === "github").length} đã kết nối
-              </p>
-            </div>
+          {successMessage && (
+            <Alert className="border-emerald-200 bg-emerald-50/80 backdrop-blur-sm">
+              <CheckCircle className="h-4 w-4 text-emerald-600" strokeWidth={1.5} />
+              <AlertDescription className="text-emerald-800">{successMessage}</AlertDescription>
+            </Alert>
+          )}
 
-            {/* Connected Installations */}
-            {installations.length === 0 ? (
-              <div className="text-center py-6 border-2 border-dashed border-gray-200 rounded-lg">
-                <div className="text-gray-400 mb-3">
-                  <Github className="h-8 w-8 mx-auto" />
+          {/* Empty State */}
+          {installations.length === 0 ? (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-center py-12 px-4"
+            >
+              {/* Misty Illustration */}
+              <div className="relative mb-6">
+                <div className="mx-auto w-32 h-32 relative">
+                  {/* Misty circles */}
+                  <motion.div
+                    className="absolute inset-0 rounded-full bg-misty-sage/20 blur-2xl"
+                    animate={{
+                      scale: [1, 1.2, 1],
+                      opacity: [0.3, 0.5, 0.3],
+                    }}
+                    transition={{
+                      duration: 4,
+                      repeat: Infinity,
+                    }}
+                  />
+                  <motion.div
+                    className="absolute inset-0 rounded-full bg-soft-blue/20 blur-xl"
+                    animate={{
+                      scale: [1, 1.15, 1],
+                      opacity: [0.2, 0.4, 0.2],
+                    }}
+                    transition={{
+                      duration: 5,
+                      repeat: Infinity,
+                      delay: 1,
+                    }}
+                  />
+                  {/* Cloud icon */}
+                  <div className="relative z-10 flex items-center justify-center h-full">
+                    <Cloud className="h-16 w-16 text-misty-sage/60" strokeWidth={1} />
+                  </div>
                 </div>
-                <p className="text-sm text-muted-foreground mb-2">
-                  Chưa có tài khoản GitHub nào được kết nối
-                </p>
+              </div>
+
+              <h4 className="text-lg font-semibold text-charcoal mb-2">
+                Khám phá tiềm năng mã nguồn của bạn
+              </h4>
+              <p className="text-sm text-charcoal/70 mb-6 max-w-sm mx-auto">
+                Kết nối tài khoản GitHub để bắt đầu hành trình triển khai ứng dụng của bạn
+              </p>
+              
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
                 <Button
                   onClick={() => onInstallProvider("github")}
-                  size="sm"
+                  size="lg"
+                  className="bg-gradient-to-br from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white rounded-full px-8 shadow-[0_0_30px_rgba(5,150,105,0.5)] relative overflow-hidden group border-2 border-emerald-500/30"
                 >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Kết nối GitHub
+                  {/* Glow effect */}
+                  <div className="absolute inset-0 bg-white/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <Github className="h-5 w-5 mr-2 relative z-10" strokeWidth={1.5} />
+                  <span className="relative z-10 font-semibold">Kết nối GitHub</span>
                 </Button>
-              </div>
-            ) : (
+              </motion.div>
+            </motion.div>
+          ) : (
+            <div className="space-y-4">
+              <h4 className="font-semibold text-sm text-charcoal flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 text-emerald-500" strokeWidth={1.5} />
+                Tài khoản & Tổ chức đã ủy quyền
+              </h4>
+              
               <div className="space-y-3">
-                <h4 className="font-medium text-sm flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-600" />
-                  Tài khoản & Tổ chức đã ủy quyền
-                </h4>
-                
-                <div className="space-y-2">
-                  {installations.map((installation) => (
-                    <div
-                      key={installation.id}
-                      className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="flex items-center gap-2">
-                          <div className={getProviderColor(installation.provider)}>
-                            {getProviderIcon(installation.provider)}
-                          </div>
+                {installations.map((installation) => (
+                  <motion.div
+                    key={installation.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-white/40 backdrop-blur-sm rounded-2xl p-4 border border-white/30 hover:bg-white/60 transition-all duration-300"
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        {/* Avatar with Halo */}
+                        <div className="relative flex-shrink-0">
+                          <Avatar className="h-10 w-10 ring-2 ring-emerald-400/30 ring-offset-2 ring-offset-white/60">
+                            <AvatarFallback className="bg-misty-sage/20 text-charcoal font-semibold">
+                              {installation.account.charAt(0).toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                          {/* Halo glow */}
+                          <div className="absolute inset-0 rounded-full bg-emerald-400/20 blur-md -z-10" />
                         </div>
-                        <div>
-                          <p className="font-medium text-sm">{installation.account}</p>
-                          <p className="text-xs text-muted-foreground">
+                        
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1 flex-wrap">
+                            <div className="text-charcoal flex-shrink-0">
+                              {getProviderIcon(installation.provider)}
+                            </div>
+                            <p className="font-medium text-sm text-charcoal break-words">
+                              {installation.account}
+                            </p>
+                            <div className="text-charcoal/40 flex-shrink-0">
+                              {getAccountIcon(installation.accountType)}
+                            </div>
+                          </div>
+                          <p className="text-xs text-charcoal/60">
                             {installation.accountType} • {installation.repositorySelection}
                           </p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline" className="text-xs">
-                          <CheckCircle className="h-3 w-3 mr-1" />
+                      
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <Badge variant="outline" className="text-xs bg-emerald-50 border-emerald-200 text-emerald-700">
+                          <CheckCircle className="h-3 w-3 mr-1" strokeWidth={1.5} />
                           Hoạt động
                         </Badge>
                         <Button
-                          variant="outline"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => onSyncRepositories(true)}
+                          disabled={syncing || loading}
+                          className="h-8 w-8 p-0 text-misty-sage hover:text-emerald-600 hover:bg-emerald-50"
+                          title="Đồng bộ repositories"
+                        >
+                          <RefreshCw className={`h-4 w-4 ${syncing ? 'animate-spin' : ''}`} strokeWidth={1.5} />
+                        </Button>
+                        <Button
+                          variant="ghost"
                           size="sm"
                           onClick={() => onDisconnectProvider(installation.id)}
                           disabled={loading}
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          className="h-8 w-8 p-0 text-rose-600 hover:text-rose-700 hover:bg-rose-50"
+                          title="Ngắt kết nối"
                         >
-                          <Trash2 className="h-4 w-4" />
+                          <Trash2 className="h-4 w-4" strokeWidth={1.5} />
                         </Button>
                       </div>
                     </div>
-                  ))}
-                </div>
+                  </motion.div>
+                ))}
+              </div>
 
-                {/* Quick Actions */}
-                <div className="grid grid-cols-2 gap-2 pt-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => onConfigureProvider("github")}
-                    className="w-full"
-                  >
-                    <Settings className="h-4 w-4 mr-2" />
-                    Quản lý
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => onInstallProvider("github")}
-                    className="w-full"
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Thêm
-                  </Button>
-                </div>
-                
+              {/* Quick Actions */}
+              <div className="grid grid-cols-2 gap-2 pt-2">
                 <Button
-                  variant="secondary"
+                  variant="outline"
                   size="sm"
-                  onClick={() => onSyncRepositories(true)}
-                  disabled={syncing || loading}
-                  className="w-full"
+                  onClick={() => onConfigureProvider("github")}
+                  className="w-full bg-white/40 backdrop-blur-sm border-white/30 hover:bg-white/60"
                 >
-                  <RefreshCw className={`h-4 w-4 mr-2 ${syncing ? 'animate-spin' : ''}`} />
-                  {syncing ? "Đang đồng bộ..." : "Đồng bộ Repositories"}
+                  <Settings className="h-4 w-4 mr-2" strokeWidth={1.5} />
+                  Quản lý
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onInstallProvider("github")}
+                  className="w-full bg-white/40 backdrop-blur-sm border-white/30 hover:bg-white/60"
+                >
+                  <Plus className="h-4 w-4 mr-2" strokeWidth={1.5} />
+                  Thêm
                 </Button>
               </div>
-            )}
-
-            {/* Help Text */}
-            <div className="text-xs text-muted-foreground bg-muted/30 p-3 rounded-lg">
-              <p className="font-medium mb-1">Cần trợ giúp?</p>
-              <p>Kết nối tài khoản GitHub của bạn để truy cập repositories và kích hoạt triển khai tự động.</p>
+              
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => onSyncRepositories(true)}
+                disabled={syncing || loading}
+                className="w-full bg-white/40 backdrop-blur-sm border-white/30 hover:bg-white/60"
+              >
+                <RefreshCw className={`h-4 w-4 mr-2 ${syncing ? 'animate-spin' : ''}`} strokeWidth={1.5} />
+                {syncing ? "Đang đồng bộ..." : "Đồng bộ Repositories"}
+              </Button>
             </div>
+          )}
+
+          {/* Compact Help with Tooltip */}
+          <div className="flex items-center justify-center">
+            <Tooltip
+              content="Kết nối tài khoản GitHub của bạn để truy cập repositories và kích hoạt triển khai tự động."
+            >
+              <button className="flex items-center gap-1.5 text-xs text-charcoal/50 hover:text-charcoal/70 transition-colors">
+                <Info className="h-3.5 w-3.5" strokeWidth={1.5} />
+                <span>Cần trợ giúp?</span>
+              </button>
+            </Tooltip>
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
-

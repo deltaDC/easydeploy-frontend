@@ -1,5 +1,4 @@
 "use client";
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,8 +10,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Info } from "lucide-react";
+import { Info, Code, Play, FolderOpen, Folder, Heart, Globe } from "lucide-react";
 import { RepositoryDetailResponse } from "@/types/application.type";
+import { AVAILABLE_LANGUAGES } from "@/utils/language.utils";
 
 interface AppConfigurationFormProps {
   appName: string;
@@ -54,34 +54,41 @@ export default function AppConfigurationForm({
   repoDetails,
 }: AppConfigurationFormProps) {
   return (
-    <>
-      {/* App Configuration */}
-      <Card>
-        <CardHeader>
-          <CardTitle>App Configuration</CardTitle>
-          <CardDescription>Cấu hình cơ bản cho ứng dụng</CardDescription>
+    <div className="space-y-6">
+      {/* Thông tin dự án */}
+      <Card className="bg-white/95 backdrop-blur-xl border-2 border-white/50 rounded-3xl shadow-inner-glow-soft relative z-30">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-lg font-semibold text-charcoal">Thông tin dự án</CardTitle>
+          <CardDescription className="text-charcoal/70">
+            Cấu hình cơ bản cho ứng dụng
+          </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="appName">Tên ứng dụng</Label>
+            <Label htmlFor="appName" className="text-sm font-medium text-charcoal">
+              Tên ứng dụng hiển thị
+            </Label>
             <Input
               id="appName"
               placeholder="Tên ứng dụng của bạn"
               value={appName}
               onChange={(e) => onAppNameChange(e.target.value)}
+              className="h-11 rounded-misty-sm border-0 bg-white/90 backdrop-blur-sm shadow-inner-sm focus:ring-2 focus:ring-misty-sage/20 text-charcoal"
             />
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xs text-charcoal/60">
               Tên duy nhất cho ứng dụng của bạn
             </p>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="branch">Branch</Label>
+            <Label htmlFor="branch" className="text-sm font-medium text-charcoal">
+              Nhánh triển khai
+            </Label>
             <Select value={selectedBranch} onValueChange={onBranchChange}>
-              <SelectTrigger>
+              <SelectTrigger id="branch" aria-label="Chọn nhánh triển khai" className="h-11 rounded-misty-sm border-0 bg-white/80 backdrop-blur-sm shadow-inner-sm focus:ring-2 focus:ring-misty-sage/20 text-charcoal">
                 <SelectValue placeholder="Chọn branch" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white/95 backdrop-blur-xl border-white/50">
                 {repoDetails?.branches.map((branch) => (
                   <SelectItem key={branch.name} value={branch.name}>
                     {branch.name}
@@ -89,90 +96,108 @@ export default function AppConfigurationForm({
                 ))}
               </SelectContent>
             </Select>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xs text-charcoal/60">
               Branch sẽ được build và deploy
             </p>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="language">Language</Label>
+            <Label htmlFor="language" className="text-sm font-medium text-charcoal flex items-center gap-2">
+              <Globe className="h-4 w-4 text-misty-sage" strokeWidth={1.5} />
+              Ngôn ngữ / Framework
+              <span className="text-rose-500">*</span>
+            </Label>
             <Select value={language} onValueChange={onLanguageChange}>
-              <SelectTrigger>
-                <SelectValue placeholder="Chọn language" />
+              <SelectTrigger id="language" aria-label="Chọn ngôn ngữ" className="h-11 rounded-misty-sm border-0 bg-white/80 backdrop-blur-sm shadow-inner-sm focus:ring-2 focus:ring-misty-sage/20 text-charcoal">
+                <SelectValue placeholder="Chọn ngôn ngữ" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="docker">Docker</SelectItem>
-                <SelectItem value="node">Node.js</SelectItem>
-                <SelectItem value="python">Python</SelectItem>
-                <SelectItem value="java">Java</SelectItem>
-                <SelectItem value="go">Go</SelectItem>
-                <SelectItem value="rust">Rust</SelectItem>
-                <SelectItem value="static">Static Site</SelectItem>
+              <SelectContent className="bg-white/95 backdrop-blur-xl border-white/50">
+                {AVAILABLE_LANGUAGES.map((lang) => (
+                  <SelectItem key={lang.value} value={lang.value}>
+                    {lang.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
-            <p className="text-sm text-muted-foreground">
-              Chọn language/framework cho ứng dụng
+            <p className="text-xs text-charcoal/60">
+              Chọn ngôn ngữ để tự động điền lệnh build và start
             </p>
           </div>
         </CardContent>
       </Card>
 
-      {/* Build & Deploy Configuration */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Build & Deploy Configuration</CardTitle>
-          <CardDescription>Cấu hình build và deploy cho ứng dụng</CardDescription>
+      {/* Cấu hình Xây dựng & Triển khai */}
+      <Card className="bg-white/95 backdrop-blur-xl border-2 border-white/50 rounded-3xl shadow-inner-glow-soft relative z-30">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-lg font-semibold text-charcoal flex items-center gap-2">
+            <Code className="h-5 w-5 text-misty-sage" strokeWidth={1.5} />
+            Cấu hình Xây dựng & Triển khai
+          </CardTitle>
+          <CardDescription className="text-charcoal/70">
+            Cấu hình build và deploy cho ứng dụng
+          </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="buildCommand">Build Command <span className="text-red-500">*</span></Label>
+            <Label htmlFor="buildCommand" className="text-sm font-medium text-charcoal flex items-center gap-2">
+              <Code className="h-4 w-4 text-misty-sage" strokeWidth={1.5} />
+              Lệnh cài đặt & Build
+              <span className="text-rose-500">*</span>
+            </Label>
             <Input
               id="buildCommand"
               placeholder="npm install && npm run build"
               value={buildCommand}
               onChange={(e) => onBuildCommandChange(e.target.value)}
               required
+              className="h-11 rounded-misty-sm border-0 bg-charcoal/5 backdrop-blur-sm shadow-inner-sm focus:ring-2 focus:ring-misty-sage/20 font-mono text-sm"
             />
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xs text-charcoal/60">
               Command để build ứng dụng
             </p>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="startCommand">Start Command <span className="text-red-500">*</span></Label>
+            <Label htmlFor="startCommand" className="text-sm font-medium text-charcoal flex items-center gap-2">
+              <Play className="h-4 w-4 text-misty-sage" strokeWidth={1.5} />
+              Lệnh khởi chạy
+              <span className="text-rose-500">*</span>
+            </Label>
             <Input
               id="startCommand"
               placeholder="npm start"
               value={startCommand}
               onChange={(e) => onStartCommandChange(e.target.value)}
               required
+              className="h-11 rounded-misty-sm border-0 bg-charcoal/5 backdrop-blur-sm shadow-inner-sm focus:ring-2 focus:ring-misty-sage/20 font-mono text-sm"
             />
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xs text-charcoal/60">
               Command để start ứng dụng
             </p>
           </div>
 
-
           <div className="space-y-2">
-            <Label htmlFor="publishDir">
-              Publish Directory <span className="text-muted-foreground">(Optional - Recommended for static sites)</span>
+            <Label htmlFor="publishDir" className="text-sm font-medium text-charcoal flex items-center gap-2">
+              <FolderOpen className="h-4 w-4 text-misty-sage" strokeWidth={1.5} />
+              Thư mục xuất bản
             </Label>
             <Input
               id="publishDir"
-              placeholder="build or dist"
+              placeholder="build hoặc dist"
               value={publishDir}
               onChange={(e) => onPublishDirChange(e.target.value)}
+              className="h-11 rounded-misty-sm border-0 bg-white/80 backdrop-blur-sm shadow-inner-sm focus:ring-2 focus:ring-misty-sage/20 font-mono text-sm"
             />
-            <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">
-                Thư mục chứa files sau khi build (ví dụ: <code className="text-xs bg-muted px-1 py-0.5 rounded">build</code> cho React, <code className="text-xs bg-muted px-1 py-0.5 rounded">dist</code> cho Vue)
+            <div className="space-y-2">
+              <p className="text-xs text-charcoal/60">
+                Thư mục chứa tệp sau khi build (vd: <code className="text-xs bg-charcoal/5 px-1.5 py-0.5 rounded font-mono">build</code> hoặc <code className="text-xs bg-charcoal/5 px-1.5 py-0.5 rounded font-mono">dist</code>)
               </p>
               {(language.toLowerCase() === 'node' || language.toLowerCase() === 'javascript' || language.toLowerCase() === 'typescript') && (
                 !publishDir && (
-                  <Alert className="mt-2">
-                    <Info className="h-4 w-4" />
-                    <AlertDescription className="text-xs">
-                      <strong>Khuyến nghị:</strong> Nhập <code className="text-xs bg-muted px-1 py-0.5 rounded">build</code> hoặc <code className="text-xs bg-muted px-1 py-0.5 rounded">dist</code> để serve static files. Nếu để trống, app sẽ chạy dev server.
+                  <Alert className="bg-amber-50/80 backdrop-blur-sm border-amber-200 rounded-2xl">
+                    <Info className="h-4 w-4 text-amber-600" strokeWidth={1.5} />
+                    <AlertDescription className="text-xs text-amber-800">
+                      <strong>Khuyến nghị:</strong> Nhập <code className="text-xs bg-amber-100 px-1.5 py-0.5 rounded font-mono">build</code> hoặc <code className="text-xs bg-amber-100 px-1.5 py-0.5 rounded font-mono">dist</code> để serve static files. Nếu để trống, app sẽ chạy dev server.
                     </AlertDescription>
                   </Alert>
                 )
@@ -181,25 +206,27 @@ export default function AppConfigurationForm({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="rootDir">
-              Root Directory <span className="text-muted-foreground">(Optional - For mono repos)</span>
+            <Label htmlFor="rootDir" className="text-sm font-medium text-charcoal flex items-center gap-2">
+              <Folder className="h-4 w-4 text-misty-sage" strokeWidth={1.5} />
+              Thư mục gốc
             </Label>
             <Input
               id="rootDir"
-              placeholder="frontend or api"
+              placeholder="frontend hoặc api"
               value={rootDir}
               onChange={(e) => onRootDirChange(e.target.value)}
+              className="h-11 rounded-misty-sm border-0 bg-white/80 backdrop-blur-sm shadow-inner-sm focus:ring-2 focus:ring-misty-sage/20 font-mono text-sm"
             />
-            <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">
-                Thư mục gốc của app trong repo (chỉ cần nếu là mono repo)
+            <div className="space-y-2">
+              <p className="text-xs text-charcoal/60">
+                Để trống nếu mã nguồn nằm ở thư mục chính
               </p>
               {rootDir && (
-                <Alert className="mt-2">
-                  <Info className="h-4 w-4" />
-                  <AlertDescription className="text-xs">
+                <Alert className="bg-blue-50/80 backdrop-blur-sm border-blue-200 rounded-2xl">
+                  <Info className="h-4 w-4 text-blue-600" strokeWidth={1.5} />
+                  <AlertDescription className="text-xs text-blue-800">
                     <strong>Lưu ý:</strong> Tên thư mục phải <strong>chính xác</strong> (case-sensitive). 
-                    Kiểm tra trên GitHub để đảm bảo tên đúng. Ví dụ: <code className="text-xs bg-muted px-1 py-0.5 rounded">frontend</code> ≠ <code className="text-xs bg-muted px-1 py-0.5 rounded">Frontend</code> ≠ <code className="text-xs bg-muted px-1 py-0.5 rounded">front-end</code>
+                    Kiểm tra trên GitHub để đảm bảo tên đúng. Ví dụ: <code className="text-xs bg-blue-100 px-1.5 py-0.5 rounded font-mono">frontend</code> ≠ <code className="text-xs bg-blue-100 px-1.5 py-0.5 rounded font-mono">Frontend</code>
                   </AlertDescription>
                 </Alert>
               )}
@@ -207,20 +234,23 @@ export default function AppConfigurationForm({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="healthCheckPath">Health Check Path - Optional</Label>
+            <Label htmlFor="healthCheckPath" className="text-sm font-medium text-charcoal flex items-center gap-2">
+              <Heart className="h-4 w-4 text-misty-sage" strokeWidth={1.5} />
+              Đường dẫn kiểm tra ứng dụng
+            </Label>
             <Input
               id="healthCheckPath"
               placeholder="/health"
               value={healthCheckPath}
               onChange={(e) => onHealthCheckPathChange(e.target.value)}
+              className="h-11 rounded-misty-sm border-0 bg-white/90 backdrop-blur-sm shadow-inner-sm focus:ring-2 focus:ring-misty-sage/20 text-charcoal"
             />
-            <p className="text-sm text-muted-foreground">
-              Provide an HTTP endpoint path that EasyDeploy monitors
+            <p className="text-xs text-charcoal/60">
+              Đường dẫn HTTP endpoint mà EasyDeploy sẽ giám sát để kiểm tra trạng thái ứng dụng
             </p>
           </div>
         </CardContent>
       </Card>
-    </>
+    </div>
   );
 }
-

@@ -3,6 +3,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { LucideIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 interface FeatureCardProps {
@@ -42,24 +43,33 @@ export function FeatureCard({ icon: Icon, title, description, delay = 0 }: Featu
 	}, [delay]);
 
 	return (
-		<Card
+		<motion.div
 			ref={cardRef}
-			className={cn(
-				"group hover-lift transition-all duration-300 border-2",
-				isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-			)}
+			initial={{ opacity: 0, y: 20, scale: 0.95 }}
+			animate={{
+				opacity: isVisible ? 1 : 0,
+				y: isVisible ? 0 : 20,
+				scale: isVisible ? 1 : 0.95,
+			}}
+			transition={{ duration: 0.5, delay: delay / 1000 }}
+			whileHover={{ scale: 1.02, y: -4 }}
+			className="h-full"
 		>
-			<CardHeader className="pb-4">
-				<div className="h-14 w-14 bg-primary/10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors group-hover:scale-110 transition-transform duration-300">
-					<Icon className="h-7 w-7 text-primary transition-transform group-hover:rotate-6" />
-				</div>
-				<CardTitle className="text-xl">{title}</CardTitle>
-			</CardHeader>
-			<CardContent>
-				<CardDescription className="text-base leading-relaxed">
-					{description}
-				</CardDescription>
-			</CardContent>
-		</Card>
+			<Card className="h-full bg-porcelain/80 backdrop-blur-md border-0 shadow-misty hover:shadow-misty-lg transition-all duration-300 rounded-3xl group relative overflow-hidden">
+				{/* Inner Glow */}
+				<div className="absolute inset-0 shadow-inner-glow pointer-events-none rounded-3xl" />
+				<CardHeader className="pb-4 p-8">
+					<div className="h-16 w-16 bg-misty-sage/10 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-misty-sage/20 transition-colors">
+						<Icon className="h-8 w-8 text-misty-sage stroke-[1.5]" />
+					</div>
+					<CardTitle className="text-xl text-charcoal font-semibold">{title}</CardTitle>
+				</CardHeader>
+				<CardContent className="px-8 pb-8">
+					<CardDescription className="text-base leading-relaxed text-charcoal/70">
+						{description}
+					</CardDescription>
+				</CardContent>
+			</Card>
+		</motion.div>
 	);
 }
