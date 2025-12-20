@@ -10,8 +10,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Info, Code, Play, FolderOpen, Folder, Heart } from "lucide-react";
+import { Info, Code, Play, FolderOpen, Folder, Heart, Globe } from "lucide-react";
 import { RepositoryDetailResponse } from "@/types/application.type";
+import { AVAILABLE_LANGUAGES } from "@/utils/language.utils";
 
 interface AppConfigurationFormProps {
   appName: string;
@@ -97,6 +98,29 @@ export default function AppConfigurationForm({
             </Select>
             <p className="text-xs text-charcoal/60">
               Branch sẽ được build và deploy
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="language" className="text-sm font-medium text-charcoal flex items-center gap-2">
+              <Globe className="h-4 w-4 text-misty-sage" strokeWidth={1.5} />
+              Ngôn ngữ / Framework
+              <span className="text-rose-500">*</span>
+            </Label>
+            <Select value={language} onValueChange={onLanguageChange}>
+              <SelectTrigger id="language" aria-label="Chọn ngôn ngữ" className="h-11 rounded-misty-sm border-0 bg-white/80 backdrop-blur-sm shadow-inner-sm focus:ring-2 focus:ring-misty-sage/20 text-charcoal">
+                <SelectValue placeholder="Chọn ngôn ngữ" />
+              </SelectTrigger>
+              <SelectContent className="bg-white/95 backdrop-blur-xl border-white/50">
+                {AVAILABLE_LANGUAGES.map((lang) => (
+                  <SelectItem key={lang.value} value={lang.value}>
+                    {lang.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-charcoal/60">
+              Chọn ngôn ngữ để tự động điền lệnh build và start
             </p>
           </div>
         </CardContent>

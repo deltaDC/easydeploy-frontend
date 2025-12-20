@@ -22,7 +22,7 @@ import { DatabaseConfigSection } from "./DatabaseConfigSection";
 import { ConnectedAppSection } from "./ConnectedAppSection";
 import PublicRepoUrlInput from "./PublicRepoUrlInput";
 import { useRepositoryManagement } from "@/hooks/useRepositoryManagement";
-import { mapLanguageToFormValue, mapFrameworkToLanguage } from "@/utils/language.utils";
+import { mapLanguageToFormValue, mapFrameworkToLanguage, getLanguageCommands } from "@/utils/language.utils";
 import { parseGitHubUrl } from "@/utils/github.utils";
 import DeployMethodSelector from "./DeployMethodSelector";
 import RepositoryInfoCard from "./RepositoryInfoCard";
@@ -98,7 +98,7 @@ export default function NewAppWithRepoSelection() {
   // Form state
   const [appName, setAppName] = useState("");
   const [selectedBranch, setSelectedBranch] = useState("");
-  const [language, setLanguage] = useState("docker");
+  const [language, setLanguage] = useState("node");
   const [buildCommand, setBuildCommand] = useState("");
   const [startCommand, setStartCommand] = useState("");
   const [publishDir, setPublishDir] = useState("");
@@ -285,19 +285,65 @@ export default function NewAppWithRepoSelection() {
       const name = selectedRepo.fullName.split('/')[1];
       setAppName(name);
       setSelectedBranch(selectedRepo.defaultBranch);
-      setLanguage("docker");
+      setLanguage("node");
       setBuildCommand("");
       setStartCommand("");
       setPublishDir("");
+      // Reset manual edit flags when selecting new repo
+      setHasManualBuildCommand(false);
+      setHasManualStartCommand(false);
+      setPreviousLanguage("");
     }
   }, [selectedRepo]);
+
+  // Track if user has manually edited commands
+  const [hasManualBuildCommand, setHasManualBuildCommand] = useState(false);
+  const [hasManualStartCommand, setHasManualStartCommand] = useState(false);
+  const [previousLanguage, setPreviousLanguage] = useState<string>("");
+
+  // Auto-fill commands when language changes
+  useEffect(() => {
+    if (language) {
+      const commands = getLanguageCommands(language);
+      
+      // If language changed, reset manual flags and auto-fill
+      if (language !== previousLanguage) {
+        if (previousLanguage !== "") {
+          // Language was changed by user, reset flags and auto-fill
+          setHasManualBuildCommand(false);
+          setHasManualStartCommand(false);
+        }
+        // Auto-fill commands for new language
+        setBuildCommand(commands.buildCommand);
+        setStartCommand(commands.startCommand);
+        setPreviousLanguage(language);
+      } else if (previousLanguage === "" && language) {
+        // Initial load: auto-fill
+        setBuildCommand(commands.buildCommand);
+        setStartCommand(commands.startCommand);
+        setPreviousLanguage(language);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [language]);
+
+  // Track manual edits
+  const handleBuildCommandChange = (value: string) => {
+    setHasManualBuildCommand(true);
+    setBuildCommand(value);
+  };
+
+  const handleStartCommandChange = (value: string) => {
+    setHasManualStartCommand(true);
+    setStartCommand(value);
+  };
 
   useEffect(() => {
     if (repoDetails) {
       if (repoDetails.languages && repoDetails.languages.length > 0) {
         const primaryLanguage = repoDetails.languages[0];
         const mappedLanguage = mapLanguageToFormValue(primaryLanguage);
-        if (language === "docker") {
+        if (language === "node" || language === "docker") {
           setLanguage(mappedLanguage);
         }
       }
@@ -305,8 +351,12 @@ export default function NewAppWithRepoSelection() {
       // Apply suggestions if available
       if (repoDetails.suggestion?.primarySuggestion) {
         const suggestion = repoDetails.suggestion.primarySuggestion;
-        setBuildCommand(suggestion.buildCommand || "");
-        setStartCommand(suggestion.startCommand || "");
+        if (suggestion.buildCommand && !hasManualBuildCommand) {
+          setBuildCommand(suggestion.buildCommand);
+        }
+        if (suggestion.startCommand && !hasManualStartCommand) {
+          setStartCommand(suggestion.startCommand);
+        }
         if (suggestion.publishPath && !publishDir) {
           setPublishDir(suggestion.publishPath);
         }
@@ -486,9 +536,10 @@ export default function NewAppWithRepoSelection() {
       console.log('Database Config:', JSON.stringify(databaseConfig, null, 2));
       console.log('Full Request:', JSON.stringify(request, null, 2));
 
-      await ApplicationService.createApplication(request);
+      const createdApp = await ApplicationService.createApplication(request);
       
-      router.push('/apps');
+      // Navigate to the application detail page
+      router.push(`/apps/${createdApp.id}`);
     } catch (err: any) {
       console.error('=== CREATE APPLICATION ERROR ===');
       console.error('Full error:', err);
@@ -714,9 +765,9 @@ export default function NewAppWithRepoSelection() {
                     language={language}
                     onLanguageChange={setLanguage}
                     buildCommand={buildCommand}
-                    onBuildCommandChange={setBuildCommand}
+                    onBuildCommandChange={handleBuildCommandChange}
                     startCommand={startCommand}
-                    onStartCommandChange={setStartCommand}
+                    onStartCommandChange={handleStartCommandChange}
                     publishDir={publishDir}
                     onPublishDirChange={setPublishDir}
                     rootDir={rootDir}

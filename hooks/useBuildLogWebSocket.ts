@@ -78,8 +78,10 @@ export function useBuildLogWebSocket({
 		// Append token as query parameter for SockJS handshake
 		const wsUrlWithToken = token ? `${wsUrl}?token=${encodeURIComponent(token)}` : wsUrl;
 
-		console.log("Connecting to WebSocket:", wsUrlWithToken);
-		console.log("Using token from auth-storage:", token ? `${token.substring(0, 20)}...` : "none");
+		console.log("🔌 Connecting to WebSocket:", wsUrlWithToken.replace(token || "", "***"));
+		console.log("🔑 Using token from auth-storage:", token ? `${token.substring(0, 20)}...` : "none");
+		console.log("📋 ApplicationId:", applicationId || "none");
+		console.log("📋 BuildId:", buildId || "none");
 
 		const client = new Client({
 			webSocketFactory: () => {
@@ -95,13 +97,16 @@ export function useBuildLogWebSocket({
 			heartbeatOutgoing: 4000,
 			onConnect: () => {
 				setIsConnected(true);
+				console.log("✅ WebSocket connected successfully");
 				callbacksRef.current.onConnect?.();
 
 				if (clientRef.current) {
 					// Subscribe to applicationId topic if provided (for application-wide logs)
 					if (applicationId) {
+						const topic = `/topic/application-logs/${applicationId}`;
+						console.log(`📡 Subscribing to application logs topic: ${topic}`);
 						clientRef.current.subscribe(
-							`/topic/application-logs/${applicationId}`,
+							topic,
 							(message: IMessage) => {
 								try {
 									const rawMessage = JSON.parse(message.body);
@@ -113,6 +118,7 @@ export function useBuildLogWebSocket({
 										timestamp: rawMessage.timestamp || new Date().toISOString(),
 										logLineNumber: rawMessage.logLineNumber,
 									};
+									console.log("📨 Received log message via WebSocket:", logMessage.message.substring(0, 100));
 									callbacksRef.current.onMessage?.(logMessage);
 								} catch (error) {
 									console.error("Error parsing log message:", error);
@@ -122,6 +128,7 @@ export function useBuildLogWebSocket({
 								id: `application-logs-${applicationId}`,
 							}
 						);
+						console.log(`✅ Successfully subscribed to ${topic}`);
 					}
 					
 					// Subscribe to buildId topic if provided (for specific build logs)
@@ -177,7 +184,7 @@ export function useBuildLogWebSocket({
 				setIsConnected(false);
 			}
 		};
-	}, [buildId, enabled, getWebSocketUrl, getAuthToken]);
+	}, [buildId, applicationId, enabled, getWebSocketUrl, getAuthToken]);
 
 	const disconnect = useCallback(() => {
 		if (clientRef.current?.active) {

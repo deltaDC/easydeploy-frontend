@@ -548,4 +548,368 @@ body {
     transform: translateX(-20px);
     transition: opacity 0.3s, transform 0.3s;
   }
+
+  /* ========================================
+     MISTY MORNING APP DETAIL THEME
+     ======================================== */
+
+  /* Glassmorphism Cards */
+  .glass-card {
+    background: rgba(255, 255, 255, 0.45);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 16px;
+  }
+
+  .glass-card-light {
+    background: rgba(255, 255, 255, 0.35);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+  }
+
+  .charcoal-glass {
+    background: rgba(30, 41, 59, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+  }
+
+  .charcoal-glass-dark {
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+  }
+
+  /* Status Badge Glow Effects */
+  .glow-deploying {
+    box-shadow: 0 0 20px rgba(251, 191, 36, 0.4), 0 0 40px rgba(251, 191, 36, 0.2);
+    animation: glowPulseYellow 2s ease-in-out infinite;
+  }
+
+  .glow-success {
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.4), 0 0 40px rgba(16, 185, 129, 0.2);
+    animation: glowPulseEmerald 2s ease-in-out infinite;
+  }
+
+  .glow-failed {
+    box-shadow: 0 0 15px rgba(244, 63, 94, 0.3), 0 0 30px rgba(244, 63, 94, 0.15);
+  }
+
+  @keyframes glowPulseYellow {
+    0%, 100% {
+      box-shadow: 0 0 20px rgba(251, 191, 36, 0.4), 0 0 40px rgba(251, 191, 36, 0.2);
+    }
+    50% {
+      box-shadow: 0 0 30px rgba(251, 191, 36, 0.6), 0 0 60px rgba(251, 191, 36, 0.3);
+    }
+  }
+
+  @keyframes glowPulseEmerald {
+    0%, 100% {
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.4), 0 0 40px rgba(16, 185, 129, 0.2);
+    }
+    50% {
+      box-shadow: 0 0 30px rgba(16, 185, 129, 0.6), 0 0 60px rgba(16, 185, 129, 0.3);
+    }
+  }
+
+  /* Emerald Sweep Animation for Success */
+  .emerald-sweep {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .emerald-sweep::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(16, 185, 129, 0.3) 50%,
+      transparent 100%
+    );
+    animation: emeraldSweep 0.8s ease-out forwards;
+  }
+
+  @keyframes emeraldSweep {
+    0% {
+      left: -100%;
+    }
+    100% {
+      left: 100%;
+    }
+  }
+
+  /* Mist Spin Animation for Stage Progress */
+  .mist-spin {
+    animation: mistSpin 3s linear infinite;
+  }
+
+  @keyframes mistSpin {
+    0% {
+      transform: rotate(0deg);
+      opacity: 0.6;
+    }
+    50% {
+      opacity: 1;
+    }
+    100% {
+      transform: rotate(360deg);
+      opacity: 0.6;
+    }
+  }
+
+  /* Log Line Highlight Animation */
+  .log-highlight {
+    animation: logHighlight 1s ease-out forwards;
+  }
+
+  @keyframes logHighlight {
+    0% {
+      background-color: rgba(16, 185, 129, 0.3);
+    }
+    100% {
+      background-color: transparent;
+    }
+  }
+
+  /* Tab Locked State */
+  .tab-locked {
+    opacity: 0.3;
+    pointer-events: none;
+    filter: grayscale(50%);
+    transition: all 0.5s ease-out;
+  }
+
+  .tab-unlocked {
+    opacity: 1;
+    pointer-events: auto;
+    filter: grayscale(0%);
+    animation: tabUnlock 0.5s ease-out forwards;
+  }
+
+  @keyframes tabUnlock {
+    0% {
+      opacity: 0.3;
+      transform: scale(0.98);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  /* Stage Progress Indicators */
+  .stage-pending {
+    background: rgba(148, 163, 184, 0.3);
+    border: 1px dashed rgba(148, 163, 184, 0.5);
+  }
+
+  .stage-running {
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.2), rgba(251, 191, 36, 0.1));
+    border: 1px solid rgba(251, 191, 36, 0.4);
+    animation: stageRunning 1.5s ease-in-out infinite;
+  }
+
+  @keyframes stageRunning {
+    0%, 100% {
+      box-shadow: 0 0 10px rgba(251, 191, 36, 0.3);
+    }
+    50% {
+      box-shadow: 0 0 20px rgba(251, 191, 36, 0.5);
+    }
+  }
+
+  .stage-success {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(16, 185, 129, 0.1));
+    border: 1px solid rgba(16, 185, 129, 0.4);
+  }
+
+  .stage-failed {
+    background: linear-gradient(135deg, rgba(244, 63, 94, 0.2), rgba(244, 63, 94, 0.1));
+    border: 1px solid rgba(244, 63, 94, 0.4);
+  }
+
+  /* Pill Buttons */
+  .pill-filter {
+    border-radius: 24px;
+    padding: 6px 16px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    background: rgba(255, 255, 255, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(8px);
+  }
+
+  .pill-filter:hover {
+    background: rgba(255, 255, 255, 0.6);
+    transform: translateY(-1px);
+  }
+
+  .pill-filter.active {
+    background: rgba(16, 185, 129, 0.2);
+    border-color: rgba(16, 185, 129, 0.4);
+    color: #059669;
+  }
+
+  .pill-info {
+    border-radius: 24px;
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(12px);
+  }
+
+  /* Timeline Node */
+  .timeline-node {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.8), rgba(146, 175, 173, 0.6));
+    box-shadow: 0 0 15px rgba(146, 175, 173, 0.5);
+    position: relative;
+  }
+
+  .timeline-node::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    background: rgba(146, 175, 173, 0.2);
+    animation: timelineNodePulse 2s ease-in-out infinite;
+  }
+
+  @keyframes timelineNodePulse {
+    0%, 100% {
+      transform: scale(1);
+      opacity: 0.5;
+    }
+    50% {
+      transform: scale(1.3);
+      opacity: 0;
+    }
+  }
+
+  /* Haptic Button Effect */
+  .haptic-button {
+    transition: transform 0.1s ease;
+  }
+
+  .haptic-button:active {
+    transform: scale(0.97);
+  }
+
+  /* Sage Color Shadow for Cards */
+  .shadow-sage-glow {
+    box-shadow: 0 8px 30px -10px rgba(146, 175, 173, 0.3);
+  }
+
+  .shadow-sage-glow:hover {
+    box-shadow: 0 12px 40px -10px rgba(146, 175, 173, 0.4);
+  }
+
+  /* Rose Muted for Errors */
+  .text-rose-muted {
+    color: #e11d48;
+    opacity: 0.8;
+  }
+
+  .bg-rose-muted {
+    background-color: rgba(225, 29, 72, 0.1);
+  }
+
+  /* Gauge Chart Dot */
+  .gauge-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #10b981, #059669);
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.6);
+    transition: all 0.3s ease;
+  }
+
+  /* External Link Glow on Hover */
+  .link-glow:hover {
+    text-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+  }
+
+  .link-glow:hover svg {
+    filter: drop-shadow(0 0 6px rgba(16, 185, 129, 0.6));
+  }
+
+  /* Stop Button Reveal */
+  .stop-button-reveal {
+    opacity: 0.6;
+    background: rgba(244, 63, 94, 0.1);
+    transition: all 0.3s ease;
+  }
+
+  .stop-button-reveal:hover {
+    opacity: 1;
+    background: rgba(244, 63, 94, 0.2);
+    box-shadow: 0 0 15px rgba(244, 63, 94, 0.3);
+  }
+
+  /* Rollback Confirmation Overlay */
+  .rollback-overlay {
+    background: rgba(30, 41, 59, 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  /* Loading Shimmer for Glass Cards */
+  .glass-shimmer {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .glass-shimmer::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.3) 50%,
+      transparent 100%
+    );
+    animation: glassShimmer 1.5s ease-in-out infinite;
+  }
+
+  @keyframes glassShimmer {
+    0% {
+      left: -50%;
+    }
+    100% {
+      left: 150%;
+    }
+  }
+
+  /* Terminal Auto-scroll Indicator */
+  .auto-scroll-indicator {
+    animation: autoScrollBounce 1s ease-in-out infinite;
+  }
+
+  @keyframes autoScrollBounce {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(3px);
+    }
+  }
 }

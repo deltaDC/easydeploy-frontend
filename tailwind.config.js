@@ -12,11 +12,15 @@ module.exports = {
         'pearl-white': '#EAEAEA',
         'charcoal': '#1E293B',
         'charcoal-light': '#334155',
+        'charcoal-glass': 'rgba(30, 41, 59, 0.7)',
+        'charcoal-glass-dark': 'rgba(15, 23, 42, 0.85)',
         'soft-blue': '#B9C9D6',
         'misty-grey': '#E8E8E8',
         'porcelain': '#FFFFFF',
         'rose-soft': '#FCA5A5',
         'rose-light': '#FECACA',
+        'rose-muted': '#f43f5e',
+        'amber-glow': '#fbbf24',
         'emerald': {
           '50': '#ECFDF5',
           '100': '#D1FAE5',
@@ -28,6 +32,11 @@ module.exports = {
           '700': '#047857',
           '800': '#065F46',
           '900': '#064E3B',
+        },
+        'glass': {
+          'white': 'rgba(255, 255, 255, 0.45)',
+          'white-light': 'rgba(255, 255, 255, 0.35)',
+          'border': 'rgba(255, 255, 255, 0.18)',
         },
       },
       fontFamily: {
@@ -54,6 +63,16 @@ module.exports = {
         'shimmer': 'shimmer 2s linear infinite',
         'ripple': 'ripple 0.6s ease-out',
         'slide-in': 'slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+        // Misty Morning App Detail Animations
+        'glow-pulse': 'glowPulse 2s ease-in-out infinite',
+        'emerald-sweep': 'emeraldSweep 0.8s ease-out forwards',
+        'mist-spin': 'mistSpin 3s linear infinite',
+        'log-highlight': 'logHighlight 1s ease-out forwards',
+        'tab-unlock': 'tabUnlock 0.5s ease-out forwards',
+        'stage-running': 'stageRunning 1.5s ease-in-out infinite',
+        'timeline-pulse': 'timelinePulse 2s ease-in-out infinite',
+        'glass-shimmer': 'glassShimmer 1.5s ease-in-out infinite',
+        'bounce-subtle': 'bounceSubtle 1s ease-in-out infinite',
       },
       keyframes: {
         fadeIn: {
@@ -111,6 +130,44 @@ module.exports = {
           '0%': { opacity: '0', transform: 'translateX(-20px)' },
           '100%': { opacity: '1', transform: 'translateX(0)' },
         },
+        // Misty Morning App Detail Keyframes
+        glowPulse: {
+          '0%, 100%': { boxShadow: '0 0 20px rgba(16, 185, 129, 0.4)' },
+          '50%': { boxShadow: '0 0 30px rgba(16, 185, 129, 0.6)' },
+        },
+        emeraldSweep: {
+          '0%': { left: '-100%' },
+          '100%': { left: '100%' },
+        },
+        mistSpin: {
+          '0%': { transform: 'rotate(0deg)', opacity: '0.6' },
+          '50%': { opacity: '1' },
+          '100%': { transform: 'rotate(360deg)', opacity: '0.6' },
+        },
+        logHighlight: {
+          '0%': { backgroundColor: 'rgba(16, 185, 129, 0.3)' },
+          '100%': { backgroundColor: 'transparent' },
+        },
+        tabUnlock: {
+          '0%': { opacity: '0.3', transform: 'scale(0.98)' },
+          '100%': { opacity: '1', transform: 'scale(1)' },
+        },
+        stageRunning: {
+          '0%, 100%': { boxShadow: '0 0 10px rgba(251, 191, 36, 0.3)' },
+          '50%': { boxShadow: '0 0 20px rgba(251, 191, 36, 0.5)' },
+        },
+        timelinePulse: {
+          '0%, 100%': { transform: 'scale(1)', opacity: '0.5' },
+          '50%': { transform: 'scale(1.3)', opacity: '0' },
+        },
+        glassShimmer: {
+          '0%': { left: '-50%' },
+          '100%': { left: '150%' },
+        },
+        bounceSubtle: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(3px)' },
+        },
       },
       spacing: {
         '18': '4.5rem',
@@ -140,6 +197,12 @@ module.exports = {
         'misty-sage-xl': '0 25px 50px -12px rgba(146, 175, 173, 0.25)',
         'emerald-md': '0 10px 15px -3px rgba(5, 150, 105, 0.15), 0 4px 6px -4px rgba(5, 150, 105, 0.1)',
         'rose-sm': '0 4px 6px -1px rgba(255, 192, 203, 0.1), 0 2px 4px -2px rgba(255, 192, 203, 0.06)',
+        // Glow shadows for status badges
+        'glow-amber': '0 0 20px rgba(251, 191, 36, 0.4), 0 0 40px rgba(251, 191, 36, 0.2)',
+        'glow-emerald': '0 0 20px rgba(16, 185, 129, 0.4), 0 0 40px rgba(16, 185, 129, 0.2)',
+        'glow-rose': '0 0 15px rgba(244, 63, 94, 0.3), 0 0 30px rgba(244, 63, 94, 0.15)',
+        // Charcoal terminal shadow
+        'charcoal-inset': 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.3)',
       },
     },
   },
