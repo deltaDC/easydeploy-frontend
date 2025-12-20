@@ -2,69 +2,180 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { motion, AnimatePresence } from "framer-motion";
 import { Database, DatabaseStatus } from "@/types/database.type";
 import DatabaseService from "@/services/database.service";
-import { formatDateDDMMYYYYHHMMSS } from "@/utils/date";
-import { ArrowLeft, Play, Square, RotateCw, Trash2, Database as DatabaseIcon, Activity, Terminal } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Database as DatabaseIcon, Activity, Terminal, Link2, LayoutGrid } from "lucide-react";
 import ErrorDialog from "@/components/database/ErrorDialog";
-import ConnectionInfoDialog from "@/components/database/ConnectionInfoDialog";
 import DeleteConfirmDialog from "@/components/database/DeleteConfirmDialog";
-import { DatabaseMetricsChart } from "@/components/database-monitoring/DatabaseMetricsChart";
-import { DatabaseLogsViewer } from "@/components/database-monitoring/DatabaseLogsViewer";
-import { SQLQueryEditor } from "@/components/database-monitoring/SQLQueryEditor";
-import { TableBrowser } from "@/components/database-monitoring/TableBrowser";
-import { isValidExternalHost, isDockerInternalHost, isLocalOrPrivateHost, getHostWarningMessage } from "@/utils/hostValidation";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle, AlertTriangle } from "lucide-react";
+import {
+  MistyDatabaseHeader,
+  DatabaseOverviewTab,
+  DatabaseQueryTab,
+  DatabaseMetricsTab,
+  DatabaseLogsTab,
+  DatabaseConnectionsTab,
+  DatabaseTab,
+} from "@/components/database-detail";
+
+// Tab configuration
+const TABS: { id: DatabaseTab; label: string; icon: React.ElementType }[] = [
+  { id: "overview", label: "Tổng quan", icon: LayoutGrid },
+  { id: "query", label: "Query", icon: DatabaseIcon },
+  { id: "metrics", label: "Metrics", icon: Activity },
+  { id: "logs", label: "Nhật ký", icon: Terminal },
+  { id: "connections", label: "Kết nối", icon: Link2 },
+];
+
+// Tab Button Component
+function TabButton({
+  tab,
+  isActive,
+  onClick,
+}: {
+  tab: (typeof TABS)[0];
+  isActive: boolean;
+  onClick: () => void;
+}) {
+  const Icon = tab.icon;
+
+  return (
+    <motion.button
+      whileHover={{ scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
+      onClick={onClick}
+      className={`
+        relative px-5 py-3 rounded-xl text-sm font-medium transition-all duration-300
+        flex items-center gap-2
+      `}
+      style={{
+        background: isActive
+          ? "rgba(255, 255, 255, 0.6)"
+          : "rgba(255, 255, 255, 0.2)",
+        backdropFilter: "blur(10px)",
+        border: isActive
+          ? "1px solid rgba(146, 175, 173, 0.4)"
+          : "1px solid rgba(255, 255, 255, 0.2)",
+        color: isActive ? "#4A6163" : "#64748B",
+        boxShadow: isActive ? "0 4px 15px rgba(146, 175, 173, 0.2)" : "none",
+      }}
+    >
+      <Icon className="w-4 h-4" strokeWidth={1.5} />
+      {tab.label}
+
+      {/* Active indicator */}
+      {isActive && (
+        <motion.div
+          layoutId="activeTab"
+          className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-full bg-misty-sage"
+          initial={false}
+          transition={{ type: "spring", stiffness: 500, damping: 30 }}
+        />
+      )}
+    </motion.button>
+  );
+}
+
+// Loading State
+function LoadingState() {
+  return (
+    <div className="space-y-6">
+      {/* Header skeleton */}
+      <div
+        className="h-32 rounded-2xl glass-shimmer"
+        style={{
+          background: "rgba(255, 255, 255, 0.3)",
+          backdropFilter: "blur(20px)",
+        }}
+      />
+
+      {/* Tabs skeleton */}
+      <div className="flex gap-2">
+        {[...Array(5)].map((_, i) => (
+          <div
+            key={i}
+            className="h-12 w-28 rounded-xl"
+            style={{
+              background: "rgba(255, 255, 255, 0.2)",
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Content skeleton */}
+      <div
+        className="h-96 rounded-2xl glass-shimmer"
+        style={{
+          background: "rgba(255, 255, 255, 0.3)",
+          backdropFilter: "blur(20px)",
+        }}
+      />
+    </div>
+  );
+}
+
+// Not Found State
+function NotFoundState({ onBack }: { onBack: () => void }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      className="flex flex-col items-center justify-center py-20"
+    >
+      <div
+        className="w-24 h-24 rounded-3xl flex items-center justify-center mb-6"
+        style={{
+          background: "rgba(255, 255, 255, 0.4)",
+          backdropFilter: "blur(20px)",
+          border: "1px solid rgba(255, 255, 255, 0.3)",
+        }}
+      >
+        <DatabaseIcon className="w-10 h-10 text-charcoal/30" strokeWidth={1.5} />
+      </div>
+      <h2 className="text-2xl font-serif font-semibold text-charcoal mb-2">
+        Không tìm thấy Database
+      </h2>
+      <p className="text-charcoal/60 mb-6">
+        Database bạn đang tìm kiếm không tồn tại hoặc đã bị xóa.
+      </p>
+      <motion.button
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
+        onClick={onBack}
+        className="px-6 py-3 rounded-xl font-medium text-white"
+        style={{
+          background: "linear-gradient(135deg, #92AFAD, #7A9694)",
+          boxShadow: "0 8px 20px rgba(146, 175, 173, 0.3)",
+        }}
+      >
+        Quay lại danh sách
+      </motion.button>
+    </motion.div>
+  );
+}
 
 export default function DatabaseDetailPage() {
   const params = useParams();
   const router = useRouter();
   const id = params.id as string;
+
   const [database, setDatabase] = useState<Database | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [logs, setLogs] = useState<string[]>([]);
+  const [activeTab, setActiveTab] = useState<DatabaseTab>("overview");
   const [errorDialog, setErrorDialog] = useState({ open: false, message: "" });
-  const [connectionInfoDialog, setConnectionInfoDialog] = useState<{
-    open: boolean;
-    externalConnectionString?: string;
-    externalCompleteConnectionString?: string;
-    externalHost?: string;
-    port?: number;
-    databaseName?: string;
-    username: string;
-    password: string;
-  }>({
-    open: false,
-    externalConnectionString: undefined,
-    externalCompleteConnectionString: undefined,
-    externalHost: undefined,
-    port: undefined,
-    databaseName: undefined,
-    username: "",
-    password: "",
-  });
   const [deleteDialog, setDeleteDialog] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     if (id) {
       fetchDatabase(true);
-      fetchLogs();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const fetchDatabase = async (showLoading = false) => {
     try {
-      if (showLoading) {
-        setIsLoading(true);
-      }
+      if (showLoading) setIsLoading(true);
       const data = await DatabaseService.getDatabase(id);
       setDatabase(data);
       return data;
@@ -75,30 +186,10 @@ export default function DatabaseDetailPage() {
     }
   };
 
-  const fetchLogs = async () => {
-    try {
-      const data = await DatabaseService.getLogs(id, 100);
-      setLogs(data);
-    } catch (error) {
-    }
-  };
-
   const handleStart = async () => {
     try {
       await DatabaseService.startDatabase(id);
-      setTimeout(async () => {
-        const updatedData = await fetchDatabase(false);
-        if (updatedData && updatedData.status !== "RUNNING") {
-          let attempts = 0;
-          const pollStatus = setInterval(async () => {
-            attempts++;
-            const data = await fetchDatabase(false);
-            if (data && (data.status === "RUNNING" || attempts >= 3)) {
-              clearInterval(pollStatus);
-            }
-          }, 1500);
-        }
-      }, 1000);
+      pollStatus("RUNNING");
     } catch (error: any) {
       setErrorDialog({
         open: true,
@@ -110,19 +201,7 @@ export default function DatabaseDetailPage() {
   const handleStop = async () => {
     try {
       await DatabaseService.stopDatabase(id);
-      setTimeout(async () => {
-        const updatedData = await fetchDatabase(false);
-        if (updatedData && updatedData.status !== "STOPPED") {
-          let attempts = 0;
-          const pollStatus = setInterval(async () => {
-            attempts++;
-            const data = await fetchDatabase(false);
-            if (data && (data.status === "STOPPED" || attempts >= 3)) {
-              clearInterval(pollStatus);
-            }
-          }, 1500);
-        }
-      }, 1000);
+      pollStatus("STOPPED");
     } catch (error: any) {
       setErrorDialog({
         open: true,
@@ -134,19 +213,7 @@ export default function DatabaseDetailPage() {
   const handleRestart = async () => {
     try {
       await DatabaseService.restartDatabase(id);
-      setTimeout(async () => {
-        const updatedData = await fetchDatabase(false);
-        if (updatedData && updatedData.status !== "RUNNING") {
-          let attempts = 0;
-          const pollStatus = setInterval(async () => {
-            attempts++;
-            const data = await fetchDatabase(false);
-            if (data && (data.status === "RUNNING" || attempts >= 4)) {
-              clearInterval(pollStatus);
-            }
-          }, 2000);
-        }
-      }, 1500);
+      pollStatus("RUNNING");
     } catch (error: any) {
       setErrorDialog({
         open: true,
@@ -157,9 +224,11 @@ export default function DatabaseDetailPage() {
 
   const handleDelete = async () => {
     try {
+      setIsDeleting(true);
       await DatabaseService.deleteDatabase(id);
       router.push("/databases");
     } catch (error: any) {
+      setIsDeleting(false);
       setErrorDialog({
         open: true,
         message: error.message || "Không thể xóa cơ sở dữ liệu",
@@ -167,347 +236,99 @@ export default function DatabaseDetailPage() {
     }
   };
 
-  const handleViewConnectionInfo = async () => {
-    try {
-      const info = await DatabaseService.getConnectionInfo(id);
-      
-      if (isDockerInternalHost(info.externalHost)) {
-        setErrorDialog({
-          open: true,
-          message: "Server chưa được cấu hình public hostname/IP. Không thể kết nối từ máy của bạn.",
-        });
-        return;
+  const pollStatus = (targetStatus: string) => {
+    let attempts = 0;
+    const interval = setInterval(async () => {
+      attempts++;
+      const data = await fetchDatabase(false);
+      if (data && (data.status === targetStatus || attempts >= 5)) {
+        clearInterval(interval);
       }
-      
-      setConnectionInfoDialog({
-        open: true,
-        externalConnectionString: info.externalConnectionString,
-        externalCompleteConnectionString: info.externalCompleteConnectionString,
-        externalHost: info.externalHost,
-        port: info.port,
-        databaseName: info.databaseName,
-        username: info.username,
-        password: info.password,
-      });
-    } catch (error: any) {
-      setErrorDialog({
-        open: true,
-        message: error.message || "Không thể lấy thông tin kết nối",
-      });
-    }
-  };
-
-  const getStatusBadge = (status: DatabaseStatus) => {
-    const variants: Record<DatabaseStatus, "default" | "secondary" | "destructive" | "outline"> = {
-      [DatabaseStatus.RUNNING]: "default",
-      [DatabaseStatus.PENDING]: "secondary",
-      [DatabaseStatus.DEPLOYING]: "secondary",
-      [DatabaseStatus.FAILED]: "destructive",
-      [DatabaseStatus.STOPPED]: "outline",
-      [DatabaseStatus.DELETING]: "secondary",
-    };
-
-    return <Badge variant={variants[status]}>{status}</Badge>;
+    }, 2000);
   };
 
   if (isLoading) {
-    return <div>Đang tải...</div>;
+    return <LoadingState />;
   }
 
   if (!database) {
-    return <div>Không tìm thấy cơ sở dữ liệu</div>;
+    return <NotFoundState onBack={() => router.push("/databases")} />;
   }
 
+  // Render tab content
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case "overview":
+        return <DatabaseOverviewTab database={database} />;
+      case "query":
+        return <DatabaseQueryTab database={database} />;
+      case "metrics":
+        return <DatabaseMetricsTab database={database} />;
+      case "logs":
+        return <DatabaseLogsTab database={database} />;
+      case "connections":
+        return <DatabaseConnectionsTab database={database} />;
+      default:
+        return <DatabaseOverviewTab database={database} />;
+    }
+  };
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" onClick={() => router.push("/databases")}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Quay lại
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold">{database.name}</h1>
-            <p className="text-muted-foreground">
-              {database.type} {database.version}
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          {getStatusBadge(database.status)}
-          {database.status === DatabaseStatus.RUNNING && (
-            <Button variant="outline" size="sm" onClick={handleStop}>
-              <Square className="mr-2 h-4 w-4" />
-              Dừng
-            </Button>
-          )}
-          {database.status === DatabaseStatus.STOPPED && (
-            <Button variant="outline" size="sm" onClick={handleStart}>
-              <Play className="mr-2 h-4 w-4" />
-              Khởi động
-            </Button>
-          )}
-          <Button variant="outline" size="sm" onClick={handleRestart}>
-            <RotateCw className="mr-2 h-4 w-4" />
-            Khởi động lại
-          </Button>
-          <Button variant="destructive" size="sm" onClick={() => setDeleteDialog(true)}>
-            <Trash2 className="mr-2 h-4 w-4" />
-            Xóa
-          </Button>
-        </div>
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="space-y-6"
+    >
+      {/* Header */}
+      <MistyDatabaseHeader
+        database={database}
+        isDeleting={isDeleting}
+        onStart={handleStart}
+        onStop={handleStop}
+        onRestart={handleRestart}
+        onDelete={() => setDeleteDialog(true)}
+      />
+
+      {/* Tab Navigation */}
+      <div
+        className="flex flex-wrap gap-2 p-2 rounded-2xl"
+        style={{
+          background: "rgba(255, 255, 255, 0.3)",
+          backdropFilter: "blur(15px)",
+          border: "1px solid rgba(255, 255, 255, 0.2)",
+        }}
+      >
+        {TABS.map((tab) => (
+          <TabButton
+            key={tab.id}
+            tab={tab}
+            isActive={activeTab === tab.id}
+            onClick={() => setActiveTab(tab.id)}
+          />
+        ))}
       </div>
 
-      <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="overview">Tổng quan</TabsTrigger>
-          {/* Show Query/Data tab for all database types */}
-          <TabsTrigger value="query">
-            <DatabaseIcon className="h-4 w-4 mr-2" />
-            {database.type === "MONGODB" ? "Data" : database.type === "REDIS" ? "Keys" : "Query"}
-          </TabsTrigger>
-          <TabsTrigger value="metrics">
-            <Activity className="h-4 w-4 mr-2" />
-            Metrics
-          </TabsTrigger>
-          <TabsTrigger value="logs">
-            <Terminal className="h-4 w-4 mr-2" />
-            Nhật ký
-          </TabsTrigger>
-          <TabsTrigger value="connection">Kết nối</TabsTrigger>
-        </TabsList>
+      {/* Tab Content */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={activeTab}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.2 }}
+        >
+          {renderTabContent()}
+        </motion.div>
+      </AnimatePresence>
 
-        <TabsContent value="overview" className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle>Thông tin Cơ sở dữ liệu</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Loại:</span>
-                  <span>{database.type}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Phiên bản:</span>
-                  <span>{database.version}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Máy chủ:</span>
-                  <span>
-                    {isDockerInternalHost(database?.externalHost) 
-                      ? "Chưa cấu hình public host"
-                      : database?.externalHost || "Chưa cấu hình public host"}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Cổng:</span>
-                  <span>{database.port}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Tên Cơ sở dữ liệu:</span>
-                  <span>{database.databaseName}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Dung lượng lưu trữ:</span>
-                  <span>{database.storageGb} GB</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Tạo lúc:</span>
-                  <span>{formatDateDDMMYYYYHHMMSS(database.createdAt)}</span>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="query" className="space-y-4">
-          {database && ["deploying", "pending", "stopped"].includes(database.status.toLowerCase()) ? (
-            <Card>
-              <CardContent className="py-12">
-                <div className="text-center">
-                  <div className="mx-auto mb-4 h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center">
-                    <DatabaseIcon className="h-6 w-6 text-blue-600" />
-                  </div>
-                  <h3 className="text-lg font-semibold mb-2">
-                    {database.status === DatabaseStatus.STOPPED ? "Database đã dừng" : "Database đang được triển khai"}
-                  </h3>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    {database.status === DatabaseStatus.STOPPED 
-                      ? "Vui lòng khởi động database để sử dụng Query Editor."
-                      : "Query Editor sẽ khả dụng sau khi database được khởi động."}
-                  </p>
-                  <Badge className="bg-blue-100 text-blue-800">
-                    {database.status}
-                  </Badge>
-                </div>
-              </CardContent>
-            </Card>
-          ) : (
-            <>
-              <SQLQueryEditor databaseId={id} databaseType={database.type} />
-              {/* Only show TableBrowser for SQL databases */}
-              {database.type !== "MONGODB" && database.type !== "REDIS" && (
-                <TableBrowser databaseId={id} />
-              )}
-            </>
-          )}
-        </TabsContent>
-
-        <TabsContent value="metrics" className="space-y-4">
-          {database && ["deploying", "pending"].includes(database.status.toLowerCase()) ? (
-            <Card>
-              <CardContent className="py-12">
-                <div className="text-center">
-                  <div className="mx-auto mb-4 h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center">
-                    <Activity className="h-6 w-6 text-blue-600 animate-pulse" />
-                  </div>
-                  <h3 className="text-lg font-semibold mb-2">Database đang được triển khai</h3>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Dữ liệu metrics sẽ khả dụng sau khi quá trình triển khai hoàn tất.
-                  </p>
-                  <Badge className="bg-blue-100 text-blue-800">
-                    {database.status}
-                  </Badge>
-                </div>
-              </CardContent>
-            </Card>
-          ) : (
-            <DatabaseMetricsChart databaseId={id} />
-          )}
-        </TabsContent>
-
-        <TabsContent value="logs">
-          {database && ["deploying", "pending"].includes(database.status.toLowerCase()) ? (
-            <Card>
-              <CardHeader>
-                <CardTitle>Nhật ký</CardTitle>
-                <CardDescription>Nhật ký container</CardDescription>
-              </CardHeader>
-              <CardContent className="py-12">
-                <div className="text-center">
-                  <div className="mx-auto mb-4 h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center">
-                    <Terminal className="h-6 w-6 text-blue-600 animate-pulse" />
-                  </div>
-                  <h3 className="text-lg font-semibold mb-2">Database đang được triển khai</h3>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Logs sẽ khả dụng sau khi database được khởi động.
-                  </p>
-                  <Badge className="bg-blue-100 text-blue-800">
-                    {database.status}
-                  </Badge>
-                </div>
-              </CardContent>
-            </Card>
-          ) : (
-            <DatabaseLogsViewer databaseId={id} maxLines={500} />
-          )}
-        </TabsContent>
-
-        <TabsContent value="logs-old">
-          <Card>
-            <CardHeader>
-              <CardTitle>Nhật ký (Legacy)</CardTitle>
-              <CardDescription>Nhật ký container - Phiên bản cũ</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="bg-muted p-4 rounded-md font-mono text-sm max-h-96 overflow-y-auto">
-                {logs.length > 0 ? (
-                  logs.map((log, index) => <div key={index}>{log}</div>)
-                ) : (
-                  <div className="text-muted-foreground">Không có nhật ký</div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="connection">
-          <Card>
-            <CardHeader>
-              <CardTitle>Thông tin Kết nối</CardTitle>
-              <CardDescription>Sử dụng các thông tin đăng nhập này để kết nối đến cơ sở dữ liệu của bạn</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {isDockerInternalHost(database?.externalHost) ? (
-                  <>
-                    <Alert variant="destructive">
-                      <AlertCircle className="h-4 w-4" />
-                      <AlertDescription>
-                        Server chưa được cấu hình public hostname/IP. Không thể kết nối từ máy của bạn.
-                        <br />
-                        <span className="text-xs mt-1 block">
-                          Vui lòng liên hệ admin để cấu hình public hostname/IP hoặc sử dụng kết nối nội bộ cho backend.
-                        </span>
-                      </AlertDescription>
-                    </Alert>
-                    <Button onClick={handleViewConnectionInfo} disabled>
-                      Xem Thông tin Kết nối (Không khả dụng)
-                    </Button>
-                  </>
-                ) : database?.externalHost ? (
-                  <>
-                    {isLocalOrPrivateHost(database.externalHost) && (
-                      <Alert>
-                        <AlertTriangle className="h-4 w-4" />
-                        <AlertDescription>
-                          {getHostWarningMessage(database.externalHost)}
-                        </AlertDescription>
-                      </Alert>
-                    )}
-                    <div>
-                      <Label className="text-sm font-medium">Chuỗi kết nối</Label>
-                      <Input
-                        value={`${database.externalHost}:${database.port}/${database.databaseName}`}
-                        readOnly
-                        className="mt-1 font-mono"
-                      />
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      Nhấp &quot;Xem Thông tin Kết nối&quot; để xem đầy đủ thông tin kết nối cùng thông tin đăng nhập
-                    </div>
-                    <Button onClick={handleViewConnectionInfo}>
-                      Xem Thông tin Kết nối
-                    </Button>
-                  </>
-                ) : (
-                  <>
-                    <Alert variant="destructive">
-                      <AlertCircle className="h-4 w-4" />
-                      <AlertDescription>
-                        Server chưa được cấu hình public hostname/IP. Không thể kết nối từ máy của bạn.
-                      </AlertDescription>
-                    </Alert>
-                    <Button onClick={handleViewConnectionInfo} disabled>
-                      Xem Thông tin Kết nối (Không khả dụng)
-                    </Button>
-                  </>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-
+      {/* Error Dialog */}
       <ErrorDialog
         open={errorDialog.open}
         onOpenChange={(open) => setErrorDialog({ ...errorDialog, open })}
         message={errorDialog.message}
       />
 
-      <ConnectionInfoDialog
-        open={connectionInfoDialog.open}
-        onOpenChange={(open) => setConnectionInfoDialog({ ...connectionInfoDialog, open })}
-        externalConnectionString={connectionInfoDialog.externalConnectionString}
-        externalCompleteConnectionString={connectionInfoDialog.externalCompleteConnectionString}
-        externalHost={connectionInfoDialog.externalHost}
-        port={connectionInfoDialog.port}
-        databaseName={connectionInfoDialog.databaseName}
-        username={connectionInfoDialog.username}
-        password={connectionInfoDialog.password}
-      />
-
+      {/* Delete Confirmation Dialog */}
       <DeleteConfirmDialog
         open={deleteDialog}
         onOpenChange={setDeleteDialog}
@@ -515,7 +336,6 @@ export default function DatabaseDetailPage() {
         itemName={database?.name}
         message="Bạn có chắc chắn muốn xóa cơ sở dữ liệu này? Hành động này không thể hoàn tác."
       />
-    </div>
+    </motion.div>
   );
 }
-
