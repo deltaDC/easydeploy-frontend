@@ -48,15 +48,15 @@ export function RecentAppsCard({ apps, onUpdate }: RecentAppsCardProps) {
       
       if (isRunning) {
         return (
-          <Badge variant="default" className="gap-1">
-            <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+          <Badge variant="default" className="gap-1.5 bg-emerald-100/50 text-emerald-700 border-emerald-200/30">
+            <div className="h-2.5 w-2.5 rounded-full bg-emerald-500 status-running-glow animate-pulse" style={{ animationDuration: '2s' }} />
             Đang chạy
           </Badge>
         );
       } else if (isStopped) {
         return (
-          <Badge variant="secondary" className="gap-1">
-            <div className="h-2 w-2 rounded-full bg-gray-500" />
+          <Badge variant="secondary" className="gap-1.5">
+            <div className="h-2.5 w-2.5 rounded-full bg-gray-400" />
             Đã dừng
           </Badge>
         );
@@ -88,8 +88,8 @@ export function RecentAppsCard({ apps, onUpdate }: RecentAppsCardProps) {
     };
     const config = variants[app.status];
     return (
-      <Badge variant={config.variant} className="gap-1">
-        <div className={`h-2 w-2 rounded-full ${config.color}`} />
+      <Badge variant={config.variant} className="gap-1.5">
+        <div className={`h-2.5 w-2.5 rounded-full ${config.color}`} />
         {config.label}
       </Badge>
     );
@@ -170,17 +170,17 @@ export function RecentAppsCard({ apps, onUpdate }: RecentAppsCardProps) {
 
   return (
     <>
-      <Card>
+      <Card className="frosted-glass-panel rounded-3xl colored-shadow-sage border-0">
         <CardHeader>
-          <CardTitle>Ứng dụng gần đây</CardTitle>
-          <CardDescription>5 ứng dụng được triển khai gần nhất</CardDescription>
+          <CardTitle className="text-charcoal">Ứng dụng gần đây</CardTitle>
+          <CardDescription className="text-charcoal/60">5 ứng dụng được triển khai gần nhất</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
+          <div className="space-y-6">
             {apps.map((app) => (
               <div
                 key={app.id}
-                className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
+                className="flex items-center justify-between p-4 rounded-2xl hover:bg-white/10 hover:shadow-[0_0_20px_rgba(146,175,173,0.1)] transition-all duration-300"
               >
                 <div className="flex-1 space-y-1 min-w-0">
                   <div className="flex items-center gap-2">
@@ -195,16 +195,16 @@ export function RecentAppsCard({ apps, onUpdate }: RecentAppsCardProps) {
                         href={app.publicUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-muted-foreground hover:text-foreground shrink-0"
+                        className="text-charcoal/50 hover:text-charcoal shrink-0 icon-glow-soft"
                         title={app.publicUrl}
                       >
-                        <ExternalLink className="h-3 w-3" />
+                        <ExternalLink className="h-3 w-3" strokeWidth={1.5} />
                       </a>
                     )}
                   </div>
-                  <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                  <div className="flex items-center gap-3 text-xs text-charcoal/50">
                     <span className="flex items-center gap-1">
-                      <Clock className="h-3 w-3" />
+                      <Clock className="h-3 w-3 icon-glow-soft" strokeWidth={1.5} />
                       {formatDistanceToNow(new Date(app.updatedAt), {
                         addSuffix: true,
                         locale: vi,
@@ -220,8 +220,9 @@ export function RecentAppsCard({ apps, onUpdate }: RecentAppsCardProps) {
                         variant="ghost"
                         size="sm"
                         disabled={isActionLoading && actionAppId === app.id}
+                        className="icon-glow-soft"
                       >
-                        <MoreVertical className="h-4 w-4" />
+                        <MoreVertical className="h-4 w-4" strokeWidth={1.5} />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">

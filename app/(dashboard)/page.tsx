@@ -40,15 +40,19 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 relative noise-texture">
+      {/* Background Orbs */}
+      <div className="misty-background-orb misty-background-orb-sage top-0 left-0" />
+      <div className="misty-background-orb misty-background-orb-sage bottom-0 right-0" />
+      
       {/* Welcome Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="space-y-2"
+        className="space-y-2 relative z-10"
       >
-        <h1 className="font-serif text-4xl md:text-5xl font-semibold text-charcoal">
+        <h1 className="font-serif text-4xl md:text-5xl font-semibold text-charcoal" style={{ textShadow: '0 2px 8px rgba(0, 0, 0, 0.05)' }}>
           Chào mừng trở lại
         </h1>
         <p className="text-lg text-charcoal/70">
@@ -84,7 +88,7 @@ export default function DashboardPage() {
       {isLoading ? (
         <DashboardSkeleton />
       ) : overview ? (
-        <div className="grid gap-6 lg:grid-cols-12">
+        <div className="grid gap-6 lg:grid-cols-12 relative z-10">
           {/* Stats Cards - Full Width */}
           <div className="lg:col-span-12">
             <StatsCards stats={overview.stats} />

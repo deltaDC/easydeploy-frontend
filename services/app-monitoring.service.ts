@@ -23,16 +23,17 @@ class AppMonitoringService {
           const parsed = JSON.parse(authStorage);
           token = parsed.state?.token || "";
         } catch (e) {
-          console.error("Failed to parse auth storage:", e);
+          // Ignore parse error
         }
       }
-      // Fallback
       if (!token) {
         token = localStorage.getItem("auth_token") || "";
       }
     }
     
-    const url = `${process.env.NEXT_PUBLIC_API_URL}/v1/monitoring/apps/${appId}/metrics/stream`;
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+    const cleanBaseUrl = baseUrl.replace(/\/api\/v1$/, '').replace(/\/api$/, '').replace(/\/$/, '');
+    const url = `${cleanBaseUrl}/api/v1/monitoring/apps/${appId}/metrics/stream`;
     const urlWithAuth = `${url}?auth_token=${encodeURIComponent(token)}`;
     
     return new EventSource(urlWithAuth);
@@ -51,16 +52,17 @@ class AppMonitoringService {
           const parsed = JSON.parse(authStorage);
           token = parsed.state?.token || "";
         } catch (e) {
-          console.error("Failed to parse auth storage:", e);
+          // Ignore parse error
         }
       }
-      // Fallback
       if (!token) {
         token = localStorage.getItem("auth_token") || "";
       }
     }
     
-    const url = `${process.env.NEXT_PUBLIC_API_URL}/v1/monitoring/apps/${appId}/logs/stream`;
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+    const cleanBaseUrl = baseUrl.replace(/\/api\/v1$/, '').replace(/\/api$/, '').replace(/\/$/, '');
+    const url = `${cleanBaseUrl}/api/v1/monitoring/apps/${appId}/logs/stream`;
     const urlWithAuth = `${url}?lines=${lines}&auth_token=${encodeURIComponent(token)}`;
     
     return new EventSource(urlWithAuth);

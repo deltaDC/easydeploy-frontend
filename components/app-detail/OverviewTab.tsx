@@ -17,6 +17,10 @@ import {
   Calendar,
   Folder,
   Heart,
+  Terminal,
+  AlertTriangle,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import { useState } from "react";
 import { ApplicationDetail } from "@/types/application.type";
@@ -24,11 +28,69 @@ import { formatDateDDMMYYYYHHMMSS } from "@/utils/date";
 import AppMonitoringService from "@/services/app-monitoring.service";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface OverviewTabProps {
   application: ApplicationDetail;
   containerStatus?: string;
   onActionComplete?: () => void;
+}
+
+// Environment Variable Item Component
+function EnvVarItem({ envVar }: { envVar: any }) {
+  const isPassword = envVar.key?.toLowerCase().includes('password') || 
+                    envVar.key?.toLowerCase().includes('secret') ||
+                    envVar.key?.toLowerCase().includes('key');
+  const [showPassword, setShowPassword] = useState(false);
+  const [copied, setCopied] = useState(false);
+  
+  return (
+    <div className="env-grid-item group flex flex-col gap-2 h-full">
+      <code className="text-xs font-semibold font-mono text-charcoal px-3 py-1.5 rounded-lg bg-white/20 flex-shrink-0">
+        {envVar.key}
+      </code>
+      <div className="flex items-center gap-2 flex-1 min-h-[2.5rem]">
+        <input
+          type={isPassword && !showPassword ? "password" : "text"}
+          readOnly
+          value={envVar.value || ""}
+          className="flex-1 text-xs font-mono bg-white/30 backdrop-blur-sm px-3 py-1.5 rounded-lg text-charcoal/70 border-0 focus:outline-none h-full"
+        />
+        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
+        {isPassword && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowPassword(!showPassword)}
+            className="h-6 w-6 p-0 password-toggle"
+          >
+            {showPassword ? (
+              <EyeOff className="h-3 w-3 text-charcoal/50" />
+            ) : (
+              <Eye className="h-3 w-3 text-charcoal/50" />
+            )}
+          </Button>
+        )}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => {
+            navigator.clipboard.writeText(`${envVar.key}=${envVar.value || ''}`);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+          }}
+          className="h-6 w-6 p-0"
+        >
+          {copied ? (
+            <Check className="h-3 w-3 text-emerald-600" />
+          ) : (
+            <Copy className="h-3 w-3 text-charcoal/50" />
+          )}
+        </Button>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 // Glass Pill Component
@@ -60,25 +122,27 @@ function GlassPill({
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="pill-info flex items-center gap-3 group"
+      className={`flex items-center gap-2 rounded-full bg-white/40 backdrop-blur-sm px-4 py-2 group ${copied ? 'pill-flash-mint' : ''}`}
     >
-      <div className="p-2 rounded-lg bg-misty-sage/10">
-        <Icon className="h-4 w-4 text-misty-sage" strokeWidth={1.5} />
-      </div>
+      <Icon className="h-4 w-4 text-misty-sage group-hover:text-emerald-600 transition-colors flex-shrink-0" strokeWidth={1.5} style={{
+        filter: 'drop-shadow(0 0 4px rgba(146, 175, 173, 0.3))'
+      }} />
       <div className="flex-1 min-w-0">
-        <p className="text-xs text-charcoal/50 mb-0.5">{label}</p>
+        <p className="text-xs font-medium text-charcoal/70 mb-0.5">{label}</p>
         {linkable && value !== "Chưa có" ? (
           <a
             href={value}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-sm font-medium text-emerald-700 hover:text-emerald-800 link-glow flex items-center gap-1 truncate"
+            className="text-sm font-medium text-sky-600 hover:text-sky-700 hover:underline link-glow flex items-center gap-1 truncate"
           >
             {value}
-            <ExternalLink className="h-3 w-3 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <ExternalLink className="h-3 w-3 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" style={{
+              filter: 'drop-shadow(0 0 4px rgba(16, 185, 129, 0.5))'
+            }} />
           </a>
         ) : (
-          <p className="text-sm font-medium text-charcoal truncate font-mono">
+          <p className="text-sm font-medium text-slate-700 truncate font-mono">
             {value}
           </p>
         )}
@@ -88,12 +152,12 @@ function GlassPill({
           variant="ghost"
           size="sm"
           onClick={handleCopy}
-          className="opacity-0 group-hover:opacity-100 transition-opacity haptic-button"
+          className="opacity-0 group-hover:opacity-100 transition-opacity haptic-button rounded-full h-6 w-6 p-0 flex-shrink-0"
         >
           {copied ? (
-            <Check className="h-4 w-4 text-emerald-600" />
+            <Check className="h-3 w-3 text-emerald-600" />
           ) : (
-            <Copy className="h-4 w-4 text-charcoal/50" />
+            <Copy className="h-3 w-3 text-charcoal/50" />
           )}
         </Button>
       )}
@@ -120,7 +184,7 @@ function ControlButton({
   const baseClass = "w-full justify-start haptic-button transition-all duration-200";
   const variantClass =
     variant === "stop"
-      ? "stop-button-reveal border-rose-200/50"
+      ? "bg-red-500/10 border border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 hover:border-red-300 hover:shadow-[0_0_15px_rgba(239,68,68,0.4)]"
       : variant === "outline"
       ? "glass-card-light hover:bg-white/50"
       : "bg-emerald-50/50 hover:bg-emerald-100/50 border-emerald-200/50";
@@ -135,7 +199,10 @@ function ControlButton({
       {loading ? (
         <Loader2 className="h-4 w-4 mr-2 animate-spin" />
       ) : (
-        <Icon className="h-4 w-4 mr-2" strokeWidth={1.5} />
+        <>
+          {variant === "stop" && <AlertTriangle className="h-4 w-4 mr-2" strokeWidth={1.5} />}
+          {variant !== "stop" && <Icon className="h-4 w-4 mr-2" strokeWidth={1.5} />}
+        </>
       )}
       {label}
     </Button>
@@ -196,20 +263,71 @@ export function OverviewTab({
     }
   };
 
+  // Show skeleton if application data is incomplete
+  if (!application || !application.id) {
+    return (
+      <div className="space-y-4">
+        <Card className="glass-card border-0 shadow-sage-glow">
+          <CardHeader>
+            <Skeleton className="h-6 w-48 mb-4" />
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <Skeleton key={i} className="h-16 w-full rounded-full" />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="glass-card border-0 shadow-sage-glow">
+          <CardHeader>
+            <Skeleton className="h-6 w-48 mb-4" />
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 gap-4">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <Skeleton key={i} className="h-20 w-full rounded-lg" />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Main Info Column */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Application Info Card */}
-          <Card className="glass-card border-0 shadow-sage-glow">
-            <CardHeader className="pb-4">
-              <CardTitle className="text-lg font-semibold text-charcoal flex items-center gap-2">
+    <motion.div 
+      className="space-y-4"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+    >
+      {/* Control Deck - Combined Info and Controls */}
+      <Card className="glass-card border-0 shadow-sage-glow sage-shadow-soft">
+        <motion.div 
+          className="grid gap-6 lg:grid-cols-3"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ staggerChildren: 0.1 }}
+        >
+          {/* Main Info Column */}
+          <motion.div 
+            className="lg:col-span-2 space-y-6 glass-divider pr-6 pl-4"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            {/* Application Info Section */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.1 }}
+            >
+              <h3 className="text-lg font-semibold text-charcoal flex items-center gap-2 mb-4">
                 <Container className="h-5 w-5 text-misty-sage" strokeWidth={1.5} />
                 Thông tin ứng dụng
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
+              </h3>
+              <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <GlassPill
                   icon={Container}
@@ -229,35 +347,70 @@ export function OverviewTab({
                   label="Ngày tạo"
                   value={formatDateDDMMYYYYHHMMSS(application.createdAt)}
                 />
+                {/* Uptime label - will be populated from containerStatus or metrics */}
+                {isRunning && (
+                  <div className="pill-info flex items-center gap-3 group">
+                    <div className="p-2 rounded-lg bg-emerald-500/10">
+                      <Heart className="h-4 w-4 text-emerald-600" strokeWidth={1.5} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs text-charcoal/50 mb-0.5">Uptime</p>
+                      <p className="text-sm font-medium text-emerald-700">
+                        Đang hoạt động
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
-            </CardContent>
-          </Card>
+              </div>
+            </motion.div>
 
-          {/* Deploy Config Card */}
-          {application.deployConfig && (
-            <Card className="glass-card border-0 shadow-sage-glow">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-lg font-semibold text-charcoal flex items-center gap-2">
+            {/* Deploy Config Section */}
+            {application.deployConfig && (
+              <motion.div 
+                className="mt-6"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: 0.2 }}
+              >
+                <h3 className="text-lg font-semibold text-charcoal flex items-center gap-2 mb-4">
                   <Settings2 className="h-5 w-5 text-misty-sage" strokeWidth={1.5} />
                   Cấu hình triển khai
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
+                </h3>
+                <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Build Command */}
-                  <div className="pill-info">
-                    <p className="text-xs text-charcoal/50 mb-1">Lệnh build</p>
-                    <code className="text-sm font-mono bg-charcoal/5 px-2 py-1 rounded block truncate">
-                      {application.deployConfig.buildCommand || "Chưa có"}
-                    </code>
+                  {/* Build Command - Terminal Mini Style */}
+                  <div className="code-snippet-glass relative p-4 rounded-lg" style={{
+                    fontFamily: "'JetBrains Mono', 'Fira Code', monospace"
+                  }}>
+                    <div className="absolute top-2 left-2 terminal-icon-muted">
+                      <Terminal className="h-3 w-3 text-charcoal/30" strokeWidth={1.5} />
+                    </div>
+                    <p className="text-xs text-charcoal/50 mb-2">Lệnh build</p>
+                    {application.deployConfig.buildCommand ? (
+                      <code className="text-sm font-mono text-emerald-900 truncate max-w-full block">
+                        {application.deployConfig.buildCommand}
+                      </code>
+                    ) : (
+                      <span className="text-sm text-charcoal/40">Chưa có</span>
+                    )}
                   </div>
                   
-                  {/* Start Command */}
-                  <div className="pill-info">
-                    <p className="text-xs text-charcoal/50 mb-1">Lệnh khởi động</p>
-                    <code className="text-sm font-mono bg-charcoal/5 px-2 py-1 rounded block truncate">
-                      {application.deployConfig.startCommand || "Chưa có"}
-                    </code>
+                  {/* Start Command - Terminal Mini Style */}
+                  <div className="code-snippet-glass relative p-4 rounded-lg" style={{
+                    fontFamily: "'JetBrains Mono', 'Fira Code', monospace"
+                  }}>
+                    <div className="absolute top-2 left-2 terminal-icon-muted">
+                      <Terminal className="h-3 w-3 text-charcoal/30" strokeWidth={1.5} />
+                    </div>
+                    <p className="text-xs text-charcoal/50 mb-2">Lệnh khởi động</p>
+                    {application.deployConfig.startCommand ? (
+                      <code className="text-sm font-mono text-emerald-900 truncate max-w-full block">
+                        {application.deployConfig.startCommand}
+                      </code>
+                    ) : (
+                      <span className="text-sm text-charcoal/40">Chưa có</span>
+                    )}
                   </div>
                   
                   {/* Exposed Port */}
@@ -314,11 +467,14 @@ export function OverviewTab({
                   )}
                 </div>
 
-                {/* Environment Variables */}
+                {/* Environment Variables - Grid Layout */}
                 {application.deployConfig.environmentVars && (
-                  <div className="mt-4 pt-4 border-t border-white/20">
-                    <p className="text-xs text-charcoal/50 mb-3">Biến môi trường</p>
-                    <div className="space-y-2">
+                  <div className="mt-6">
+                    <h3 className="text-lg font-semibold text-charcoal flex items-center gap-2 mb-4">
+                      <Folder className="h-5 w-5 text-misty-sage" strokeWidth={1.5} />
+                      Biến môi trường
+                    </h3>
+                    <div className="grid grid-cols-2 gap-4 items-stretch">
                       {(() => {
                         try {
                           const envVars = JSON.parse(application.deployConfig.environmentVars);
@@ -328,37 +484,30 @@ export function OverviewTab({
 
                           return envArray.length > 0 ? (
                             envArray.map((envVar: any, index: number) => (
-                              <div
-                                key={index}
-                                className="flex gap-2 items-center pill-info py-2"
-                              >
-                                <code className="text-xs font-mono bg-charcoal/5 px-2 py-1 rounded text-emerald-700">
-                                  {envVar.key}
-                                </code>
-                                <span className="text-charcoal/30">=</span>
-                                <code className="text-xs font-mono bg-charcoal/5 px-2 py-1 rounded text-charcoal/70 truncate flex-1">
-                                  {envVar.value || "•••••"}
-                                </code>
-                              </div>
+                              <EnvVarItem key={index} envVar={envVar} />
                             ))
                           ) : (
-                            <p className="text-sm text-charcoal/50">Không có biến môi trường</p>
+                            <p className="text-sm text-charcoal/50 col-span-2">Không có biến môi trường</p>
                           );
                         } catch {
-                          return <p className="text-sm text-rose-500">Lỗi khi đọc biến môi trường</p>;
+                          return <p className="text-sm text-rose-500 col-span-2">Lỗi khi đọc biến môi trường</p>;
                         }
                       })()}
                     </div>
                   </div>
                 )}
-              </CardContent>
-            </Card>
+              </div>
+            </motion.div>
           )}
-        </div>
+          </motion.div>
 
-        {/* Container Controls Column */}
-        <div className="space-y-6">
-          <Card className="glass-card border-0 shadow-sage-glow">
+          {/* Container Controls Column */}
+          <motion.div 
+            className="space-y-6 pl-4"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.3 }}
+          >
             <CardHeader className="pb-4">
               <CardTitle className="text-lg font-semibold text-charcoal flex items-center gap-2">
                 <Settings2 className="h-5 w-5 text-misty-sage" strokeWidth={1.5} />
@@ -401,7 +550,7 @@ export function OverviewTab({
                 </div>
               )}
             </CardHeader>
-            <CardContent className="space-y-3">
+            <div className="space-y-3 px-6 pb-6">
               <ControlButton
                 icon={Play}
                 label="Khởi động Container"
@@ -428,11 +577,11 @@ export function OverviewTab({
                 loading={isLoading && currentAction === "restart"}
                 variant="outline"
               />
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    </div>
+            </div>
+          </motion.div>
+        </motion.div>
+      </Card>
+    </motion.div>
   );
 }
 

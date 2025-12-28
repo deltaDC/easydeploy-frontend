@@ -3,9 +3,10 @@ import { useRef, useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Terminal, Check, Loader2, X, AlertCircle, ChevronDown, ExternalLink } from "lucide-react";
+import { Terminal, Check, Loader2, X, AlertCircle, ChevronDown, ExternalLink, ArrowDown } from "lucide-react";
 import { BuildStage, isDeployingStatus } from "./types";
 import { BuildLogMessage } from "@/types/build-log.type";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface BuildLogsTabProps {
   logs: BuildLogMessage[];
@@ -25,7 +26,7 @@ function StageProgress({ stages, currentStatus }: { stages: BuildStage[]; curren
       <div className="flex items-center justify-between">
         {stages.map((stage, index) => (
           <div key={stage.name} className="flex items-center flex-1">
-            {/* Stage Node */}
+            {/* Stage Node - Smaller with glow effects */}
             <motion.div
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
@@ -35,8 +36,8 @@ function StageProgress({ stages, currentStatus }: { stages: BuildStage[]; curren
                 w-10 h-10 rounded-full
                 transition-all duration-300
                 ${stage.status === "pending" ? "stage-pending" : ""}
-                ${stage.status === "running" ? "stage-running" : ""}
-                ${stage.status === "success" ? "stage-success" : ""}
+                ${stage.status === "running" ? "pipeline-stage-running" : ""}
+                ${stage.status === "success" ? "pipeline-stage-complete" : ""}
                 ${stage.status === "failed" ? "stage-failed" : ""}
               `}
             >
@@ -44,7 +45,7 @@ function StageProgress({ stages, currentStatus }: { stages: BuildStage[]; curren
                 <div className="w-3 h-3 rounded-full bg-slate-400/50" />
               )}
               {stage.status === "running" && (
-                <Loader2 className="w-5 h-5 text-amber-600 mist-spin" />
+                <Loader2 className="w-4 h-4 text-amber-600 animate-spin" />
               )}
               {stage.status === "success" && (
                 <motion.div
@@ -52,11 +53,11 @@ function StageProgress({ stages, currentStatus }: { stages: BuildStage[]; curren
                   animate={{ scale: 1 }}
                   transition={{ type: "spring", stiffness: 500 }}
                 >
-                  <Check className="w-5 h-5 text-emerald-600" strokeWidth={2.5} />
+                  <Check className="w-4 h-4 text-emerald-600" strokeWidth={2.5} />
                 </motion.div>
               )}
               {stage.status === "failed" && (
-                <X className="w-5 h-5 text-rose-600" strokeWidth={2.5} />
+                <X className="w-4 h-4 text-rose-600" strokeWidth={2.5} />
               )}
             </motion.div>
 
@@ -78,10 +79,12 @@ function StageProgress({ stages, currentStatus }: { stages: BuildStage[]; curren
               <div className="flex-1 mx-3">
                 <div
                   className={`
-                    h-0.5 rounded-full transition-all duration-500
+                    h-0.5 rounded-full transition-all duration-500 relative
                     ${stage.status === "success"
                       ? "bg-gradient-to-r from-emerald-400 to-emerald-300"
-                      : "bg-slate-200"
+                      : stage.status === "running"
+                      ? "pipeline-line-shimmer bg-gradient-to-r from-amber-400 to-amber-300 opacity-60"
+                      : "bg-slate-200 opacity-30"
                     }
                   `}
                 />
@@ -126,14 +129,42 @@ function LogLine({
         mb-1 whitespace-pre-wrap break-words font-mono text-sm
         ${isNew ? "log-highlight" : ""}
       `}
+      style={{ fontFamily: "'JetBrains Mono', 'Fira Code', monospace" }}
     >
-      <span className="text-slate-500 select-none">
+      <span className="select-none opacity-70" style={{ 
+        fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
+        color: '#E5E7EB',
+        textShadow: '0 0 6px rgba(229, 231, 235, 0.3)'
+      }}>
         [{new Date(log.timestamp).toLocaleTimeString("vi-VN", { hour12: false })}]
       </span>{" "}
-      <span className={`${getLogLevelColor(log.logLevel)} font-semibold`}>
+      <span 
+        className="font-semibold"
+        style={{
+          fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
+          textShadow: log.logLevel?.toUpperCase() === 'ERROR' 
+            ? '0 0 8px rgba(248, 113, 113, 0.6)'
+            : log.logLevel?.toUpperCase() === 'WARN'
+            ? '0 0 6px rgba(251, 191, 36, 0.5)'
+            : log.logLevel?.toUpperCase() === 'SUCCESS'
+            ? '0 0 8px rgba(74, 222, 128, 0.6)'
+            : '0 0 6px rgba(74, 222, 128, 0.5)',
+          color: log.logLevel?.toUpperCase() === 'ERROR' 
+            ? '#f87171'
+            : log.logLevel?.toUpperCase() === 'WARN'
+            ? '#fbbf24'
+            : log.logLevel?.toUpperCase() === 'SUCCESS'
+            ? '#4ADE80'
+            : '#4ADE80'
+        }}
+      >
         [{log.logLevel || "INFO"}]
       </span>{" "}
-      <span className="text-slate-200">{log.message || ""}</span>
+      <span style={{ 
+        fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
+        color: '#E5E7EB',
+        textShadow: '0 0 6px rgba(229, 231, 235, 0.3)'
+      }}>{log.message || ""}</span>
     </motion.div>
   );
 }
@@ -149,6 +180,7 @@ export function BuildLogsTab({
   const scrollRef = useRef<HTMLDivElement>(null);
   const [autoScroll, setAutoScroll] = useState(true);
   const [prevLogsCount, setPrevLogsCount] = useState(0);
+  const [showScrollButton, setShowScrollButton] = useState(false);
 
   // Determine which logs are "new" based on the count difference
   const newLogsStartIndex = prevLogsCount;
@@ -171,6 +203,14 @@ export function BuildLogsTab({
       const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
       const isAtBottom = scrollHeight - scrollTop - clientHeight < 50;
       setAutoScroll(isAtBottom);
+      setShowScrollButton(!isAtBottom);
+    }
+  };
+
+  const scrollToBottom = () => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
+      setAutoScroll(true);
     }
   };
 
@@ -200,7 +240,7 @@ export function BuildLogsTab({
             <div className="flex items-center gap-2">
               {isConnected && (
                 <span className="flex items-center gap-2 text-sm text-emerald-600">
-                  <span className="h-2 w-2 bg-emerald-500 rounded-full animate-pulse" />
+                  <span className="h-2 w-2 bg-emerald-500 rounded-full live-indicator" />
                   Đang phát
                 </span>
               )}
@@ -214,9 +254,21 @@ export function BuildLogsTab({
           </div>
         </CardHeader>
 
-        <CardContent className="p-0">
+        <CardContent className="p-0 relative">
           {/* Terminal Window */}
-          <div className="charcoal-glass-dark mx-4 mb-4 rounded-lg overflow-hidden shadow-charcoal-inset">
+          <div 
+            className="mx-4 mb-4 rounded-lg overflow-hidden shadow-charcoal-inset relative terminal-inner-shadow terminal-scrollbar"
+            style={{
+              background: 'rgba(15, 23, 42, 0.9)',
+              backdropFilter: 'blur(10px)',
+              WebkitBackdropFilter: 'blur(10px)',
+            }}
+          >
+            {/* Corner mist effect - only at corners */}
+            <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-radial from-white/5 to-transparent rounded-br-full pointer-events-none" />
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-radial from-white/5 to-transparent rounded-bl-full pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-radial from-white/5 to-transparent rounded-tr-full pointer-events-none" />
+            <div className="absolute bottom-0 right-0 w-32 h-32 bg-gradient-radial from-white/5 to-transparent rounded-tl-full pointer-events-none" />
             {/* Terminal Header */}
             <div className="flex items-center gap-2 px-4 py-2 border-b border-white/5">
               <div className="flex gap-1.5">
@@ -224,23 +276,32 @@ export function BuildLogsTab({
                 <div className="w-3 h-3 rounded-full bg-amber-500/80" />
                 <div className="w-3 h-3 rounded-full bg-emerald-500/80" />
               </div>
-              <span className="text-xs text-slate-500 ml-2 font-mono">build-output</span>
+              <span className="text-xs text-slate-500 ml-2 font-mono" style={{ fontFamily: "'JetBrains Mono', 'Fira Code', monospace" }}>build-output</span>
+              
+              {/* Live Indicator */}
+              {isConnected && (
+                <div className="ml-auto flex items-center gap-1.5">
+                  <span className="h-2 w-2 bg-emerald-500 rounded-full live-indicator" />
+                  <span className="text-xs text-emerald-400 font-mono live-indicator" style={{ fontFamily: "'JetBrains Mono', 'Fira Code', monospace" }}>Live</span>
+                </div>
+              )}
             </div>
 
             {/* Terminal Content */}
             <div
               ref={scrollRef}
               onScroll={handleScroll}
-              className="h-80 overflow-y-auto p-4 scrollbar-thin"
+              className="h-80 overflow-y-auto p-4 terminal-scrollbar relative z-10"
             >
               {isLoading ? (
-                <div className="flex items-center justify-center h-full">
-                  <div className="text-center">
-                    <div className="glass-shimmer w-full h-4 rounded mb-2" />
-                    <div className="glass-shimmer w-3/4 h-4 rounded mb-2" />
-                    <div className="glass-shimmer w-1/2 h-4 rounded" />
-                    <p className="text-slate-500 text-sm mt-4">Đang tải nhật ký...</p>
-                  </div>
+                <div className="space-y-2 p-4">
+                  {Array.from({ length: 10 }).map((_, i) => (
+                    <div key={i} className="flex items-start gap-2">
+                      <Skeleton className="h-3 w-16 flex-shrink-0" />
+                      <Skeleton className="h-3 w-20 flex-shrink-0" />
+                      <Skeleton className="h-3 flex-1" />
+                    </div>
+                  ))}
                 </div>
               ) : logs.length === 0 ? (
                 <div className="flex items-center justify-center h-full">
@@ -268,28 +329,17 @@ export function BuildLogsTab({
 
             {/* Scroll to Bottom Button */}
             <AnimatePresence>
-              {!autoScroll && logs.length > 0 && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 10 }}
-                  className="absolute bottom-20 right-8"
+              {showScrollButton && logs.length > 0 && (
+                <motion.button
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  onClick={scrollToBottom}
+                  className="scroll-to-bottom-btn glass-card p-2 rounded-full hover:bg-white/20 transition-colors"
+                  title="Cuộn xuống dưới"
                 >
-                  <Button
-                    size="sm"
-                    onClick={() => {
-                      setAutoScroll(true);
-                      scrollRef.current?.scrollTo({
-                        top: scrollRef.current.scrollHeight,
-                        behavior: "smooth",
-                      });
-                    }}
-                    className="bg-charcoal/80 hover:bg-charcoal text-white rounded-full shadow-lg haptic-button"
-                  >
-                    <ChevronDown className="h-4 w-4 mr-1 auto-scroll-indicator" />
-                    Cuộn xuống
-                  </Button>
-                </motion.div>
+                  <ArrowDown className="h-4 w-4 text-white" strokeWidth={2} />
+                </motion.button>
               )}
             </AnimatePresence>
           </div>

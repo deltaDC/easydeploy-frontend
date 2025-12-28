@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import {
   LineChart,
   Line,
@@ -13,9 +14,10 @@ import {
   Area,
   AreaChart,
 } from "recharts";
-import { Activity, Cpu, Zap, Network, Clock, Server } from "lucide-react";
+import { Activity, Cpu, Zap, Network, Clock, Server, ArrowDown, ArrowUp, WifiOff, RefreshCw } from "lucide-react";
 import AppMonitoringService from "@/services/app-monitoring.service";
 import type { AppMetrics } from "@/types/app-monitoring";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface MetricsTabProps {
   appId: string;
@@ -42,6 +44,7 @@ function GlassMetricCard({
   color,
   percentage,
   subtitle,
+  waveformData,
 }: {
   title: string;
   value: string | number;
@@ -50,126 +53,242 @@ function GlassMetricCard({
   color: string;
   percentage?: number;
   subtitle?: string;
+  waveformData?: number[];
 }) {
+  const orbColor = color === "bg-blue-500" ? "blurred-orb-blue" : 
+                   color === "bg-purple-500" ? "blurred-orb-purple" : 
+                   color === "bg-orange-500" ? "blurred-orb-orange" : "blurred-orb-emerald";
+
+  const waveformPath = waveformData && waveformData.length > 0
+    ? waveformData
+        .map((val, idx) => {
+          const x = (idx / (waveformData.length - 1)) * 100;
+          const y = 100 - (val / 100) * 100;
+          return `${idx === 0 ? 'M' : 'L'} ${x} ${y}`;
+        })
+        .join(' ')
+    : null;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="glass-card p-4 shadow-sage-glow"
+      className="glass-card p-4 shadow-sage-glow relative overflow-hidden gradient-mesh"
     >
-      <div className="flex items-center justify-between mb-3">
-        <div className={`p-2 rounded-lg ${color} bg-opacity-10`}>
-          <Icon className={`h-5 w-5 ${color.replace("bg-", "text-")}`} strokeWidth={1.5} />
-        </div>
-        <span className="text-xs text-charcoal/50">{title}</span>
-      </div>
-      <div className="flex items-baseline gap-1">
-        <span className="text-2xl font-bold text-charcoal">{value}</span>
-        {unit && <span className="text-sm text-charcoal/50">{unit}</span>}
-      </div>
-      {percentage !== undefined && (
-        <div className="mt-2">
-          <div className="h-1.5 bg-charcoal/10 rounded-full overflow-hidden">
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: `${Math.min(percentage, 100)}%` }}
-              transition={{ duration: 0.5, ease: "easeOut" }}
-              className={`h-full rounded-full ${color}`}
-            />
+      {/* Blurred orb background */}
+      <div className={`absolute top-0 right-0 w-24 h-24 blurred-orb ${orbColor} opacity-20`} />
+      
+      <div className="relative z-10">
+        <div className="flex items-center justify-between mb-3">
+          <div className={`p-2 rounded-lg ${color} bg-opacity-10`}>
+            <Icon className={`h-5 w-5 ${color.replace("bg-", "text-")}`} strokeWidth={1.5} />
           </div>
+          <span className="text-xs text-charcoal/50">{title}</span>
         </div>
-      )}
-      {subtitle && <p className="text-xs text-charcoal/50 mt-2">{subtitle}</p>}
+        <div className="flex items-baseline gap-1">
+          <span className="text-2xl font-bold text-charcoal">{value}</span>
+          {unit && <span className="text-sm text-charcoal/50">{unit}</span>}
+        </div>
+        {percentage !== undefined && (
+          <div className="mt-2">
+            <div className="h-1.5 bg-charcoal/10 rounded-full overflow-hidden">
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: `${Math.min(percentage, 100)}%` }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
+                className={`h-full rounded-full ${color} liquid-glow relative`}
+                style={{
+                  boxShadow: `0 0 10px ${color.replace("bg-", "rgba(").replace("blue-500", "59, 130, 246").replace("purple-500", "139, 92, 246").replace("orange-500", "249, 115, 22").replace("emerald", "16, 185, 129")}, 0.6)`
+                }}
+              />
+            </div>
+          </div>
+        )}
+        {subtitle && <p className="text-xs text-charcoal/50 mt-2">{subtitle}</p>}
+        
+        {/* Waveform chart */}
+        {waveformPath && (
+          <div className="mt-3 waveform-chart">
+            <svg viewBox="0 0 100 32" preserveAspectRatio="none" className="w-full h-8">
+              <defs>
+                <linearGradient id={`waveformGradient-${title}`} x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stopColor={color.replace("bg-", "#")} stopOpacity="0.2" />
+                  <stop offset="100%" stopColor={color.replace("bg-", "#")} stopOpacity="0" />
+                </linearGradient>
+              </defs>
+              <path
+                d={`${waveformPath} L 100 100 L 0 100 Z`}
+                fill={`url(#waveformGradient-${title})`}
+                className="area"
+              />
+              <path
+                d={waveformPath}
+                stroke={color.replace("bg-", "#")}
+                strokeWidth="1.5"
+                fill="none"
+                className="path"
+              />
+            </svg>
+          </div>
+        )}
+      </div>
     </motion.div>
   );
 }
 
 // Memory Gauge Chart
-function MemoryGauge({ percentage, used, total }: { percentage: number; used: string; total: string }) {
+function MemoryGauge({ percentage, used, total, waveformData }: { 
+  percentage: number; 
+  used: string; 
+  total: string;
+  waveformData?: number[];
+}) {
   const radius = 60;
   const strokeWidth = 8;
   const circumference = 2 * Math.PI * radius;
-  const offset = circumference - (percentage / 100) * circumference * 0.75; // 270 degree arc
+  const offset = circumference - (percentage / 100) * circumference * 0.75;
+
+  // Generate waveform path if data provided
+  const waveformPath = waveformData && waveformData.length > 0
+    ? waveformData
+        .map((val, idx) => {
+          const x = (idx / (waveformData.length - 1)) * 100;
+          const y = 100 - (val / 100) * 100;
+          return `${idx === 0 ? 'M' : 'L'} ${x} ${y}`;
+        })
+        .join(' ')
+    : null;
 
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="glass-card p-6 shadow-sage-glow"
+      className="glass-card p-6 shadow-sage-glow relative overflow-hidden gradient-mesh"
     >
-      <div className="flex items-center justify-between mb-4">
-        <div className="p-2 rounded-lg bg-emerald-500/10">
-          <Zap className="h-5 w-5 text-emerald-600" strokeWidth={1.5} />
-        </div>
-        <span className="text-xs text-charcoal/50">Memory Usage</span>
-      </div>
+      {/* Blurred orb background */}
+      <div className="absolute top-0 right-0 w-32 h-32 blurred-orb blurred-orb-emerald opacity-20" />
       
-      <div className="relative w-36 h-36 mx-auto">
-        {/* Background arc */}
-        <svg className="w-full h-full -rotate-135" viewBox="0 0 140 140">
-          <circle
-            cx="70"
-            cy="70"
-            r={radius}
-            fill="none"
-            stroke="rgba(146, 175, 173, 0.2)"
-            strokeWidth={strokeWidth}
-            strokeDasharray={`${circumference * 0.75} ${circumference}`}
-            strokeLinecap="round"
-          />
-          {/* Progress arc */}
-          <motion.circle
-            cx="70"
-            cy="70"
-            r={radius}
-            fill="none"
-            stroke="url(#emeraldGradient)"
-            strokeWidth={strokeWidth}
-            strokeDasharray={`${circumference * 0.75} ${circumference}`}
-            strokeDashoffset={offset}
-            strokeLinecap="round"
-            initial={{ strokeDashoffset: circumference }}
-            animate={{ strokeDashoffset: offset }}
-            transition={{ duration: 1, ease: "easeOut" }}
-          />
-          <defs>
-            <linearGradient id="emeraldGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#10b981" />
-              <stop offset="100%" stopColor="#059669" />
-            </linearGradient>
-          </defs>
-        </svg>
-        
-        {/* Center text */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-2xl font-bold text-charcoal">{percentage.toFixed(1)}%</span>
-          <span className="text-xs text-charcoal/50">Used</span>
+      <div className="relative z-10">
+        <div className="flex items-center justify-between mb-4">
+          <div className="p-2 rounded-lg bg-emerald-500/10">
+            <Zap className="h-5 w-5 text-emerald-600" strokeWidth={1.5} />
+          </div>
+          <span className="text-xs text-charcoal/50">Memory Usage</span>
         </div>
         
-        {/* Glowing dot indicator */}
-        <motion.div
-          className="gauge-dot absolute"
-          style={{
-            left: `${50 + 40 * Math.cos((-135 + percentage * 2.7) * (Math.PI / 180))}%`,
-            top: `${50 + 40 * Math.sin((-135 + percentage * 2.7) * (Math.PI / 180))}%`,
-            transform: "translate(-50%, -50%)",
-          }}
-          animate={{
-            boxShadow: [
-              "0 0 10px rgba(16, 185, 129, 0.6)",
-              "0 0 20px rgba(16, 185, 129, 0.8)",
-              "0 0 10px rgba(16, 185, 129, 0.6)",
-            ],
-          }}
-          transition={{ duration: 2, repeat: Infinity }}
-        />
-      </div>
-      
-      <div className="mt-4 text-center">
-        <p className="text-sm text-charcoal">
-          <span className="font-medium">{used}</span>
-          <span className="text-charcoal/50"> / {total}</span>
-        </p>
+        {/* Liquid Wave Visualization */}
+        {waveformPath ? (
+          <div className="relative w-full h-32 mx-auto mb-4">
+            <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="w-full h-full">
+              <defs>
+                <linearGradient id="liquidWaveGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stopColor="#10B981" stopOpacity="0.6" />
+                  <stop offset="50%" stopColor="#34D399" stopOpacity="0.4" />
+                  <stop offset="100%" stopColor="#10B981" stopOpacity="0.2" />
+                </linearGradient>
+                <filter id="glow">
+                  <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                  <feMerge>
+                    <feMergeNode in="coloredBlur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                  </feMerge>
+                </filter>
+              </defs>
+              <path
+                d={`${waveformPath} L 100 100 L 0 100 Z`}
+                fill="url(#liquidWaveGradient)"
+                className="liquid-wave"
+                filter="url(#glow)"
+              />
+              <path
+                d={waveformPath}
+                stroke="#10B981"
+                strokeWidth="2"
+                fill="none"
+                filter="url(#glow)"
+              />
+            </svg>
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <span className="text-2xl font-bold text-charcoal">{percentage.toFixed(1)}%</span>
+              <span className="text-xs text-charcoal/50">Used</span>
+            </div>
+          </div>
+        ) : (
+          <div className="relative w-36 h-36 mx-auto liquid-fill-animation overflow-hidden">
+            {/* Background arc */}
+            <svg className="w-full h-full -rotate-135" viewBox="0 0 140 140" style={{ overflow: 'visible' }}>
+              <circle
+                cx="70"
+                cy="70"
+                r={radius}
+                fill="none"
+                stroke="rgba(146, 175, 173, 0.2)"
+                strokeWidth={strokeWidth}
+                strokeDasharray={`${circumference * 0.75} ${circumference}`}
+                strokeLinecap="round"
+                style={{ vectorEffect: 'non-scaling-stroke' }}
+              />
+              {/* Progress arc with liquid fill effect */}
+              {percentage > 0 && (
+                <motion.circle
+                  cx="70"
+                  cy="70"
+                  r={radius}
+                  fill="none"
+                  stroke="url(#emeraldGradient)"
+                  strokeWidth={strokeWidth}
+                  strokeDasharray={`${circumference * 0.75} ${circumference}`}
+                  strokeDashoffset={offset}
+                  strokeLinecap="round"
+                  initial={{ strokeDashoffset: circumference }}
+                  animate={{ strokeDashoffset: offset }}
+                  transition={{ duration: 1, ease: "easeOut" }}
+                  style={{
+                    filter: 'drop-shadow(0 0 8px rgba(16, 185, 129, 0.6))',
+                    vectorEffect: 'non-scaling-stroke',
+                  }}
+                />
+              )}
+              <defs>
+                <linearGradient id="emeraldGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#10b981" />
+                  <stop offset="100%" stopColor="#059669" />
+                </linearGradient>
+              </defs>
+            </svg>
+            
+            {/* Center text */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <span className="text-2xl font-bold text-charcoal">{percentage.toFixed(1)}%</span>
+              <span className="text-xs text-charcoal/50">Used</span>
+            </div>
+            
+            {/* Glowing dot indicator */}
+            <motion.div
+              className="gauge-dot absolute"
+              style={{
+                left: `${50 + 40 * Math.cos((-135 + percentage * 2.7) * (Math.PI / 180))}%`,
+                top: `${50 + 40 * Math.sin((-135 + percentage * 2.7) * (Math.PI / 180))}%`,
+                transform: "translate(-50%, -50%)",
+              }}
+              animate={{
+                boxShadow: [
+                  "0 0 10px rgba(16, 185, 129, 0.6)",
+                  "0 0 20px rgba(16, 185, 129, 0.8)",
+                  "0 0 10px rgba(16, 185, 129, 0.6)",
+                ],
+              }}
+              transition={{ duration: 2, repeat: Infinity }}
+            />
+          </div>
+        )}
+        
+        <div className="mt-4 text-center">
+          <p className="text-sm text-charcoal">
+            <span className="font-medium">{used}</span>
+            <span className="text-charcoal/50"> / {total}</span>
+          </p>
+        </div>
       </div>
     </motion.div>
   );
@@ -190,28 +309,29 @@ export function MetricsTab({ appId }: MetricsTabProps) {
     lastNetworkTotalsRef.current = null;
 
     // Initial fetch
-    const testFetch = async () => {
+    const fetchInitialMetrics = async () => {
       try {
         const data = await AppMonitoringService.getAppMetrics(appId);
         setMetrics(data);
       } catch (err: any) {
-        console.error("Initial metrics fetch failed:", err);
       }
     };
-    testFetch();
+    fetchInitialMetrics();
 
     // SSE connection
     if (eventSourceRef.current) return;
 
-    const eventSource = AppMonitoringService.createMetricsStream(appId);
-    eventSourceRef.current = eventSource;
+    const connectSSE = () => {
+      try {
+        const eventSource = AppMonitoringService.createMetricsStream(appId);
+        eventSourceRef.current = eventSource;
 
-    eventSource.onopen = () => {
-      setIsConnected(true);
-      setError(null);
-    };
+        eventSource.onopen = () => {
+          setIsConnected(true);
+          setError(null);
+        };
 
-    eventSource.addEventListener("app-metrics", (event: MessageEvent) => {
+        eventSource.addEventListener("app-metrics", (event: MessageEvent) => {
       try {
         const data = JSON.parse(event.data);
         const metricsData = data.metrics || data;
@@ -255,14 +375,31 @@ export function MetricsTab({ appId }: MetricsTabProps) {
           lastNetworkTotalsRef.current = currentTotals;
         }
       } catch (err) {
-        console.error("Error parsing SSE metrics:", err);
       }
     });
 
-    eventSource.onerror = () => {
-      setIsConnected(false);
-      setError("Connection lost. Reconnecting...");
+        eventSource.onerror = () => {
+          setIsConnected(false);
+          setError("Connection lost. Reconnecting...");
+          
+          if (eventSourceRef.current) {
+            eventSourceRef.current.close();
+            eventSourceRef.current = null;
+          }
+          
+          setTimeout(() => {
+            if (!eventSourceRef.current) {
+              connectSSE();
+            }
+          }, 3000);
+        };
+      } catch (err) {
+        setError("Không thể kết nối đến luồng metrics");
+        setIsConnected(false);
+      }
     };
+
+    connectSSE();
 
     return () => {
       if (eventSourceRef.current) {
@@ -293,6 +430,40 @@ export function MetricsTab({ appId }: MetricsTabProps) {
     if (!networkChartData.length) return { rx: 0, tx: 0 };
     return networkChartData[networkChartData.length - 1];
   }, [networkChartData]);
+
+  // Show skeleton if no metrics and not connected
+  if (!metrics && !isConnected && !error) {
+    return (
+      <div className="space-y-6 animate-fade-in">
+        <Card className="glass-card border-0">
+          <CardHeader className="pb-2">
+            <Skeleton className="h-6 w-48 mb-2" />
+            <Skeleton className="h-4 w-64" />
+          </CardHeader>
+        </Card>
+        
+        <div className="grid gap-6 md:grid-cols-2">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Card key={i} className="glass-card p-4 shadow-sage-glow">
+              <Skeleton className="h-5 w-24 mb-3" />
+              <Skeleton className="h-8 w-32 mb-2" />
+              <Skeleton className="h-4 w-full" />
+            </Card>
+          ))}
+        </div>
+        
+        <Card className="glass-card border-0 shadow-sage-glow">
+          <CardHeader>
+            <Skeleton className="h-6 w-32 mb-2" />
+            <Skeleton className="h-4 w-48" />
+          </CardHeader>
+          <CardContent>
+            <Skeleton className="h-[280px] w-full" />
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -351,8 +522,11 @@ export function MetricsTab({ appId }: MetricsTabProps) {
         </motion.div>
       )}
 
-      {/* Metrics Grid */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      {/* Metrics Grid - CPU & Memory on top row, Network & Disk on bottom */}
+      {!error && (
+      <div className="grid gap-6">
+        {/* Top Row: CPU & Memory */}
+        <div className="grid gap-6 md:grid-cols-2">
         <GlassMetricCard
           title="CPU Usage"
           value={metrics?.cpuUsage?.toFixed(1) || 0}
@@ -360,35 +534,64 @@ export function MetricsTab({ appId }: MetricsTabProps) {
           icon={Cpu}
           color="bg-blue-500"
           percentage={metrics?.cpuUsage || 0}
+          waveformData={chartData.slice(-20).map(d => d.cpu)}
         />
         
         <MemoryGauge
           percentage={metrics?.memoryUsage || 0}
           used={formatBytes(metrics?.memoryUsageBytes)}
           total={formatBytes(metrics?.memoryLimit)}
+          waveformData={chartData.slice(-20).map(d => d.memory)}
         />
+        </div>
         
-        <GlassMetricCard
-          title="Network RX"
-          value={latestNetworkRates.rx.toFixed(2)}
-          unit="KB/s"
-          icon={Network}
-          color="bg-purple-500"
-          subtitle={`Total: ${formatBytes(metrics?.networkRxBytes)}`}
-        />
+        {/* Bottom Row: Network */}
+        <div className="grid gap-6 md:grid-cols-2">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="glass-card p-4 shadow-sage-glow relative overflow-hidden gradient-mesh"
+        >
+          <div className="absolute top-0 right-0 w-24 h-24 blurred-orb blurred-orb-purple opacity-20" />
+          <div className="relative z-10">
+            <div className="flex items-center justify-between mb-3">
+              <div className="p-2 rounded-lg bg-purple-500/10">
+                <ArrowDown className="h-6 w-6 text-purple-400 network-icon-neon" strokeWidth={1} style={{ color: '#8b5cf6' }} />
+              </div>
+              <span className="text-xs text-charcoal/50">Network RX</span>
+            </div>
+            <div className="flex items-baseline gap-1">
+              <span className="text-2xl font-bold text-charcoal font-tabular-nums">{latestNetworkRates.rx.toFixed(2)}</span>
+              <span className="text-sm text-charcoal/50">KB/s</span>
+            </div>
+            <p className="text-xs text-charcoal/50 mt-2">Total: {formatBytes(metrics?.networkRxBytes)}</p>
+          </div>
+        </motion.div>
         
-        <GlassMetricCard
-          title="Network TX"
-          value={latestNetworkRates.tx.toFixed(2)}
-          unit="KB/s"
-          icon={Network}
-          color="bg-orange-500"
-          subtitle={`Total: ${formatBytes(metrics?.networkTxBytes)}`}
-        />
-      </div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="glass-card p-4 shadow-sage-glow relative overflow-hidden gradient-mesh"
+        >
+          <div className="absolute top-0 right-0 w-24 h-24 blurred-orb blurred-orb-orange opacity-20" />
+          <div className="relative z-10">
+            <div className="flex items-center justify-between mb-3">
+              <div className="p-2 rounded-lg bg-orange-500/10">
+                <ArrowUp className="h-6 w-6 text-orange-400 network-icon-neon" strokeWidth={1} style={{ color: '#f97316' }} />
+              </div>
+              <span className="text-xs text-charcoal/50">Network TX</span>
+            </div>
+            <div className="flex items-baseline gap-1">
+              <span className="text-2xl font-bold text-charcoal font-tabular-nums">{latestNetworkRates.tx.toFixed(2)}</span>
+              <span className="text-sm text-charcoal/50">KB/s</span>
+            </div>
+            <p className="text-xs text-charcoal/50 mt-2">Total: {formatBytes(metrics?.networkTxBytes)}</p>
+          </div>
+        </motion.div>
+        </div>
 
-      {/* CPU & Memory Chart */}
-      {chartData.length > 0 && (
+        {/* CPU & Memory Chart */}
+        {chartData.length > 0 && (
         <Card className="glass-card border-0 shadow-sage-glow">
           <CardHeader>
             <CardTitle className="text-charcoal">CPU & Memory</CardTitle>
@@ -397,17 +600,19 @@ export function MetricsTab({ appId }: MetricsTabProps) {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="h-[280px]">
+            <div className="h-[280px] overflow-hidden">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={chartData}>
+                <AreaChart data={chartData} style={{ border: 'none', outline: 'none' }}>
                   <defs>
                     <linearGradient id="cpuGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.1} />
-                      <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                      <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.6} />
+                      <stop offset="50%" stopColor="#3b82f6" stopOpacity={0.3} />
+                      <stop offset="100%" stopColor="#3b82f6" stopOpacity={0} />
                     </linearGradient>
                     <linearGradient id="memoryGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.1} />
-                      <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                      <stop offset="0%" stopColor="#10b981" stopOpacity={0.6} />
+                      <stop offset="50%" stopColor="#10b981" stopOpacity={0.3} />
+                      <stop offset="100%" stopColor="#10b981" stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(146, 175, 173, 0.2)" />
@@ -423,10 +628,17 @@ export function MetricsTab({ appId }: MetricsTabProps) {
                   />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: "rgba(255, 255, 255, 0.9)",
+                      backgroundColor: "rgba(30, 41, 59, 0.9)",
                       backdropFilter: "blur(8px)",
-                      border: "1px solid rgba(255, 255, 255, 0.3)",
+                      WebkitBackdropFilter: "blur(8px)",
+                      border: "1px solid rgba(51, 65, 85, 0.5)",
                       borderRadius: "8px",
+                      fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
+                      color: "white",
+                    }}
+                    labelStyle={{
+                      fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
+                      color: "white",
                     }}
                   />
                   <Area
@@ -436,6 +648,7 @@ export function MetricsTab({ appId }: MetricsTabProps) {
                     strokeWidth={2}
                     fill="url(#cpuGradient)"
                     name="CPU %"
+                    style={{ border: 'none', outline: 'none' }}
                   />
                   <Area
                     type="monotone"
@@ -444,16 +657,17 @@ export function MetricsTab({ appId }: MetricsTabProps) {
                     strokeWidth={2}
                     fill="url(#memoryGradient)"
                     name="Memory %"
+                    style={{ border: 'none', outline: 'none' }}
                   />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
           </CardContent>
         </Card>
-      )}
+        )}
 
-      {/* Network Chart */}
-      {networkChartData.length > 0 && (
+        {/* Network Chart */}
+        {networkChartData.length > 0 && (
         <Card className="glass-card border-0 shadow-sage-glow">
           <CardHeader>
             <CardTitle className="text-charcoal">Network Throughput</CardTitle>
@@ -462,9 +676,9 @@ export function MetricsTab({ appId }: MetricsTabProps) {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="h-[240px]">
+            <div className="h-[240px] overflow-hidden">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={networkChartData}>
+                <AreaChart data={networkChartData} style={{ border: 'none', outline: 'none' }}>
                   <defs>
                     <linearGradient id="rxGradient" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.1} />
@@ -484,22 +698,39 @@ export function MetricsTab({ appId }: MetricsTabProps) {
                       backdropFilter: "blur(8px)",
                       border: "1px solid rgba(255, 255, 255, 0.3)",
                       borderRadius: "8px",
+                      fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
+                      color: "#E5E7EB",
+                    }}
+                    labelStyle={{
+                      fontFamily: "'JetBrains Mono', 'Fira Code', monospace",
+                      color: "#E5E7EB",
                     }}
                     formatter={(value: number) => `${value.toFixed(2)} KB/s`}
                   />
-                  <Area type="monotone" dataKey="rx" stroke="#8b5cf6" strokeWidth={2} fill="url(#rxGradient)" name="RX" />
-                  <Area type="monotone" dataKey="tx" stroke="#f97316" strokeWidth={2} fill="url(#txGradient)" name="TX" />
+                  <Area type="basis" dataKey="rx" stroke="#8b5cf6" strokeWidth={2} fill="url(#rxGradient)" name="RX" />
+                  <Area type="basis" dataKey="tx" stroke="#f97316" strokeWidth={2} fill="url(#txGradient)" name="TX" />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
           </CardContent>
         </Card>
+        )}
+      </div>
       )}
 
-      {/* Error State */}
+      {/* Connection Lost Overlay */}
       {error && (
-        <div className="glass-card p-4 border-amber-200/50">
-          <p className="text-sm text-amber-600">{error}</p>
+        <div className="connection-overlay glass-card p-8 rounded-lg text-center">
+          <WifiOff className="h-16 w-16 mx-auto mb-4 text-rose-400" strokeWidth={1.5} />
+          <p className="text-lg font-semibold text-charcoal mb-2">Mất kết nối</p>
+          <p className="text-sm text-charcoal/70 mb-4">{error}</p>
+          <Button
+            onClick={() => window.location.reload()}
+            className="bg-emerald-500 hover:bg-emerald-600 text-white animate-pulse"
+          >
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Thử kết nối lại
+          </Button>
         </div>
       )}
     </div>

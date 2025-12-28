@@ -21,6 +21,16 @@ import {
   Loader2,
   User,
 } from "lucide-react";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { 
+  Pagination, 
+  PaginationContent, 
+  PaginationItem, 
+  PaginationLink, 
+  PaginationNext, 
+  PaginationPrevious,
+  PaginationEllipsis 
+} from "@/components/ui/pagination";
 import DeploymentHistoryService from "@/services/deployment-history.service";
 import { DeploymentHistory, TriggerType, DeploymentStatus } from "@/types/deployment-history.type";
 import { formatDateDDMMYYYYHHMMSS } from "@/utils/date";
@@ -192,13 +202,11 @@ function TimelineNode({
   deployment,
   isFirst,
   isLast,
-  onRollback,
   onViewCommit,
 }: {
   deployment: DeploymentHistory;
   isFirst: boolean;
   isLast: boolean;
-  onRollback: () => void;
   onViewCommit: () => void;
 }) {
   const getStatusConfig = (status: DeploymentStatus) => {
@@ -225,99 +233,94 @@ function TimelineNode({
     return `${minutes}m ${remainingSeconds}s`;
   };
 
+  const getAvatarUrl = () => {
+    if (deployment.commitSha) {
+      return `https://api.dicebear.com/7.x/identicon/svg?seed=${deployment.commitSha}`;
+    }
+    return null;
+  };
+
   return (
     <motion.div
-      initial={{ opacity: 0, x: -20 }}
+      initial={{ opacity: 0, x: -30 }}
       animate={{ opacity: 1, x: 0 }}
-      className="relative flex gap-4"
+      transition={{ duration: 0.4, delay: 0.1 }}
+      className="relative flex gap-4 slide-in-delayed"
     >
-      {/* Timeline Line */}
+      {/* Vertical Timeline Line */}
       <div className="flex flex-col items-center">
-        {/* Node */}
-        <div className="timeline-node z-10">
-          <div className={`absolute inset-0 rounded-full ${statusConfig.bg} opacity-50`} />
+        {/* Timeline Node */}
+        <div className={`z-10 relative w-4 h-4 rounded-full ${
+          deployment.status === "SUCCESS" ? "timeline-node-success" : "timeline-node-failed"
+        } ${isFirst && deployment.status === "SUCCESS" ? "status-dot-ripple" : ""}`}>
+          {deployment.status === "FAILED" && (
+            <X className="absolute inset-0 m-auto h-2.5 w-2.5 text-white" strokeWidth={2.5} />
+          )}
         </div>
         
-        {/* Line */}
+        {/* Vertical Line */}
         {!isLast && (
-          <div className="w-0.5 flex-1 bg-gradient-to-b from-misty-sage/40 to-misty-sage/10 mt-2" />
+          <div className="w-0.5 flex-1 timeline-vertical-line mt-2" />
         )}
       </div>
 
-      {/* Content */}
+      {/* Timeline Connector Line */}
+      <div className="timeline-connector-line flex-shrink-0 mt-2" />
+
+      {/* Content Card */}
       <div className="flex-1 pb-8">
-        <div className="glass-card-light p-4 hover:bg-white/50 transition-all duration-200 group">
+        <div className={`glass-card-light p-4 hover:bg-white/50 transition-all duration-200 group magnify-on-click relative ${
+          isFirst ? "history-card-current" : deployment.status === "FAILED" ? "history-card-failed" : "history-card-success"
+        }`}>
           {/* Header */}
           <div className="flex items-start justify-between mb-3">
+            <div className="flex items-center gap-2 flex-1">
+              {/* Avatar + User Name */}
+              <Avatar className="h-6 w-6 ring-2 ring-emerald-400/50 ring-offset-1 ring-offset-white/60">
+                <AvatarImage src={getAvatarUrl() || undefined} alt="Commit author" />
+                <AvatarFallback className="bg-emerald-100 text-emerald-700 text-[10px]">
+                  <User className="h-3 w-3" />
+                </AvatarFallback>
+              </Avatar>
+              <span className="text-sm text-charcoal font-medium">
+                User đã deploy từ nhánh {deployment.branch || "main"}
+              </span>
+            </div>
+
+            {/* Status Badge and Live Badge */}
             <div className="flex items-center gap-2">
-              <StatusIcon
-                className={`h-4 w-4 ${statusConfig.color} ${statusConfig.spin ? "animate-spin" : ""}`}
-              />
+              {/* Status Badge */}
               <Badge
                 variant="secondary"
                 className={`
-                  ${deployment.status === "SUCCESS" ? "bg-emerald-100 text-emerald-700" : ""}
-                  ${deployment.status === "FAILED" ? "bg-rose-100 text-rose-700" : ""}
-                  ${deployment.status === "IN_PROGRESS" ? "bg-amber-100 text-amber-700" : ""}
-                  ${deployment.status === "PENDING" ? "bg-slate-100 text-slate-700" : ""}
+                  ${deployment.status === "SUCCESS" ? "bg-emerald-100/20 text-emerald-700" : ""}
+                  ${deployment.status === "FAILED" ? "bg-rose-100/20 text-rose-700" : ""}
+                  ${deployment.status === "IN_PROGRESS" ? "bg-amber-100/50 text-amber-700" : ""}
+                  ${deployment.status === "PENDING" ? "bg-slate-100/50 text-slate-700" : ""}
                 `}
               >
                 {translateStatus(deployment.status)}
               </Badge>
-              
-              <div className="flex items-center gap-1 text-xs text-charcoal/50">
-                {deployment.triggerType === "WEBHOOK" && <Webhook className="h-3 w-3" />}
-                {deployment.triggerType === "SCHEDULED" && <Timer className="h-3 w-3" />}
-                {deployment.triggerType === "MANUAL" && <MousePointerClick className="h-3 w-3" />}
-                <span>
-                  {deployment.triggerType === "MANUAL"
-                    ? "Thủ công"
-                    : deployment.triggerType === "WEBHOOK"
-                    ? "Webhook"
-                    : "Theo lịch"}
-                </span>
-              </div>
-            </div>
-
-            {/* Rollback Button */}
-            {deployment.status === "SUCCESS" && !isFirst && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onRollback}
-                className="opacity-0 group-hover:opacity-100 transition-opacity haptic-button text-amber-600 hover:text-amber-700 hover:bg-amber-50"
-              >
-                <RotateCcw className="h-3.5 w-3.5 mr-1" />
-                Khôi phục
-              </Button>
-            )}
-          </div>
-
-          {/* Commit Info */}
-          <div className="mb-2">
-            <button
-              onClick={onViewCommit}
-              className="text-sm text-charcoal font-medium hover:text-emerald-700 transition-colors text-left line-clamp-1"
-            >
-              {deployment.commitMessage || "Không có tin nhắn commit"}
-            </button>
-            <div className="flex items-center gap-3 mt-1 text-xs text-charcoal/50">
-              <span className="font-mono">
-                {deployment.commitSha?.substring(0, 7) || "N/A"}
-              </span>
-              {deployment.branch && (
-                <>
-                  <span>•</span>
-                  <span className="flex items-center gap-1">
-                    <GitBranch className="h-3 w-3" />
-                    {deployment.branch}
-                  </span>
-                </>
+              {/* Live Badge for Current Version */}
+              {isFirst && deployment.status === "SUCCESS" && (
+                <Badge className="bg-emerald-500 text-white animate-pulse text-xs">
+                  Live
+                </Badge>
               )}
             </div>
           </div>
 
-          {/* Meta */}
+          {/* Body - Commit Message */}
+          <div className="mb-3">
+            <button
+              onClick={onViewCommit}
+              className="text-sm italic text-charcoal/80 hover:text-emerald-700 transition-colors text-left line-clamp-2"
+            >
+              {deployment.commitMessage || "Không có tin nhắn commit"}
+            </button>
+          </div>
+
+          {/* Footer - Time & Duration */}
           <div className="flex items-center gap-4 text-xs text-charcoal/50">
             <span className="flex items-center gap-1">
               <Clock className="h-3 w-3" />
@@ -331,6 +334,9 @@ function TimelineNode({
                 {formatDuration(deployment.durationSeconds)}
               </span>
             )}
+            <span className="font-mono text-charcoal/40">
+              {deployment.commitSha?.substring(0, 7) || "N/A"}
+            </span>
           </div>
         </div>
       </div>
@@ -345,6 +351,8 @@ export function HistoryTab({ appId, onRollback }: HistoryTabProps) {
   const [rollbackTarget, setRollbackTarget] = useState<DeploymentHistory | null>(null);
   const [isRollingBack, setIsRollingBack] = useState(false);
   const [commitPopup, setCommitPopup] = useState<DeploymentHistory | null>(null);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [pageSize] = useState(10);
 
   const fetchHistory = useCallback(async () => {
     try {
@@ -353,7 +361,6 @@ export function HistoryTab({ appId, onRollback }: HistoryTabProps) {
       const data = await DeploymentHistoryService.getDeploymentHistory(appId);
       setHistory(data);
     } catch (err) {
-      console.error("Error fetching deployment history:", err);
       setError("Không thể tải lịch sử triển khai");
     } finally {
       setIsLoading(false);
@@ -372,13 +379,21 @@ export function HistoryTab({ appId, onRollback }: HistoryTabProps) {
       // Call rollback API here
       onRollback?.(rollbackTarget.id);
       setRollbackTarget(null);
-      // Refresh history after rollback
       await fetchHistory();
     } catch (err) {
-      console.error("Rollback failed:", err);
+      // Ignore error
     } finally {
       setIsRollingBack(false);
     }
+  };
+
+  const totalPages = Math.ceil(history.length / pageSize);
+  const startIndex = currentPage * pageSize;
+  const endIndex = startIndex + pageSize;
+  const paginatedHistory = history.slice(startIndex, endIndex);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
   };
 
   if (isLoading) {
@@ -441,6 +456,11 @@ export function HistoryTab({ appId, onRollback }: HistoryTabProps) {
               </CardTitle>
               <CardDescription className="text-charcoal/60">
                 {history.length > 0 ? `${history.length} lần triển khai` : "Chưa có lịch sử"}
+                {history.length > 0 && (
+                  <span className="ml-2">
+                    (Hiển thị {startIndex + 1}-{Math.min(endIndex, history.length)} / {history.length})
+                  </span>
+                )}
               </CardDescription>
             </div>
             <Button
@@ -462,18 +482,95 @@ export function HistoryTab({ appId, onRollback }: HistoryTabProps) {
               <p className="text-sm mt-2">Các lần triển khai sẽ được hiển thị tại đây</p>
             </div>
           ) : (
-            <div className="relative">
-              {history.map((deployment, index) => (
-                <TimelineNode
-                  key={deployment.id}
-                  deployment={deployment}
-                  isFirst={index === 0}
-                  isLast={index === history.length - 1}
-                  onRollback={() => setRollbackTarget(deployment)}
-                  onViewCommit={() => setCommitPopup(deployment)}
-                />
-              ))}
-            </div>
+            <>
+              <div className="relative">
+                {paginatedHistory.map((deployment, index) => (
+                  <motion.div
+                    key={deployment.id}
+                    initial={{ opacity: 0, x: -30 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.4, delay: index * 0.1 }}
+                  >
+                    <TimelineNode
+                      deployment={deployment}
+                      isFirst={index === 0 && currentPage === 0}
+                      isLast={index === paginatedHistory.length - 1}
+                      onViewCommit={() => setCommitPopup(deployment)}
+                    />
+                  </motion.div>
+                ))}
+              </div>
+              
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="mt-6 flex justify-center">
+                  <Pagination>
+                    <PaginationContent>
+                      <PaginationItem>
+                        <PaginationPrevious 
+                          href="#"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            if (currentPage > 0) {
+                              handlePageChange(currentPage - 1);
+                            }
+                          }}
+                          className={currentPage === 0 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                        />
+                      </PaginationItem>
+                      
+                      {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                        let pageNumber;
+                        if (totalPages <= 5) {
+                          pageNumber = i;
+                        } else if (currentPage <= 2) {
+                          pageNumber = i;
+                        } else if (currentPage >= totalPages - 3) {
+                          pageNumber = totalPages - 5 + i;
+                        } else {
+                          pageNumber = currentPage - 2 + i;
+                        }
+
+                        return (
+                          <PaginationItem key={pageNumber}>
+                            <PaginationLink
+                              href="#"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                handlePageChange(pageNumber);
+                              }}
+                              isActive={pageNumber === currentPage}
+                              className="cursor-pointer"
+                            >
+                              {pageNumber + 1}
+                            </PaginationLink>
+                          </PaginationItem>
+                        );
+                      })}
+
+                      {totalPages > 5 && currentPage < totalPages - 3 && (
+                        <PaginationItem>
+                          <PaginationEllipsis />
+                        </PaginationItem>
+                      )}
+
+                      <PaginationItem>
+                        <PaginationNext 
+                          href="#"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            if (currentPage < totalPages - 1) {
+                              handlePageChange(currentPage + 1);
+                            }
+                          }}
+                          className={currentPage >= totalPages - 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                        />
+                      </PaginationItem>
+                    </PaginationContent>
+                  </Pagination>
+                </div>
+              )}
+            </>
           )}
         </CardContent>
       </Card>

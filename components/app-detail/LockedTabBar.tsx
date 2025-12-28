@@ -96,7 +96,7 @@ export function LockedTabBar({
       </AnimatePresence>
 
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-        <TabsList className="grid w-full grid-cols-5 glass-card p-1.5 gap-1">
+        <TabsList className="flex w-full glass-card p-2 justify-between gap-2">
           {TABS.map((tab, index) => {
             const Icon = tab.icon;
             const isLocked = tabsLocked && tab.lockedWhenDeploying;
@@ -114,16 +114,16 @@ export function LockedTabBar({
                   duration: 0.4,
                   delay: unlocking ? index * 0.1 : 0,
                 }}
-                className={isLocked ? "tab-locked" : unlocking && tab.lockedWhenDeploying ? "tab-unlocked" : ""}
+                className={`flex-1 ${isLocked ? "tab-locked" : unlocking && tab.lockedWhenDeploying ? "tab-unlocked" : ""}`}
               >
                 <TabsTrigger
                   value={tab.id}
                   disabled={isLocked}
                   className={`
-                    flex items-center gap-2 px-3 py-2.5 rounded-lg
+                    flex items-center justify-center gap-2 px-6 py-3 rounded-lg whitespace-nowrap w-full
                     text-sm font-medium transition-all duration-300
                     ${isActive
-                      ? "bg-white/80 text-charcoal shadow-sm"
+                      ? "inner-glow-active text-charcoal shadow-sm"
                       : "text-charcoal/60 hover:text-charcoal hover:bg-white/40"
                     }
                     ${isLocked
@@ -133,7 +133,7 @@ export function LockedTabBar({
                     haptic-button
                   `}
                 >
-                  <Icon className="h-4 w-4" strokeWidth={1.5} />
+                  <Icon className="h-4 w-4 flex-shrink-0" strokeWidth={1.5} />
                   <span className="hidden md:inline">{tab.label}</span>
                 </TabsTrigger>
               </motion.div>
@@ -160,4 +160,3 @@ export function LockedTabBar({
     </div>
   );
 }
-
