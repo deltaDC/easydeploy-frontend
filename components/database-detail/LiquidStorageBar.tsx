@@ -3,10 +3,16 @@
 import { motion } from "framer-motion";
 
 interface LiquidStorageBarProps {
-  used: number; // in GB
-  total: number; // in GB
+  used: number; // in GB (for backward compatibility)
+  total: number; // in GB (for backward compatibility)
   showLabel?: boolean;
   height?: number;
+  // Optional: disk usage from metrics (takes priority if provided)
+  diskUsageBytes?: number; // in bytes
+  diskTotalBytes?: number; // in bytes
+  // Optional: database size for comparison
+  databaseSizeBytes?: number; // in bytes
+  storageGb?: number; // total storage allocated in GB
 }
 
 export function LiquidStorageBar({
@@ -14,8 +20,40 @@ export function LiquidStorageBar({
   total,
   showLabel = true,
   height = 8,
+  diskUsageBytes,
+  diskTotalBytes,
+  databaseSizeBytes,
+  storageGb,
 }: LiquidStorageBarProps) {
-  const percentage = Math.min((used / total) * 100, 100);
+  // Prioritize disk usage from metrics if available
+  let actualUsed: number;
+  let actualTotal: number;
+  let dataUsed: number | undefined;
+  let dataTotal: number | undefined;
+  
+  if (diskUsageBytes !== undefined && diskTotalBytes !== undefined && diskTotalBytes > 0) {
+    // Use disk usage from container filesystem
+    actualUsed = diskUsageBytes / (1024 * 1024 * 1024); // Convert bytes to GB
+    actualTotal = diskTotalBytes / (1024 * 1024 * 1024);
+    
+    // Also calculate data size if available
+    if (databaseSizeBytes !== undefined) {
+      dataUsed = databaseSizeBytes / (1024 * 1024 * 1024);
+      dataTotal = storageGb;
+    }
+  } else {
+    // Fallback to provided used/total (backward compatibility)
+    actualUsed = used;
+    actualTotal = total;
+    
+    // If databaseSizeBytes is available, show it as data usage
+    if (databaseSizeBytes !== undefined && storageGb !== undefined) {
+      dataUsed = databaseSizeBytes / (1024 * 1024 * 1024);
+      dataTotal = storageGb;
+    }
+  }
+  
+  const percentage = Math.min((actualUsed / actualTotal) * 100, 100);
   const isHigh = percentage > 80;
   const isMedium = percentage > 60 && percentage <= 80;
 
@@ -30,33 +68,54 @@ export function LiquidStorageBar({
 
   return (
     <div className="w-full">
-      {/* Glass tube container */}
+      {/* Glass tube container - horizontal test tube style */}
       <div
         className="relative w-full rounded-full overflow-hidden"
         style={{
           height: `${height}px`,
-          background: "rgba(255, 255, 255, 0.2)",
-          backdropFilter: "blur(8px)",
-          border: "1px solid rgba(255, 255, 255, 0.3)",
-          boxShadow: "inset 0 2px 4px rgba(0, 0, 0, 0.1)",
+          background: "rgba(255, 255, 255, 0.25)",
+          backdropFilter: "blur(10px)",
+          border: "2px solid rgba(255, 255, 255, 0.4)",
+          boxShadow: "inset 0 2px 8px rgba(0, 0, 0, 0.15), 0 0 20px rgba(146, 175, 173, 0.1)",
+          borderRadius: height > 10 ? "999px" : "4px", // More rounded for taller tubes
         }}
       >
-        {/* Liquid fill */}
+        {/* Liquid fill - Neon liquid with wave animation */}
         <motion.div
-          className="absolute inset-y-0 left-0 rounded-full"
+          className="absolute inset-y-0 left-0 rounded-full overflow-hidden"
           initial={{ width: 0 }}
           animate={{ width: `${percentage}%` }}
           transition={{ duration: 1, ease: "easeOut" }}
           style={{
-            background: `linear-gradient(90deg, ${colors.primary}CC, ${colors.primary})`,
-            boxShadow: `0 0 10px ${colors.glow}`,
+            background: `linear-gradient(90deg, ${colors.primary}DD, ${colors.primary}FF, ${colors.primary}DD)`,
+            boxShadow: `0 0 20px ${colors.glow}, inset 0 0 10px ${colors.primary}80`,
+            filter: "blur(0.5px)", // Slight blur for liquid effect
           }}
         >
-          {/* Animated wave effect */}
+          {/* Wave surface animation - simulates liquid surface */}
+          <motion.div
+            className="absolute top-0 left-0 right-0"
+            style={{
+              height: "40%",
+              background: `linear-gradient(180deg, rgba(255,255,255,0.4) 0%, transparent 100%)`,
+              borderRadius: "50% 50% 0 0 / 100% 100% 0 0",
+            }}
+            animate={{
+              y: [0, -2, 0],
+              scaleX: [1, 1.02, 1],
+            }}
+            transition={{
+              duration: 2.5,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          />
+          
+          {/* Animated wave effect - light reflection */}
           <motion.div
             className="absolute inset-0 rounded-full"
             style={{
-              background: `linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%)`,
+              background: `linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%)`,
               backgroundSize: "200% 100%",
             }}
             animate={{
@@ -110,9 +169,17 @@ export function LiquidStorageBar({
 
       {/* Label */}
       {showLabel && (
-        <div className="flex justify-between mt-1.5 text-xs text-charcoal/60">
-          <span>{used.toFixed(1)} GB used</span>
-          <span>{total} GB total</span>
+        <div className="space-y-1 mt-1.5">
+          <div className="flex justify-between text-xs text-charcoal/60">
+            <span>Disk: {actualUsed.toFixed(2)} GB</span>
+            <span>{actualTotal.toFixed(2)} GB</span>
+          </div>
+          {dataUsed !== undefined && dataTotal !== undefined && (
+            <div className="flex justify-between text-xs text-charcoal/40">
+              <span>Dữ liệu: {dataUsed.toFixed(2)} GB</span>
+              <span>{dataTotal} GB</span>
+            </div>
+          )}
         </div>
       )}
     </div>

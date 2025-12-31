@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
+import { motion } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -268,32 +269,46 @@ export function TableBrowser({ databaseId }: TableBrowserProps) {
                     <Loader2 className="h-6 w-6 animate-spin" />
                   </div>
                 ) : tableData && tableData.rows.length > 0 ? (
-                  <div className="overflow-auto max-h-[400px]">
+                  <div className="overflow-auto max-h-[400px] rounded-xl">
                     <table className="w-full border-collapse text-sm">
-                      <thead className="sticky top-0 bg-muted">
+                      {/* Sticky header with glass background */}
+                      <thead className="sticky top-0 z-10">
                         <tr>
-                          {tableData.columns.map((column) => (
-                            <th
+                          {tableData.columns.map((column, colIndex) => (
+                            <motion.th
                               key={column}
-                              className="border border-border px-4 py-2 text-left font-semibold"
+                              initial={{ opacity: 0, y: -10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: colIndex * 0.05 }}
+                              className="px-4 py-3 text-left font-semibold text-charcoal border-b border-charcoal/20"
+                              style={{
+                                background: "rgba(255, 255, 255, 0.6)",
+                                backdropFilter: "blur(10px)",
+                              }}
                             >
                               {column}
-                            </th>
+                            </motion.th>
                           ))}
                         </tr>
                       </thead>
                       <tbody>
                         {tableData.rows.map((row, rowIndex) => (
-                          <tr key={rowIndex} className="hover:bg-muted/50">
+                          <motion.tr
+                            key={rowIndex}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: rowIndex * 0.03 }}
+                            className="hover:bg-white/30 border-b border-charcoal/10"
+                          >
                             {tableData.columns.map((column) => (
                               <td
                                 key={`${rowIndex}-${column}`}
-                                className="border border-border px-4 py-2"
+                                className="px-4 py-3 text-charcoal/80"
                               >
                                 {row[column] === null ? (
-                                  <span className="text-muted-foreground italic">NULL</span>
+                                  <span className="text-charcoal/40 italic">NULL</span>
                                 ) : typeof row[column] === "object" ? (
-                                  <span className="font-mono text-xs">
+                                  <span className="font-mono text-xs text-charcoal/60">
                                     {JSON.stringify(row[column])}
                                   </span>
                                 ) : (
@@ -301,7 +316,7 @@ export function TableBrowser({ databaseId }: TableBrowserProps) {
                                 )}
                               </td>
                             ))}
-                          </tr>
+                          </motion.tr>
                         ))}
                       </tbody>
                     </table>

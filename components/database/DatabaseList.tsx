@@ -9,6 +9,9 @@ import DatabaseService from "@/services/database.service";
 import { Button } from "@/components/ui/button";
 import {
   DatabaseGlassCard,
+  CrystalCard,
+  MistyBackground,
+  StatusRipple,
   DatabaseTypeIcon,
   DB_TYPE_COLORS,
 } from "@/components/database-detail";
@@ -234,7 +237,8 @@ export default function DatabaseList() {
   ];
 
   return (
-    <div className="space-y-6">
+    <MistyBackground>
+      <div className="space-y-6">
       {/* Header with filters */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
@@ -259,9 +263,10 @@ export default function DatabaseList() {
         <Link href="/databases/new">
           <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
             <Button
-              className="gap-2 rounded-xl px-6 shadow-sage-glow"
+              className="gap-2 rounded-xl px-6 text-white"
               style={{
-                background: "linear-gradient(135deg, #92AFAD, #7A9694)",
+                background: "linear-gradient(135deg, #22C55E, #16A34A)",
+                boxShadow: "0 4px 15px rgba(34, 197, 94, 0.4)",
               }}
             >
               <Plus className="w-4 h-4" strokeWidth={1.5} />
@@ -293,7 +298,7 @@ export default function DatabaseList() {
         >
           <AnimatePresence mode="popLayout">
             {filteredDatabases.map((database, index) => (
-              <DatabaseGlassCard
+              <CrystalCard
                 key={database.id}
                 database={database}
                 index={index}
@@ -302,6 +307,7 @@ export default function DatabaseList() {
           </AnimatePresence>
         </motion.div>
       )}
-    </div>
+      </div>
+    </MistyBackground>
   );
 }

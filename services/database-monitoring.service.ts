@@ -56,6 +56,11 @@ export interface DatabaseMetrics {
   numberOfIndexes: number;
   storageUsagePercent: number;
   
+  // Disk Usage (from container filesystem)
+  diskUsageBytes?: number;      // Dung lượng disk đã sử dụng (bytes)
+  diskTotalBytes?: number;       // Dung lượng disk tổng (bytes)
+  diskUsagePercent?: number;     // Phần trăm sử dụng disk
+  
   // Health Metrics
   uptimeSeconds: number;
   lastHealthCheck: string;

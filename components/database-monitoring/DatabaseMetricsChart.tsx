@@ -1,10 +1,12 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
+import { motion } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import { Activity, Database, Zap, HardDrive, Network } from "lucide-react";
 import DatabaseMonitoringService, { DatabaseMetrics } from "@/services/database-monitoring.service";
+import { LiquidGauge } from "@/components/database-detail/LiquidGauge";
 
 interface DatabaseMetricsChartProps {
   databaseId: string;
@@ -146,8 +148,8 @@ export function DatabaseMetricsChart({ databaseId }: DatabaseMetricsChartProps) 
         )}
       </div>
 
-      {/* Key Metrics Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      {/* Bento Grid Layout - Different sized boxes */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="pb-3">
             <CardDescription className="flex items-center gap-2">
@@ -160,16 +162,22 @@ export function DatabaseMetricsChart({ databaseId }: DatabaseMetricsChartProps) 
           </CardContent>
         </Card>
 
-        <Card>
+        {/* Memory with Liquid Gauge - Larger box */}
+        <Card className="md:col-span-2 lg:col-span-1">
           <CardHeader className="pb-3">
             <CardDescription className="flex items-center gap-2">
               <Database className="h-4 w-4" />
               Memory
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{metrics.memoryUsagePercent?.toFixed(1) || 0}%</div>
-            <p className="text-xs text-muted-foreground mt-1">
+          <CardContent className="flex flex-col items-center">
+            <LiquidGauge
+              value={metrics.memoryUsagePercent || 0}
+              label="Memory"
+              size="md"
+              color="#3b82f6"
+            />
+            <p className="text-xs text-muted-foreground mt-2 text-center">
               {formatBytes(metrics.memoryUsage)} / {formatBytes(metrics.memoryLimit)}
             </p>
           </CardContent>
@@ -190,17 +198,23 @@ export function DatabaseMetricsChart({ databaseId }: DatabaseMetricsChartProps) 
           </CardContent>
         </Card>
 
-        <Card>
+        {/* Storage with Liquid Gauge - Larger box */}
+        <Card className="md:col-span-2 lg:col-span-1">
           <CardHeader className="pb-3">
             <CardDescription className="flex items-center gap-2">
               <HardDrive className="h-4 w-4" />
               Storage
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{metrics.storageUsagePercent?.toFixed(1) || 0}%</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              {formatBytes(metrics.databaseSizeBytes)}
+          <CardContent className="flex flex-col items-center">
+            <LiquidGauge
+              value={metrics.diskUsagePercent || metrics.storageUsagePercent || 0}
+              label="Storage"
+              size="md"
+              color="#10b981"
+            />
+            <p className="text-xs text-muted-foreground mt-2 text-center">
+              {formatBytes(metrics.diskUsageBytes || metrics.databaseSizeBytes || 0)}
             </p>
           </CardContent>
         </Card>
@@ -256,13 +270,47 @@ export function DatabaseMetricsChart({ databaseId }: DatabaseMetricsChartProps) 
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
                 <AreaChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="time" />
-                  <YAxis />
-                  <Tooltip />
+                  <defs>
+                    {/* Gradient for CPU */}
+                    <linearGradient id="cpuGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#8b5cf6" stopOpacity={0.8} />
+                      <stop offset="100%" stopColor="#8b5cf6" stopOpacity={0} />
+                    </linearGradient>
+                    {/* Gradient for Memory */}
+                    <linearGradient id="memoryGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.8} />
+                      <stop offset="100%" stopColor="#3b82f6" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                  <XAxis dataKey="time" stroke="rgba(255,255,255,0.5)" />
+                  <YAxis stroke="rgba(255,255,255,0.5)" />
+                  <Tooltip
+                    contentStyle={{
+                      background: "rgba(15, 23, 42, 0.95)",
+                      border: "1px solid rgba(255, 255, 255, 0.2)",
+                      borderRadius: "8px",
+                      color: "#fff",
+                    }}
+                    cursor={{ stroke: "rgba(236, 72, 153, 0.5)", strokeWidth: 2 }}
+                  />
                   <Legend />
-                  <Area type="monotone" dataKey="cpu" stroke="#8b5cf6" fill="#8b5cf6" fillOpacity={0.3} name="CPU %" />
-                  <Area type="monotone" dataKey="memory" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.3} name="Memory %" />
+                  <Area 
+                    type="monotone" 
+                    dataKey="cpu" 
+                    stroke="#8b5cf6" 
+                    fill="url(#cpuGradient)" 
+                    strokeWidth={2}
+                    name="CPU %" 
+                  />
+                  <Area 
+                    type="monotone" 
+                    dataKey="memory" 
+                    stroke="#3b82f6" 
+                    fill="url(#memoryGradient)" 
+                    strokeWidth={2}
+                    name="Memory %" 
+                  />
                 </AreaChart>
               </ResponsiveContainer>
             </CardContent>
