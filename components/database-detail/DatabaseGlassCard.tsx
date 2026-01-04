@@ -5,7 +5,6 @@ import Link from "next/link";
 import { Database, DatabaseStatus, DatabaseType } from "@/types/database.type";
 import { DatabaseTypeIcon } from "./DatabaseTypeIcon";
 import { StatusPulse } from "./StatusPulse";
-import { LiquidStorageBar } from "./LiquidStorageBar";
 import { DB_TYPE_COLORS } from "./types";
 import { formatDateDDMMYYYYHHMMSS } from "@/utils/date";
 
@@ -26,10 +25,6 @@ export function DatabaseGlassCard({ database, index = 0 }: DatabaseGlassCardProp
     };
     return labels[type];
   };
-
-  // Simulate storage usage (in real app, this would come from backend)
-  const storageUsed = (database.storageGb || 1) * 0.3; // 30% used for demo
-  const storageTotal = database.storageGb || 1;
 
   return (
     <Link href={`/databases/${database.id}`}>
@@ -76,15 +71,6 @@ export function DatabaseGlassCard({ database, index = 0 }: DatabaseGlassCardProp
               </div>
             </div>
             <StatusPulse status={database.status} size="sm" showLabel={false} />
-          </div>
-
-          {/* Storage bar */}
-          <div className="mb-4">
-            <LiquidStorageBar
-              used={storageUsed}
-              total={storageTotal}
-              height={6}
-            />
           </div>
 
           {/* Info row */}

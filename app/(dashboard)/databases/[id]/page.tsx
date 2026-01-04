@@ -50,14 +50,16 @@ function TabButton({
       `}
       style={{
         background: isActive
-          ? "rgba(255, 255, 255, 0.6)"
+          ? "rgba(255, 255, 255, 0.5)"
           : "rgba(255, 255, 255, 0.2)",
         backdropFilter: "blur(10px)",
         border: isActive
           ? "1px solid rgba(146, 175, 173, 0.4)"
           : "1px solid rgba(255, 255, 255, 0.2)",
         color: isActive ? "#4A6163" : "#64748B",
-        boxShadow: isActive ? "0 4px 15px rgba(146, 175, 173, 0.2)" : "none",
+        boxShadow: isActive 
+          ? "inset 0 0 20px rgba(255, 255, 255, 0.3), 0 4px 15px rgba(146, 175, 173, 0.2)" 
+          : "none",
       }}
     >
       <Icon className="w-4 h-4" strokeWidth={1.5} />

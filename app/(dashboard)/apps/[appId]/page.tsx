@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { TabsContent } from "@/components/ui/tabs";
 import { Activity, Terminal } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import ApplicationService from "@/services/application.service";
 import BuildLogService from "@/services/build-log.service";
 import AppMonitoringService from "@/services/app-monitoring.service";
@@ -162,31 +163,27 @@ export default function ApplicationDetailPage() {
           const response = await ApplicationService.getApplication(appId);
           setApplication(response);
           
-          // Update container status if deployment completed
           if (detectedStatus === "success") {
             try {
               const metrics = await AppMonitoringService.getAppMetrics(appId);
               setContainerStatus(metrics.status);
             } catch (err) {
-              console.error("Error fetching container status:", err);
+              // Ignore error
             }
           }
         } catch (error) {
-          console.error("Error refetching application after status detection:", error);
+          // Ignore error
         }
       }
     },
   });
 
-  // Combine historical and realtime logs
   const allLogs = useMemo(() => {
     const combined = [...historicalLogs, ...realtimeLogs];
-    // Remove duplicates by timestamp + message
     const unique = combined.filter(
       (log, index, self) =>
         index === self.findIndex((l) => l.timestamp === log.timestamp && l.message === log.message)
     );
-    // Sort by timestamp
     return unique.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
   }, [historicalLogs, realtimeLogs]);
 
@@ -207,7 +204,7 @@ export default function ApplicationDetailPage() {
         }));
         setHistoricalLogs(convertedLogs);
       } catch (error) {
-        console.error("Error fetching build logs:", error);
+        // Ignore error
       } finally {
         setIsLoadingLogs(false);
       }
@@ -227,24 +224,22 @@ export default function ApplicationDetailPage() {
 
         const isCurrentlyDeploying = isDeployingStatus(response.status);
         
-        // Set default tab based on status
         if (isCurrentlyDeploying) {
           setActiveTab("build-logs");
         }
 
-        // Fetch container status if not deploying
         if (!isCurrentlyDeploying) {
           try {
             const metrics = await AppMonitoringService.getAppMetrics(appId);
             setContainerStatus(metrics.status);
           } catch (err) {
-            console.error("Error fetching container status:", err);
+            // Ignore error
           }
         } else {
           setContainerStatus("deploying");
         }
       } catch (error) {
-        console.error("Error fetching application:", error);
+        // Ignore error
       } finally {
         setIsLoading(false);
       }
@@ -253,16 +248,13 @@ export default function ApplicationDetailPage() {
     fetchApplication();
   }, [appId]);
 
-  // Handle tab change
   const handleTabChange = (tab: string) => {
-    // If deploying and trying to switch to a locked tab, stay on build-logs
     if (isDeploying && tab !== "build-logs") {
       return;
     }
     setActiveTab(tab);
   };
 
-  // Handle delete
   const handleDeleteApp = async () => {
     if (!appId) return;
 
@@ -271,7 +263,6 @@ export default function ApplicationDetailPage() {
       await ApplicationService.deleteApplication(appId);
       router.push("/apps");
     } catch (error) {
-      console.error("Error deleting application:", error);
       alert("Không thể xóa ứng dụng. Vui lòng thử lại.");
     } finally {
       setIsDeleting(false);
@@ -279,7 +270,6 @@ export default function ApplicationDetailPage() {
     }
   };
 
-  // Refresh container status after actions
   const handleActionComplete = async () => {
     if (!appId) return;
     
@@ -292,22 +282,66 @@ export default function ApplicationDetailPage() {
           const metrics = await AppMonitoringService.getAppMetrics(appId);
           setContainerStatus(metrics.status);
         } catch (err) {
-          console.error("Error refreshing container status:", err);
+          // Ignore error
         }
       }, 2000);
     } catch (err) {
-      console.error("Error refreshing application:", err);
+      // Ignore error
     }
   };
 
-  // Loading state
+  // Loading state with skeleton
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-center">
-          <div className="glass-shimmer w-32 h-32 rounded-full mx-auto mb-4" />
-          <p className="text-charcoal/60">Đang tải chi tiết ứng dụng...</p>
-        </div>
+      <div className="space-y-6">
+        {/* Header Skeleton */}
+        <Card className="glass-card border-0 shadow-sage-glow">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <Skeleton className="h-8 w-8 rounded" />
+                <div>
+                  <Skeleton className="h-7 w-48 mb-2" />
+                  <Skeleton className="h-4 w-64" />
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Skeleton className="h-9 w-24 rounded-full" />
+                <Skeleton className="h-9 w-24 rounded-full" />
+              </div>
+            </div>
+          </CardHeader>
+        </Card>
+
+        {/* Tab Bar Skeleton */}
+        <Card className="glass-card border-0">
+          <CardContent className="pt-6">
+            <div className="flex gap-2">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Skeleton key={i} className="h-10 w-32 rounded-lg" />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Content Skeleton */}
+        <Card className="glass-card border-0 shadow-sage-glow">
+          <CardHeader>
+            <Skeleton className="h-6 w-48 mb-4" />
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <Skeleton key={i} className="h-16 w-full rounded-full" />
+              ))}
+            </div>
+            <div className="mt-6 grid grid-cols-2 gap-4">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <Skeleton key={i} className="h-20 w-full rounded-lg" />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -324,7 +358,7 @@ export default function ApplicationDetailPage() {
         </p>
         <Button
           onClick={() => router.push("/apps")}
-          className="glass-card-light haptic-button"
+          className="glass-card-light haptic-button bg-white/50 hover:bg-white/70 text-charcoal border border-white/30 hover:border-white/50 shadow-sage-glow"
         >
           Quay lại danh sách ứng dụng
         </Button>
@@ -453,8 +487,7 @@ export default function ApplicationDetailPage() {
               <HistoryTab
                 appId={appId}
                 onRollback={(deploymentId) => {
-                  console.log("Rollback to:", deploymentId);
-                  // Implement rollback logic here
+                  // Rollback logic handled in HistoryTab
                 }}
               />
             </motion.div>

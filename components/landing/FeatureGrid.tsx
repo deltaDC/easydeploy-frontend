@@ -1,7 +1,7 @@
 "use client";
 
 import { FeatureCard } from "./FeatureCard";
-import { Zap, Container, Monitor, Users, Github, Shield } from "lucide-react";
+import { Zap, Container, Monitor, Users, Github } from "lucide-react";
 
 const features = [
 	{
@@ -28,11 +28,6 @@ const features = [
 		icon: Github,
 		title: "Tích hợp GitHub",
 		description: "Kết nối GitHub trong 1 phút. Tự động redeploy khi có commit mới.",
-	},
-	{
-		icon: Shield,
-		title: "Bảo mật cao",
-		description: "Môi trường cách ly, SSL tự động, và quản lý secrets an toàn.",
 	},
 ];
 

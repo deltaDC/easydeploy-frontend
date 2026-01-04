@@ -31,13 +31,14 @@ export function StatusPulse({ status, showLabel = true, size = "md" }: StatusPul
             className={`absolute inset-0 rounded-full`}
             style={{ backgroundColor: styles.color }}
             animate={{
-              scale: [1, 2, 2],
+              scale: [1, 2, 1],
               opacity: [0.6, 0, 0],
             }}
             transition={{
               duration: 2,
               repeat: Infinity,
-              ease: "easeOut",
+              ease: [0.4, 0, 0.2, 1],
+              times: [0, 0.8, 1],
             }}
           />
         )}

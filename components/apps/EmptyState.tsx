@@ -10,7 +10,7 @@ export function EmptyState() {
 		<Card className="bg-white/60 backdrop-blur-xl border-0 rounded-3xl shadow-inner-glow-soft relative overflow-hidden">
 			<CardContent className="pt-12 pb-12 px-8">
 				<div className="flex flex-col items-center justify-center text-center space-y-6">
-					{/* Sprouting Plant Illustration */}
+					{/* Elegant Line Art Illustration */}
 					<motion.div
 						initial={{ opacity: 0, scale: 0.8 }}
 						animate={{ opacity: 1, scale: 1 }}
@@ -22,88 +22,86 @@ export function EmptyState() {
 							className="w-full h-full"
 							xmlns="http://www.w3.org/2000/svg"
 						>
-							{/* Misty background circles */}
-							<circle cx="50" cy="50" r="30" fill="#B9C9D6" opacity="0.2" />
-							<circle cx="150" cy="80" r="25" fill="#92AFAD" opacity="0.15" />
-							<circle cx="100" cy="120" r="20" fill="#EAEAEA" opacity="0.2" />
+							<defs>
+								<linearGradient id="lineArtGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+									<stop offset="0%" stopColor="#92AFAD" stopOpacity="0.4" />
+									<stop offset="50%" stopColor="#A7F3D0" stopOpacity="0.6" />
+									<stop offset="100%" stopColor="#92AFAD" stopOpacity="0.3" />
+								</linearGradient>
+								<linearGradient id="mistGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+									<stop offset="0%" stopColor="#B9C9D6" stopOpacity="0.1" />
+									<stop offset="100%" stopColor="#92AFAD" stopOpacity="0.05" />
+								</linearGradient>
+							</defs>
 							
-							{/* Ground/Soil */}
-							<ellipse cx="100" cy="170" rx="80" ry="20" fill="#92AFAD" opacity="0.3" />
+							{/* Misty background orbs - very subtle */}
+							<circle cx="50" cy="50" r="35" fill="url(#mistGradient)" />
+							<circle cx="150" cy="80" r="30" fill="url(#mistGradient)" />
+							<circle cx="100" cy="140" r="25" fill="url(#mistGradient)" />
 							
-							{/* Sprouting stem */}
+							{/* Elegant curved stem - thin line art */}
 							<motion.path
-								d="M 100 170 Q 95 140 100 110 Q 105 80 100 50"
-								stroke="#92AFAD"
-								strokeWidth="3"
+								d="M 100 180 Q 95 140 100 100 Q 105 60 100 30"
+								stroke="url(#lineArtGradient)"
+								strokeWidth="1.5"
 								fill="none"
 								strokeLinecap="round"
-								initial={{ pathLength: 0 }}
-								animate={{ pathLength: 1 }}
+								strokeLinejoin="round"
+								initial={{ pathLength: 0, opacity: 0.5 }}
+								animate={{ pathLength: 1, opacity: 0.7 }}
 								transition={{ duration: 1.5, delay: 0.3 }}
 							/>
 							
-							{/* Leaves */}
+							{/* Minimalist leaves - line art style */}
 							<motion.g
-								initial={{ opacity: 0, scale: 0 }}
-								animate={{ opacity: 1, scale: 1 }}
-								transition={{ duration: 0.5, delay: 1 }}
+								initial={{ opacity: 0 }}
+								animate={{ opacity: 0.6 }}
+								transition={{ duration: 0.8, delay: 1 }}
 							>
-								{/* Left leaf */}
+								{/* Left leaf - curved line */}
 								<path
-									d="M 100 50 Q 80 45 75 60 Q 80 55 85 65 Q 90 60 100 50"
-									fill="#A7F3D0"
-									opacity="0.6"
-									stroke="#92AFAD"
-									strokeWidth="1.5"
+									d="M 100 30 Q 75 25 70 50 Q 80 40 90 45 Q 95 35 100 30"
+									stroke="url(#lineArtGradient)"
+									strokeWidth="1"
+									fill="none"
+									strokeLinecap="round"
 								/>
-								{/* Right leaf */}
+								{/* Right leaf - curved line */}
 								<path
-									d="M 100 50 Q 120 45 125 60 Q 120 55 115 65 Q 110 60 100 50"
-									fill="#A7F3D0"
-									opacity="0.6"
-									stroke="#92AFAD"
-									strokeWidth="1.5"
+									d="M 100 30 Q 125 25 130 50 Q 120 40 110 45 Q 105 35 100 30"
+									stroke="url(#lineArtGradient)"
+									strokeWidth="1"
+									fill="none"
+									strokeLinecap="round"
 								/>
-								{/* Top leaf */}
+								{/* Top leaf - minimal curve */}
 								<path
-									d="M 100 50 Q 100 35 95 30 Q 100 32 105 30 Q 100 35 100 50"
-									fill="#A7F3D0"
-									opacity="0.7"
-									stroke="#92AFAD"
-									strokeWidth="1.5"
+									d="M 100 30 Q 100 15 95 12 Q 100 14 105 12 Q 100 15 100 30"
+									stroke="url(#lineArtGradient)"
+									strokeWidth="1"
+									fill="none"
+									strokeLinecap="round"
 								/>
 							</motion.g>
 							
-							{/* Dew drops */}
+							{/* Subtle dew drops - minimal */}
 							<motion.circle
-								cx="85"
-								cy="60"
-								r="3"
-								fill="#B9C9D6"
-								opacity="0.8"
-								initial={{ opacity: 0 }}
-								animate={{ opacity: [0, 0.8, 0] }}
-								transition={{ duration: 2, repeat: Infinity, delay: 1.5 }}
-							/>
-							<motion.circle
-								cx="115"
-								cy="65"
-								r="2.5"
-								fill="#B9C9D6"
-								opacity="0.8"
-								initial={{ opacity: 0 }}
-								animate={{ opacity: [0, 0.8, 0] }}
-								transition={{ duration: 2, repeat: Infinity, delay: 2 }}
-							/>
-							<motion.circle
-								cx="100"
-								cy="35"
+								cx="80"
+								cy="50"
 								r="2"
-								fill="#B9C9D6"
-								opacity="0.8"
+								fill="url(#lineArtGradient)"
 								initial={{ opacity: 0 }}
-								animate={{ opacity: [0, 0.8, 0] }}
-								transition={{ duration: 2, repeat: Infinity, delay: 2.5 }}
+								animate={{ opacity: [0, 0.5, 0] }}
+								transition={{ duration: 3, repeat: Infinity, delay: 1.5 }}
+							/>
+							<motion.circle
+								cx="120"
+								cy="55"
+								r="1.5"
+								fill="url(#lineArtGradient)"
+								initial={{ opacity: 0 }}
+								animate={{ opacity: [0, 0.5, 0] }}
+								transition={{ duration: 3, repeat: Infinity, delay: 2 }}
 							/>
 						</svg>
 					</motion.div>

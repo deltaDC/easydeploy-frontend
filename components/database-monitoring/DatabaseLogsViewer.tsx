@@ -1,9 +1,10 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Terminal, Download, Pause, Play } from "lucide-react";
+import { Terminal, Download, Pause, Play, Trash2 } from "lucide-react";
 import DatabaseMonitoringService from "@/services/database-monitoring.service";
 
 interface DatabaseLogsViewerProps {
@@ -18,6 +19,7 @@ export function DatabaseLogsViewer({ databaseId, maxLines = 100 }: DatabaseLogsV
   const [isPaused, setIsPaused] = useState(false);
   const [autoScroll, setAutoScroll] = useState(true);
   const [databaseStatus, setDatabaseStatus] = useState<{ isHealthy: boolean; healthMessage: string } | null>(null);
+  const [newestLineIndex, setNewestLineIndex] = useState<number>(-1);
   
   const eventSourceRef = useRef<EventSource | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -48,6 +50,12 @@ export function DatabaseLogsViewer({ databaseId, maxLines = 100 }: DatabaseLogsV
           if (isPaused) {
             pausedLogsRef.current = newLogs;
           } else {
+            const oldLines = logs.split('\n').length;
+            const newLines = newLogs.split('\n').length;
+            if (newLines > oldLines) {
+              setNewestLineIndex(newLines - 1);
+              setTimeout(() => setNewestLineIndex(-1), 2000); // Flash for 2 seconds
+            }
             setLogs(newLogs);
           }
           
@@ -137,6 +145,47 @@ export function DatabaseLogsViewer({ databaseId, maxLines = 100 }: DatabaseLogsV
     URL.revokeObjectURL(url);
   };
 
+  const handleClear = () => {
+    setLogs("");
+    pausedLogsRef.current = "";
+  };
+
+  // Parse log line and apply colors
+  const parseLogLine = (line: string, index: number) => {
+    const timestampMatch = line.match(/^(\d{4}-\d{2}-\d{2}[\sT]\d{2}:\d{2}:\d{2}[.\d]*Z?[\s]*)/);
+    const timestamp = timestampMatch ? timestampMatch[1] : "";
+    const rest = timestampMatch ? line.slice(timestampMatch[0].length) : line;
+    
+    let logType = "INFO";
+    let color = "#A7F3D0"; // Mint green for INFO
+    
+    if (rest.toUpperCase().includes("ERROR") || rest.toUpperCase().includes("FATAL")) {
+      logType = "ERROR";
+      color = "#FBCFE8"; // Pastel pink
+    } else if (rest.toUpperCase().includes("WARN") || rest.toUpperCase().includes("WARNING")) {
+      logType = "WARN";
+      color = "#FEF3C7"; // Cream yellow
+    }
+    
+    const isNewest = index === newestLineIndex;
+    
+    return (
+      <motion.div
+        key={index}
+        initial={isNewest ? { opacity: 0, backgroundColor: "rgba(167, 243, 208, 0.3)" } : false}
+        animate={isNewest ? { 
+          opacity: [0, 1, 1, 0.7],
+          backgroundColor: ["rgba(167, 243, 208, 0.3)", "rgba(167, 243, 208, 0.1)", "transparent", "transparent"]
+        } : {}}
+        transition={{ duration: 2 }}
+        className="py-1"
+      >
+        <span className="text-slate-400">{timestamp}</span>
+        <span style={{ color }}>{rest}</span>
+      </motion.div>
+    );
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -170,33 +219,38 @@ export function DatabaseLogsViewer({ databaseId, maxLines = 100 }: DatabaseLogsV
               })()}
             </CardDescription>
           </div>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
+          <div className="flex gap-2 group/controls">
+            {/* Transparent icons, only visible on hover */}
+            <motion.button
               onClick={handlePauseToggle}
+              className="opacity-0 group-hover/controls:opacity-100 transition-opacity duration-300 p-2 rounded-lg hover:bg-white/10"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
             >
               {isPaused ? (
-                <>
-                  <Play className="h-4 w-4 mr-2" />
-                  Resume
-                </>
+                <Play className="h-4 w-4 text-white/70" />
               ) : (
-                <>
-                  <Pause className="h-4 w-4 mr-2" />
-                  Pause
-                </>
+                <Pause className="h-4 w-4 text-white/70" />
               )}
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
+            </motion.button>
+            <motion.button
               onClick={handleDownload}
               disabled={!logs}
+              className="opacity-0 group-hover/controls:opacity-100 transition-opacity duration-300 p-2 rounded-lg hover:bg-white/10 disabled:opacity-30"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
             >
-              <Download className="h-4 w-4 mr-2" />
-              Download
-            </Button>
+              <Download className="h-4 w-4 text-white/70" />
+            </motion.button>
+            <motion.button
+              onClick={handleClear}
+              disabled={!logs}
+              className="opacity-0 group-hover/controls:opacity-100 transition-opacity duration-300 p-2 rounded-lg hover:bg-white/10 disabled:opacity-30"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+            >
+              <Trash2 className="h-4 w-4 text-white/70" />
+            </motion.button>
           </div>
         </div>
       </CardHeader>
@@ -212,9 +266,14 @@ export function DatabaseLogsViewer({ databaseId, maxLines = 100 }: DatabaseLogsV
           <div 
             ref={scrollRef}
             onScroll={handleScroll}
-            className="bg-black text-green-400 p-4 rounded-lg font-mono text-sm h-96 overflow-y-auto whitespace-pre-wrap break-words"
+            className="terminal-misty-logs p-6 rounded-xl h-96 overflow-y-auto whitespace-pre-wrap break-words terminal-scrollbar"
+            style={{
+              background: "rgba(15, 23, 42, 0.85)", // #0F172A with 85% opacity
+              fontFamily: "'JetBrains Mono', 'Fira Code', 'Courier New', monospace",
+              boxShadow: "inset 0 0 40px rgba(0, 0, 0, 0.5), inset 20px 0 40px rgba(0, 0, 0, 0.3), inset -20px 0 40px rgba(0, 0, 0, 0.3), inset 0 20px 40px rgba(0, 0, 0, 0.3), inset 0 -20px 40px rgba(0, 0, 0, 0.3)",
+            }}
           >
-            {logs}
+            {logs.split('\n').map((line, index) => parseLogLine(line, index))}
           </div>
         )}
         {!autoScroll && (

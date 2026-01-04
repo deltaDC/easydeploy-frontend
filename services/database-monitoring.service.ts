@@ -56,6 +56,10 @@ export interface DatabaseMetrics {
   numberOfIndexes: number;
   storageUsagePercent: number;
   
+  diskUsageBytes?: number;      
+  diskTotalBytes?: number;       
+  diskUsagePercent?: number;     
+  
   // Health Metrics
   uptimeSeconds: number;
   lastHealthCheck: string;

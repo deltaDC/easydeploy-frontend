@@ -8,7 +8,6 @@ const stats = [
 	{ value: 100, suffix: "%", label: "Tự động hóa", duration: 2000 },
 	{ value: 5, suffix: " phút", label: "Triển khai nhanh", duration: 2000 },
 	{ value: 24, suffix: "/7", label: "Giám sát liên tục", duration: 2000 },
-	{ value: 1000, suffix: "+", label: "Ứng dụng đã triển khai", duration: 2000 },
 ];
 
 function AnimatedNumber({ value, suffix, duration }: { value: number; suffix: string; duration: number }) {
@@ -60,7 +59,7 @@ export function StatsSection() {
 					}}
 					transition={{ duration: 0.8 }}
 				>
-					<div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+					<div className="grid grid-cols-1 md:grid-cols-3 gap-8">
 						{stats.map((stat, index) => (
 							<motion.div
 								key={index}

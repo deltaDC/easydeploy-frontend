@@ -63,26 +63,31 @@ export function ConnectionVault({
         </div>
       </div>
 
-      {/* Connection String */}
-      <div
-        className="relative p-4 rounded-2xl overflow-hidden"
+      {/* Connection String - Thick glass block with bright border */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+        className="relative p-5 rounded-3xl overflow-hidden"
         style={{
-          background: "rgba(30, 41, 59, 0.8)",
-          backdropFilter: "blur(20px)",
-          border: "1px solid rgba(255, 255, 255, 0.1)",
+          background: "rgba(255, 255, 255, 0.4)",
+          backdropFilter: "blur(30px)",
+          border: "2px solid rgba(255, 255, 255, 0.5)",
+          boxShadow: "0 0 40px rgba(255, 255, 255, 0.2), inset 0 0 20px rgba(255, 255, 255, 0.1)",
         }}
       >
-        {/* Copy flash effect */}
+        {/* Copy flash effect - Green mint border flash */}
         <AnimatePresence>
           {copiedField === "connection" && (
             <motion.div
-              initial={{ opacity: 0.8, x: "-100%" }}
-              animate={{ opacity: 0, x: "100%" }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: [0, 1, 0] }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.5 }}
-              className="absolute inset-0 pointer-events-none"
+              transition={{ duration: 0.6 }}
+              className="absolute inset-0 pointer-events-none rounded-3xl"
               style={{
-                background: "linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.3), transparent)",
+                boxShadow: "0 0 30px rgba(16, 185, 129, 0.8), inset 0 0 30px rgba(16, 185, 129, 0.3)",
+                border: "2px solid rgba(16, 185, 129, 0.8)",
               }}
             />
           )}
@@ -90,107 +95,154 @@ export function ConnectionVault({
 
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
-            <p className="text-xs text-slate-400 mb-1">Connection String</p>
-            <code className="text-sm text-emerald-400 font-mono break-all">
-              {showConnectionString ? connectionString : maskValue(connectionString)}
-            </code>
+            <p className="text-xs text-charcoal/50 mb-2">Connection String</p>
+            {/* Blur text by default, reveal on show */}
+            <div className="relative">
+              <code 
+                className={`text-sm font-mono break-all transition-all duration-500 ${
+                  showConnectionString ? "text-charcoal filter-none" : "text-charcoal/30 filter blur-sm"
+                }`}
+              >
+                {connectionString}
+              </code>
+              {/* Blur layer fade from left to right */}
+              {!showConnectionString && (
+                <motion.div
+                  className="absolute inset-0 pointer-events-none"
+                  style={{
+                    background: "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.8) 50%, transparent 100%)",
+                    backdropFilter: "blur(8px)",
+                  }}
+                  animate={{
+                    x: ["-100%", "200%"],
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    ease: "linear",
+                  }}
+                />
+              )}
+            </div>
           </div>
-          <div className="flex gap-1 flex-shrink-0">
+          <div className="flex gap-2 flex-shrink-0">
+            {/* Eye switch button - Blur layer fades from left to right */}
             <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setShowConnectionString(!showConnectionString)}
-              className="p-2 rounded-lg hover:bg-white/10 transition-colors"
+              className="p-2 rounded-lg hover:bg-white/20 transition-colors"
+              style={{
+                background: showConnectionString ? "rgba(255, 255, 255, 0.2)" : "transparent",
+              }}
             >
               {showConnectionString ? (
-                <EyeOff className="w-4 h-4 text-slate-400" strokeWidth={1.5} />
+                <EyeOff className="w-4 h-4 text-charcoal/70" strokeWidth={1.5} />
               ) : (
-                <Eye className="w-4 h-4 text-slate-400" strokeWidth={1.5} />
+                <Eye className="w-4 h-4 text-charcoal/70" strokeWidth={1.5} />
               )}
             </motion.button>
+            {/* Copy button - Turns into green checkmark, border flashes green mint */}
             <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => handleCopy(connectionString, "connection")}
-              className="p-2 rounded-lg hover:bg-white/10 transition-colors"
+              className="p-2 rounded-lg transition-all duration-300"
+              style={{
+                background: copiedField === "connection" 
+                  ? "rgba(16, 185, 129, 0.2)" 
+                  : "rgba(255, 255, 255, 0.1)",
+                border: copiedField === "connection"
+                  ? "1px solid rgba(16, 185, 129, 0.8)"
+                  : "1px solid rgba(255, 255, 255, 0.2)",
+                boxShadow: copiedField === "connection"
+                  ? "0 0 15px rgba(16, 185, 129, 0.5)"
+                  : "none",
+              }}
             >
               {copiedField === "connection" ? (
-                <Check className="w-4 h-4 text-emerald-400" strokeWidth={1.5} />
+                <Check className="w-4 h-4 text-emerald-500" strokeWidth={1.5} />
               ) : (
-                <Copy className="w-4 h-4 text-slate-400" strokeWidth={1.5} />
+                <Copy className="w-4 h-4 text-charcoal/70" strokeWidth={1.5} />
               )}
             </motion.button>
           </div>
         </div>
-      </div>
+      </motion.div>
 
-      {/* Individual fields */}
-      <div className="space-y-2">
+      {/* Individual fields - Grid 2 columns */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {fields.map((field, index) => (
           <motion.div
             key={field.label}
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: index * 0.05 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.1, duration: 0.4 }}
             className="relative group"
           >
+            {/* Small card for each field */}
             <div
-              className="flex items-center justify-between p-3 rounded-xl"
+              className="flex flex-col p-4 rounded-2xl transition-all duration-300"
               style={{
-                background: "rgba(255, 255, 255, 0.4)",
-                backdropFilter: "blur(15px)",
-                border: "1px solid rgba(255, 255, 255, 0.2)",
+                background: "rgba(255, 255, 255, 0.35)",
+                backdropFilter: "blur(20px)",
+                border: "1px solid rgba(255, 255, 255, 0.3)",
+                boxShadow: "0 4px 15px rgba(0, 0, 0, 0.1)",
               }}
             >
-              <div className="flex-1 min-w-0">
-                <p className="text-xs text-charcoal/50">{field.label}</p>
-                <p className="text-sm font-mono text-charcoal truncate">
-                  {field.sensitive && !showSensitive[field.label]
-                    ? maskValue(field.value)
-                    : field.value}
-                </p>
-              </div>
-              <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                {field.sensitive && (
+              <div className="flex items-start justify-between gap-2 mb-2">
+                <p className="text-xs font-medium text-charcoal/60 uppercase tracking-wider">{field.label}</p>
+                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  {field.sensitive && (
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => toggleSensitive(field.label)}
+                      className="p-1.5 rounded-lg hover:bg-white/20 transition-colors"
+                    >
+                      {showSensitive[field.label] ? (
+                        <EyeOff className="w-3.5 h-3.5 text-charcoal/50" strokeWidth={1.5} />
+                      ) : (
+                        <Eye className="w-3.5 h-3.5 text-charcoal/50" strokeWidth={1.5} />
+                      )}
+                    </motion.button>
+                  )}
                   <motion.button
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.95 }}
-                    onClick={() => toggleSensitive(field.label)}
-                    className="p-1.5 rounded-lg hover:bg-misty-sage/10 transition-colors"
+                    onClick={() => handleCopy(field.value, field.label)}
+                    className="p-1.5 rounded-lg hover:bg-white/20 transition-colors"
+                    style={{
+                      background: copiedField === field.label ? "rgba(16, 185, 129, 0.2)" : "transparent",
+                    }}
                   >
-                    {showSensitive[field.label] ? (
-                      <EyeOff className="w-3.5 h-3.5 text-charcoal/50" strokeWidth={1.5} />
+                    {copiedField === field.label ? (
+                      <Check className="w-3.5 h-3.5 text-emerald-500" strokeWidth={1.5} />
                     ) : (
-                      <Eye className="w-3.5 h-3.5 text-charcoal/50" strokeWidth={1.5} />
+                      <Copy className="w-3.5 h-3.5 text-charcoal/50" strokeWidth={1.5} />
                     )}
                   </motion.button>
-                )}
-                <motion.button
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => handleCopy(field.value, field.label)}
-                  className="p-1.5 rounded-lg hover:bg-misty-sage/10 transition-colors"
-                >
-                  {copiedField === field.label ? (
-                    <Check className="w-3.5 h-3.5 text-emerald-500" strokeWidth={1.5} />
-                  ) : (
-                    <Copy className="w-3.5 h-3.5 text-charcoal/50" strokeWidth={1.5} />
-                  )}
-                </motion.button>
+                </div>
               </div>
+              <p className="text-sm font-mono text-charcoal break-all">
+                {field.sensitive && !showSensitive[field.label]
+                  ? maskValue(field.value)
+                  : field.value}
+              </p>
             </div>
 
-            {/* Copy flash */}
+            {/* Copy flash - Green mint border flash */}
             <AnimatePresence>
               {copiedField === field.label && (
                 <motion.div
-                  initial={{ opacity: 0.8 }}
-                  animate={{ opacity: 0 }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: [0, 1, 0] }}
                   exit={{ opacity: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="absolute inset-0 rounded-xl pointer-events-none"
+                  transition={{ duration: 0.6 }}
+                  className="absolute inset-0 rounded-2xl pointer-events-none"
                   style={{
-                    background: "rgba(16, 185, 129, 0.2)",
+                    boxShadow: "0 0 20px rgba(16, 185, 129, 0.6), inset 0 0 20px rgba(16, 185, 129, 0.2)",
+                    border: "1px solid rgba(16, 185, 129, 0.8)",
                   }}
                 />
               )}
@@ -199,19 +251,34 @@ export function ConnectionVault({
         ))}
       </div>
 
-      {/* Warning */}
+      {/* Warning - 3D Shield icon in yellow */}
       {warning && (
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="flex items-start gap-2 p-3 rounded-xl"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="flex items-start gap-3 p-4 rounded-2xl"
           style={{
-            background: "rgba(245, 158, 11, 0.1)",
-            border: "1px solid rgba(245, 158, 11, 0.2)",
+            background: "rgba(245, 158, 11, 0.15)",
+            border: "1px solid rgba(245, 158, 11, 0.3)",
+            boxShadow: "0 0 20px rgba(245, 158, 11, 0.2)",
           }}
         >
-          <AlertTriangle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" strokeWidth={1.5} />
-          <p className="text-xs text-amber-700">{warning}</p>
+          <motion.div
+            animate={{
+              rotateY: [0, 10, -10, 0],
+            }}
+            transition={{
+              duration: 3,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+            style={{
+              transformStyle: "preserve-3d",
+            }}
+          >
+            <Shield className="w-6 h-6 text-amber-500 flex-shrink-0 mt-0.5" strokeWidth={2} style={{ filter: "drop-shadow(0 0 8px rgba(245, 158, 11, 0.6))" }} />
+          </motion.div>
+          <p className="text-sm text-amber-700 font-medium">{warning}</p>
         </motion.div>
       )}
 

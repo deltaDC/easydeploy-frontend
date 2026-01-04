@@ -18,6 +18,7 @@ import {
 import { Search, List, Grid3X3, Play, Pause, AlertCircle, View, ExternalLink, FileCode, Server, Settings, Globe, RefreshCw, FileText } from "lucide-react";
 import { motion } from "framer-motion";
 import { EmptyState } from "@/components/apps/EmptyState";
+import { Skeleton } from "@/components/ui/skeleton";
 import ApplicationService from "@/services/application.service";
 import { SortDirection } from "@/types/enum/sort-direction.enum";
 import { 
@@ -59,7 +60,7 @@ export default function ApplicationsTable() {
 			setApplications(response.content);
 			setPageInfo(response.page);
 		} catch (error) {
-			console.error("Error fetching applications:", error);
+			// Ignore error
 		} finally {
 			setIsLoading(false);
 		}
@@ -157,12 +158,77 @@ export default function ApplicationsTable() {
 
 			{/* Content */}
 			{isLoading ? (
-				<div className="flex items-center justify-center py-12">
-					<div className="text-center">
-						<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-						<p className="text-muted-foreground">Đang tải dự án...</p>
+				view === "list" ? (
+					<Card className="bg-white/60 backdrop-blur-xl border-0 rounded-3xl shadow-inner-glow-soft overflow-hidden">
+						<Table>
+							<TableHeader>
+								<TableRow className="border-b border-misty-grey/10 hover:bg-transparent">
+									<TableHead className="text-charcoal/70 font-medium py-4">Tên ứng dụng</TableHead>
+									<TableHead className="text-charcoal/70 font-medium py-4">Trạng thái</TableHead>
+									<TableHead className="text-charcoal/70 font-medium py-4">URL</TableHead>
+									<TableHead className="text-charcoal/70 font-medium py-4">Ngày tạo</TableHead>
+									<TableHead className="w-[180px] text-charcoal/70 font-medium py-4">Thao tác</TableHead>
+								</TableRow>
+							</TableHeader>
+							<TableBody>
+								{Array.from({ length: 5 }).map((_, index) => (
+									<TableRow key={index} className={`border-0 ${index % 2 === 0 ? 'bg-white/30' : 'bg-transparent'}`}>
+										<TableCell className="py-8">
+											<Skeleton className="h-5 w-32" />
+										</TableCell>
+										<TableCell className="py-8 pl-6">
+											<Skeleton className="h-6 w-20 rounded-full" />
+										</TableCell>
+										<TableCell className="py-8">
+											<Skeleton className="h-5 w-40" />
+										</TableCell>
+										<TableCell className="py-8">
+											<Skeleton className="h-5 w-32" />
+										</TableCell>
+										<TableCell className="py-8">
+											<div className="flex items-center gap-2">
+												<Skeleton className="h-8 w-8 rounded-lg" />
+												<Skeleton className="h-8 w-8 rounded-lg" />
+												<Skeleton className="h-8 w-8 rounded-lg" />
+											</div>
+										</TableCell>
+									</TableRow>
+								))}
+							</TableBody>
+						</Table>
+					</Card>
+				) : (
+					<div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+						{Array.from({ length: 6 }).map((_, index) => (
+							<Card key={index} className="card-glass-enhanced rounded-3xl relative overflow-hidden" style={{
+								background: 'rgba(255, 255, 255, 0.45)',
+								backdropFilter: 'blur(16px)',
+								WebkitBackdropFilter: 'blur(16px)',
+								border: '1px solid rgba(255, 255, 255, 0.4)',
+								boxShadow: '0 10px 30px -5px rgba(146, 175, 173, 0.25)'
+							}}>
+								<CardHeader className="pb-4 px-6 pt-6">
+									<div className="flex items-start justify-between mb-3">
+										<div className="flex items-center gap-3 flex-1 min-w-0">
+											<Skeleton className="h-16 w-16 rounded-xl" />
+											<div className="flex-1 min-w-0">
+												<Skeleton className="h-5 w-32 mb-2" />
+												<Skeleton className="h-3 w-24" />
+											</div>
+										</div>
+									</div>
+									<CardDescription>
+										<Skeleton className="h-4 w-40 mb-2" />
+										<Skeleton className="h-3 w-32" />
+									</CardDescription>
+								</CardHeader>
+								<CardContent className="px-6 pb-6 pt-0">
+									<Skeleton className="h-6 w-24 rounded-full mb-3" />
+								</CardContent>
+							</Card>
+						))}
 					</div>
-				</div>
+				)
 			) : applications.length === 0 ? (
 				<EmptyState />
 			) : view === "list" ? (
@@ -174,23 +240,26 @@ export default function ApplicationsTable() {
 								<TableHead className="text-charcoal/70 font-medium py-4">Trạng thái</TableHead>
 								<TableHead className="text-charcoal/70 font-medium py-4">URL</TableHead>
 								<TableHead className="text-charcoal/70 font-medium py-4">Ngày tạo</TableHead>
-								<TableHead className="w-[140px] text-charcoal/70 font-medium py-4">Thao tác</TableHead>
+								<TableHead className="w-[180px] text-charcoal/70 font-medium py-4">Thao tác</TableHead>
 							</TableRow>
 						</TableHeader>
 						<TableBody>
-							{applications.map((application) => {
+							{applications.map((application, index) => {
 								const isRunning = application.status === 'SUCCESS';
 								return (
 									<TableRow 
 										key={application.id} 
-										className="border-0 hover:bg-misty-sage/5 transition-colors duration-200 group"
+										className={`border-0 transition-all duration-300 group relative hover:bg-white/50 hover:backdrop-blur-sm hover:rounded-lg ${
+											index % 2 === 0 ? 'bg-white/30' : 'bg-transparent'
+										}`}
+										style={{ marginBottom: '8px' }}
 									>
-										<TableCell className="font-medium py-5">
+										<TableCell className="font-medium py-8">
 											<Link href={`/apps/${application.id}`} className="text-charcoal hover:text-misty-sage transition-colors">
 												{application.name}
 											</Link>
 										</TableCell>
-										<TableCell className="py-5">
+										<TableCell className="py-8 pl-6">
 											<Badge 
 												variant="secondary" 
 												className={`gap-1.5 border-0 ${
@@ -201,9 +270,11 @@ export default function ApplicationsTable() {
 											>
 												{isRunning ? (
 													<>
-														<div className="relative">
-															<div className="absolute inset-0 h-2 w-2 rounded-full bg-emerald-500 animate-ping-slow opacity-75" />
-															<div className="relative h-2 w-2 rounded-full bg-emerald-500" />
+														<div className="status-dot-ripple flex items-center justify-center">
+															<div className="relative h-2 w-2">
+																<div className="absolute inset-0 h-2 w-2 rounded-full bg-emerald-500 animate-ping-slow opacity-75" />
+																<div className="relative h-2 w-2 rounded-full bg-emerald-500" />
+															</div>
 														</div>
 														<span>Đang chạy</span>
 													</>
@@ -215,13 +286,13 @@ export default function ApplicationsTable() {
 												)}
 											</Badge>
 										</TableCell>
-										<TableCell className="py-5">
+										<TableCell className="py-8">
 											{application.publicUrl ? (
 												<a
 													href={application.publicUrl}
 													target="_blank"
 													rel="noopener noreferrer"
-													className="text-charcoal/70 hover:text-misty-sage flex items-center gap-1 transition-colors"
+													className="text-emerald-700 hover:text-emerald-800 font-medium flex items-center gap-1 transition-colors"
 												>
 													<span className="truncate max-w-[200px]">{application.publicUrl}</span>
 													<ExternalLink className="h-3 w-3 flex-shrink-0" strokeWidth={1.5} />
@@ -230,13 +301,24 @@ export default function ApplicationsTable() {
 												<span className="text-charcoal/40">—</span>
 											)}
 										</TableCell>
-										<TableCell className="text-charcoal/60 py-5">{formatDateDDMMYYYYHHMMSS(application.createdAt)}</TableCell>
-										<TableCell className="py-5">
-											<div className="flex items-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
+										<TableCell className="text-charcoal/60 py-8">{formatDateDDMMYYYYHHMMSS(application.createdAt)}</TableCell>
+										<TableCell className="py-8">
+											<div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
 												<Button 
 													variant="ghost" 
 													size="sm" 
-													className="h-8 w-8 p-0 text-charcoal/60 hover:text-charcoal hover:bg-misty-sage/10 rounded-lg" 
+													className="icon-glass-circle h-8 w-8 p-0 text-charcoal/60 hover:text-emerald-600 transition-all" 
+													asChild
+													title="Xem chi tiết"
+												>
+													<Link href={`/apps/${application.id}`}>
+														<View className="h-4 w-4" strokeWidth={1.5} />
+													</Link>
+												</Button>
+												<Button 
+													variant="ghost" 
+													size="sm" 
+													className="icon-glass-circle h-8 w-8 p-0 text-charcoal/60 hover:text-blue-600 transition-all" 
 													asChild
 													title="Xem Logs"
 												>
@@ -247,7 +329,7 @@ export default function ApplicationsTable() {
 												<Button 
 													variant="ghost" 
 													size="sm" 
-													className="h-8 w-8 p-0 text-charcoal/60 hover:text-charcoal hover:bg-misty-sage/10 rounded-lg" 
+													className="icon-glass-circle h-8 w-8 p-0 text-charcoal/60 hover:text-emerald-600 transition-all" 
 													asChild
 													title="Cài đặt"
 												>
@@ -281,6 +363,7 @@ export default function ApplicationsTable() {
 						const framework = getFrameworkIcon(application.name);
 						const FrameworkIcon = framework.icon;
 						const isRunning = application.status === 'SUCCESS';
+						const isExited = application.status === 'FAILED' || application.status === 'STOPPED';
 
 						return (
 							<motion.div
@@ -289,18 +372,38 @@ export default function ApplicationsTable() {
 								animate={{ opacity: 1, y: 0 }}
 								transition={{ delay: index * 0.05 }}
 							>
-								<Card className="group bg-white/60 backdrop-blur-xl border-0 rounded-3xl shadow-inner-glow-soft relative overflow-hidden hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
+								<Card className={`group card-glass-enhanced card-noise-texture rounded-3xl relative overflow-hidden hover:-translate-y-[4px] transition-all duration-300 colored-shadow-sage hover:colored-shadow-sage-hover ${
+									isRunning ? 'card-glow-running' : isExited ? 'card-glow-exited' : ''
+								}`} style={{
+									background: 'rgba(255, 255, 255, 0.45)',
+									backdropFilter: 'blur(16px)',
+									WebkitBackdropFilter: 'blur(16px)',
+									border: '1px solid rgba(255, 255, 255, 0.4)',
+									boxShadow: '0 10px 30px -5px rgba(146, 175, 173, 0.25)'
+								}}>
+									{/* Blurred orb background effects */}
+									<div className="absolute top-0 right-0 w-32 h-32 blurred-orb blurred-orb-emerald opacity-20" />
+									{isExited && (
+										<div className="absolute top-0 right-0 w-32 h-32 blurred-orb blurred-orb-purple opacity-20" />
+									)}
+
 									{/* Shimmer effect when loading */}
 									{isLoading && (
 										<div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" />
 									)}
 
-									<CardHeader className="pb-4 px-6 pt-6">
+									<CardHeader className="pb-4 px-6 pt-6 relative z-10">
 										<div className="flex items-start justify-between mb-3">
 											<div className="flex items-center gap-3 flex-1 min-w-0">
-												{/* Framework Icon with 3D effect */}
-												<div className={`h-12 w-12 rounded-xl ${framework.bgColor} flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow`}>
-													<FrameworkIcon className={`h-6 w-6 ${framework.color}`} strokeWidth={1.5} />
+												{/* Framework Icon with 3D effect - Larger with colored shadow */}
+												<div className={`h-16 w-16 rounded-xl ${framework.bgColor} flex items-center justify-center framework-icon-glow transition-all duration-300 group-hover:scale-110`} style={{
+													filter: framework.color.includes('blue') 
+														? 'drop-shadow(0 4px 12px rgba(59, 130, 246, 0.4))'
+														: framework.color.includes('red')
+														? 'drop-shadow(0 4px 12px rgba(239, 68, 68, 0.4))'
+														: 'drop-shadow(0 4px 12px rgba(146, 175, 173, 0.4))'
+												}}>
+													<FrameworkIcon className={`h-8 w-8 ${framework.color}`} strokeWidth={1.5} />
 												</div>
 												<div className="flex-1 min-w-0">
 													<CardTitle className="text-lg font-semibold text-charcoal truncate">
@@ -311,13 +414,17 @@ export default function ApplicationsTable() {
 													<p className="text-xs text-misty-sage font-medium mt-1">ID: {application.id}</p>
 												</div>
 											</div>
-											{/* Running status with ping animation */}
+											{/* Framework Watermark Icon - Large, rotated, grayscale */}
+											<div className="absolute bottom-4 right-4 framework-watermark-large pointer-events-none">
+												<FrameworkIcon className={`h-24 w-24 ${framework.color}`} strokeWidth={1} />
+											</div>
+											{/* Running status with glow */}
 											{isRunning && (
 												<div className="relative flex-shrink-0">
 													<div className="absolute inset-0 flex items-center justify-center">
 														<div className="h-3 w-3 rounded-full bg-emerald-500 animate-ping-slow" />
 													</div>
-													<div className="relative h-3 w-3 rounded-full bg-emerald-500" />
+													<div className="relative h-3 w-3 rounded-full bg-emerald-500 status-running-glow" />
 												</div>
 											)}
 										</div>
@@ -341,12 +448,17 @@ export default function ApplicationsTable() {
 											</div>
 										</CardDescription>
 									</CardHeader>
-								<CardContent className="px-6 pb-6 pt-0">
-									{/* Status badge - always visible */}
-									<Badge variant="secondary" className="gap-1.5 bg-misty-sage/10 text-charcoal border-0 mb-3">
+								<CardContent className="px-6 pb-6 pt-0 relative z-10">
+									{/* Status badge - always visible with ripple effect only on icon */}
+									<Badge variant="secondary" className={`gap-1.5 bg-misty-sage/10 text-charcoal border-0 mb-3`}>
 										{isRunning ? (
 											<>
-												<div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+												<div className="status-dot-ripple flex items-center justify-center">
+													<div className="relative h-2 w-2">
+														<div className="absolute inset-0 h-2 w-2 rounded-full bg-emerald-500 animate-ping-slow opacity-75" />
+														<div className="relative h-2 w-2 rounded-full bg-emerald-500" />
+													</div>
+												</div>
 												<span className="text-xs">Đang chạy</span>
 											</>
 										) : (
@@ -357,46 +469,23 @@ export default function ApplicationsTable() {
 										)}
 									</Badge>
 
-									{/* Hover Overlay with Quick Actions */}
-									<div className="absolute inset-0 bg-gradient-to-t from-charcoal/80 via-charcoal/40 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 rounded-3xl flex items-end justify-center pb-6">
-										<div className="flex items-center gap-2">
-											<Button 
-												variant="secondary" 
-												size="sm" 
-												className="h-9 px-3 bg-white/90 backdrop-blur-sm hover:bg-white text-charcoal rounded-xl shadow-lg" 
-												asChild
-												title="Xem Logs"
-											>
-												<Link href={`/apps/${application.id}/log`}>
-													<FileText className="h-4 w-4 mr-1.5" strokeWidth={1.5} />
-													<span className="text-xs font-medium">Logs</span>
-												</Link>
-											</Button>
-											<Button 
-												variant="secondary" 
-												size="sm" 
-												className="h-9 px-3 bg-white/90 backdrop-blur-sm hover:bg-white text-charcoal rounded-xl shadow-lg" 
-												asChild
-												title="Redeploy"
-											>
-												<Link href={`/apps/${application.id}`}>
-													<RefreshCw className="h-4 w-4 mr-1.5" strokeWidth={1.5} />
-													<span className="text-xs font-medium">Redeploy</span>
-												</Link>
-											</Button>
-											<Button 
-												variant="secondary" 
-												size="sm" 
-												className="h-9 px-3 bg-white/90 backdrop-blur-sm hover:bg-white text-charcoal rounded-xl shadow-lg" 
-												asChild
-												title="Cài đặt"
-											>
-												<Link href={`/apps/${application.id}`}>
-													<Settings className="h-4 w-4 mr-1.5" strokeWidth={1.5} />
-													<span className="text-xs font-medium">Cài đặt</span>
-												</Link>
-											</Button>
-										</div>
+									{/* Hover Overlay with glow from edges */}
+									<div className="absolute inset-0 bg-gradient-to-t from-charcoal/80 via-charcoal/40 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 rounded-3xl flex items-center justify-center">
+										<div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{
+											boxShadow: 'inset 0 0 40px rgba(16, 185, 129, 0.2)'
+										}} />
+										<Button 
+											variant="secondary" 
+											size="sm" 
+											className="h-10 px-4 bg-white/90 backdrop-blur-sm hover:bg-emerald-500 hover:text-white text-charcoal rounded-xl shadow-lg hover-glow-emerald font-medium relative z-10 transition-colors" 
+											asChild
+											title="Xem chi tiết"
+										>
+											<Link href={`/apps/${application.id}`}>
+												<View className="h-4 w-4 mr-2" strokeWidth={1.5} />
+												<span className="text-sm">Xem chi tiết</span>
+											</Link>
+										</Button>
 									</div>
 								</CardContent>
 								</Card>

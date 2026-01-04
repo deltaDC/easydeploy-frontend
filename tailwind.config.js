@@ -14,12 +14,16 @@ module.exports = {
         'charcoal-light': '#334155',
         'charcoal-glass': 'rgba(30, 41, 59, 0.7)',
         'charcoal-glass-dark': 'rgba(15, 23, 42, 0.85)',
+        'charcoal-glass-terminal': 'rgba(15, 23, 42, 0.9)',
         'soft-blue': '#B9C9D6',
         'misty-grey': '#E8E8E8',
         'porcelain': '#FFFFFF',
         'rose-soft': '#FCA5A5',
         'rose-light': '#FECACA',
         'rose-muted': '#f43f5e',
+        'pastel-red': 'rgba(244, 63, 94, 0.1)',
+        'pastel-rose': '#FBCFE8',
+        'neon-emerald': '#34D399',
         'amber-glow': '#fbbf24',
         'emerald': {
           '50': '#ECFDF5',
@@ -73,6 +77,14 @@ module.exports = {
         'timeline-pulse': 'timelinePulse 2s ease-in-out infinite',
         'glass-shimmer': 'glassShimmer 1.5s ease-in-out infinite',
         'bounce-subtle': 'bounceSubtle 1s ease-in-out infinite',
+        'ping-subtle': 'pingSubtle 2s ease-in-out infinite',
+        'liquid-fill': 'liquidWave 3s ease-in-out infinite',
+        'glow-pulse': 'glowPulse 2s ease-in-out infinite',
+        'slide-in-delayed': 'slideInDelayed 0.5s ease-out forwards',
+        'live-blink': 'liveBlink 1.5s ease-in-out infinite',
+        'pipeline-glow': 'pipelineGlow 2s ease-in-out infinite',
+        'droplet-pulse': 'dropletPulse 2s ease-in-out infinite',
+        'droplet-ripple': 'dropletRipple 2s ease-in-out infinite',
       },
       keyframes: {
         fadeIn: {
@@ -167,6 +179,35 @@ module.exports = {
         bounceSubtle: {
           '0%, 100%': { transform: 'translateY(0)' },
           '50%': { transform: 'translateY(3px)' },
+        },
+        pingSubtle: {
+          '0%': { transform: 'scale(1)', opacity: '1' },
+          '50%': { transform: 'scale(1.05)', opacity: '0.8' },
+          '100%': { transform: 'scale(1)', opacity: '1' },
+        },
+        liquidWave: {
+          '0%, 100%': { transform: 'translateY(0) scaleY(1)', opacity: '0.6' },
+          '50%': { transform: 'translateY(-5%) scaleY(1.1)', opacity: '0.8' },
+        },
+        slideInDelayed: {
+          '0%': { opacity: '0', transform: 'translateX(-20px)' },
+          '100%': { opacity: '1', transform: 'translateX(0)' },
+        },
+        liveBlink: {
+          '0%, 100%': { opacity: '1', transform: 'scale(1)' },
+          '50%': { opacity: '0.5', transform: 'scale(0.95)' },
+        },
+        pipelineGlow: {
+          '0%, 100%': { opacity: '0.3' },
+          '50%': { opacity: '0.8' },
+        },
+        dropletPulse: {
+          '0%, 100%': { transform: 'scale(1)', boxShadow: '0 0 15px rgba(16, 185, 129, 0.6), 0 0 30px rgba(16, 185, 129, 0.3)' },
+          '50%': { transform: 'scale(1.1)', boxShadow: '0 0 20px rgba(16, 185, 129, 0.8), 0 0 40px rgba(16, 185, 129, 0.5)' },
+        },
+        dropletRipple: {
+          '0%': { transform: 'scale(1)', opacity: '0.5' },
+          '100%': { transform: 'scale(2)', opacity: '0' },
         },
       },
       spacing: {

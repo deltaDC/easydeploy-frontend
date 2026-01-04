@@ -1,14 +1,13 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Clock } from "lucide-react";
 
 interface UptimeZenCircleProps {
   uptimeSeconds: number;
   size?: number;
 }
 
-export function UptimeZenCircle({ uptimeSeconds, size = 120 }: UptimeZenCircleProps) {
+export function UptimeZenCircle({ uptimeSeconds, size = 160 }: UptimeZenCircleProps) {
   // Format uptime
   const formatUptime = (seconds: number) => {
     const days = Math.floor(seconds / 86400);
@@ -16,7 +15,7 @@ export function UptimeZenCircle({ uptimeSeconds, size = 120 }: UptimeZenCirclePr
     const mins = Math.floor((seconds % 3600) / 60);
 
     if (days > 0) {
-      return `${days}d ${hours}h ${mins}m`;
+      return `${days}d ${hours}h`;
     }
     if (hours > 0) {
       return `${hours}h ${mins}m`;
@@ -24,8 +23,8 @@ export function UptimeZenCircle({ uptimeSeconds, size = 120 }: UptimeZenCirclePr
     return `${mins}m`;
   };
 
-  const radius = (size - 8) / 2;
-  const circumference = 2 * Math.PI * radius;
+  const radius = (size - 20) / 2;
+  const center = size / 2;
 
   return (
     <div className="flex flex-col items-center">
@@ -33,95 +32,89 @@ export function UptimeZenCircle({ uptimeSeconds, size = 120 }: UptimeZenCirclePr
         className="relative"
         style={{ width: size, height: size }}
       >
-        {/* Background circle with glass effect */}
-        <div
-          className="absolute inset-0 rounded-full"
-          style={{
-            background: "rgba(255, 255, 255, 0.3)",
-            backdropFilter: "blur(15px)",
-            border: "1px solid rgba(255, 255, 255, 0.2)",
-          }}
-        />
-
-        {/* SVG rotating ring */}
+        {/* Enso Circle - Calligraphic brush stroke style */}
         <motion.svg
           className="absolute inset-0"
           width={size}
           height={size}
           animate={{ rotate: 360 }}
           transition={{
-            duration: 60, // 1 rotation per minute - very slow "breathing"
+            duration: 300, // Very slow rotation - 5 minutes per full rotation
             repeat: Infinity,
             ease: "linear",
           }}
+          style={{
+            filter: "drop-shadow(0 0 8px rgba(146, 175, 173, 0.3))",
+          }}
         >
-          {/* Track */}
-          <circle
-            cx={size / 2}
-            cy={size / 2}
-            r={radius}
+          {/* Enso circle path - imperfect, hand-drawn style */}
+          <motion.path
+            d={`M ${center + radius * 0.7} ${center - radius * 0.3}
+                A ${radius} ${radius} 0 1 1 ${center - radius * 0.7} ${center + radius * 0.3}
+                A ${radius * 0.95} ${radius * 0.95} 0 1 0 ${center + radius * 0.65} ${center - radius * 0.25}`}
+            fill="none"
+            stroke="rgba(146, 175, 173, 0.4)"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            style={{
+              strokeDasharray: "0.1 0.1", // Slight texture
+            }}
+            animate={{
+              opacity: [0.3, 0.5, 0.3],
+            }}
+            transition={{
+              duration: 8,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          />
+          
+          {/* Brush texture overlay - subtle */}
+          <motion.path
+            d={`M ${center + radius * 0.7} ${center - radius * 0.3}
+                A ${radius} ${radius} 0 1 1 ${center - radius * 0.7} ${center + radius * 0.3}
+                A ${radius * 0.95} ${radius * 0.95} 0 1 0 ${center + radius * 0.65} ${center - radius * 0.25}`}
             fill="none"
             stroke="rgba(146, 175, 173, 0.2)"
-            strokeWidth="2"
-          />
-
-          {/* Progress arc - subtle indicator */}
-          <circle
-            cx={size / 2}
-            cy={size / 2}
-            r={radius}
-            fill="none"
-            stroke="rgba(146, 175, 173, 0.6)"
-            strokeWidth="2"
+            strokeWidth="1.5"
             strokeLinecap="round"
-            strokeDasharray={circumference}
-            strokeDashoffset={circumference * 0.75}
-            transform={`rotate(-90 ${size / 2} ${size / 2})`}
+            opacity={0.5}
           />
-
-          {/* Glowing dot at the end */}
-          <motion.circle
-            cx={size / 2}
-            cy={4}
-            r="3"
-            fill="#92AFAD"
-            filter="url(#glow)"
-          />
-
-          <defs>
-            <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-              <feGaussianBlur stdDeviation="2" result="coloredBlur" />
-              <feMerge>
-                <feMergeNode in="coloredBlur" />
-                <feMergeNode in="SourceGraphic" />
-              </feMerge>
-            </filter>
-          </defs>
         </motion.svg>
 
-        {/* Center content */}
+        {/* Center content with uptime */}
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <Clock className="w-5 h-5 text-misty-sage mb-1" strokeWidth={1.5} />
-          <span className="text-lg font-semibold text-charcoal">
+          <motion.span
+            className="text-2xl font-serif font-semibold text-charcoal"
+            animate={{
+              opacity: [0.8, 1, 0.8],
+            }}
+            transition={{
+              duration: 4,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          >
             {formatUptime(uptimeSeconds)}
-          </span>
-          <span className="text-xs text-charcoal/50">Uptime</span>
+          </motion.span>
+          <span className="text-xs text-charcoal/40 mt-1 font-serif">Uptime</span>
         </div>
       </div>
 
-      {/* Breathing indicator text */}
+      {/* Zen breathing text */}
       <motion.p
-        className="mt-3 text-xs text-charcoal/40"
+        className="mt-4 text-xs text-charcoal/30 font-serif italic"
         animate={{
-          opacity: [0.4, 0.7, 0.4],
+          opacity: [0.3, 0.5, 0.3],
         }}
         transition={{
-          duration: 4,
+          duration: 6,
           repeat: Infinity,
           ease: "easeInOut",
         }}
       >
-        Hệ thống đang hoạt động
+        Bền bỉ qua thời gian
       </motion.p>
     </div>
   );

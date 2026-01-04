@@ -76,13 +76,14 @@ export function DatabaseQueryTab({ database }: DatabaseQueryTabProps) {
       animate={{ opacity: 1, y: 0 }}
       className="space-y-6"
     >
-      {/* SQL Editor with dark theme */}
+      {/* SQL Editor with Dark Glass Mode */}
       <div
-        className="rounded-2xl overflow-hidden"
+        className="rounded-3xl overflow-hidden relative"
         style={{
-          background: "rgba(1, 24, 18, 0.95)",
+          background: "rgba(15, 23, 42, 0.9)", // Dark with 90% opacity
           backdropFilter: "blur(20px)",
           border: "1px solid rgba(255, 255, 255, 0.1)",
+          boxShadow: "inset 0 0 40px rgba(0, 0, 0, 0.3), 0 10px 30px rgba(0, 0, 0, 0.2)",
         }}
       >
         <SQLQueryEditor databaseId={database.id} databaseType={database.type} />
@@ -91,7 +92,7 @@ export function DatabaseQueryTab({ database }: DatabaseQueryTabProps) {
       {/* Table Browser - only for SQL databases */}
       {database.type !== DatabaseType.MONGODB && database.type !== DatabaseType.REDIS && (
         <div
-          className="rounded-2xl overflow-hidden"
+          className="rounded-3xl overflow-hidden"
           style={{
             background: "rgba(255, 255, 255, 0.45)",
             backdropFilter: "blur(25px)",

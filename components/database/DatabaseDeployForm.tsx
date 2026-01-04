@@ -10,12 +10,16 @@ import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { DatabaseType, CreateDatabaseDto } from "@/types/database.type";
 import DatabaseService from "@/services/database.service";
-import { Loader2, Database, HardDrive, MemoryStick, Sparkles } from "lucide-react";
+import { Loader2, Database, HardDrive, MemoryStick } from "lucide-react";
 import ErrorDialog from "./ErrorDialog";
 import {
   DatabaseTypeIcon,
   LiquidStorageBar,
   CreationJourneyModal,
+  EnergyCore,
+  NeumorphicInput,
+  EnergySlider,
+  GlassPill,
   DB_TYPE_COLORS,
 } from "@/components/database-detail";
 
@@ -218,9 +222,9 @@ export default function DatabaseDeployForm() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="grid lg:grid-cols-2 gap-8"
+        className="grid lg:grid-cols-[4fr_6fr] gap-8"
       >
-        {/* Left Column - Form */}
+        {/* Left Column - Control Panel (4 parts) */}
         <Card
           className="border-0 shadow-sage-glow"
           style={{
@@ -229,8 +233,7 @@ export default function DatabaseDeployForm() {
           }}
         >
           <CardHeader>
-            <CardTitle className="text-2xl font-serif text-charcoal flex items-center gap-2">
-              <Sparkles className="w-6 h-6 text-misty-sage" strokeWidth={1.5} />
+            <CardTitle className="text-2xl font-serif text-charcoal">
               Cấu hình Database
             </CardTitle>
             <CardDescription className="text-charcoal/60">
@@ -244,7 +247,7 @@ export default function DatabaseDeployForm() {
                 <Label htmlFor="name" className="text-charcoal font-medium">
                   Tên Database
                 </Label>
-                <Input
+                <NeumorphicInput
                   id="name"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -252,7 +255,6 @@ export default function DatabaseDeployForm() {
                   required
                   minLength={3}
                   maxLength={50}
-                  className="glass-card-light border-0 focus:ring-2 focus:ring-misty-sage/50"
                 />
               </div>
 
@@ -306,32 +308,12 @@ export default function DatabaseDeployForm() {
                 <Label className="text-charcoal font-medium">Phiên bản</Label>
                 <div className="flex flex-wrap gap-2">
                   {currentOption?.versions.map((version) => (
-                    <motion.button
+                    <GlassPill
                       key={version}
-                      type="button"
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => setFormData({ ...formData, version })}
-                      className={`
-                        px-4 py-2 rounded-full text-sm font-medium transition-all
-                      `}
-                      style={{
-                        background:
-                          formData.version === version
-                            ? DB_TYPE_COLORS[formData.type].bg
-                            : "rgba(255, 255, 255, 0.4)",
-                        border:
-                          formData.version === version
-                            ? `1px solid ${DB_TYPE_COLORS[formData.type].border}`
-                            : "1px solid rgba(255, 255, 255, 0.3)",
-                        color:
-                          formData.version === version
-                            ? DB_TYPE_COLORS[formData.type].text
-                            : "#64748B",
-                      }}
-                    >
-                      v{version}
-                    </motion.button>
+                      label=""
+                      value={`v${version}`}
+                      className={formData.version === version ? "ring-2 ring-misty-sage/50" : ""}
+                    />
                   ))}
                 </div>
               </div>
@@ -347,7 +329,7 @@ export default function DatabaseDeployForm() {
                     {formData.storageGb} GB
                   </span>
                 </div>
-                <Slider
+                <EnergySlider
                   value={[formData.storageGb || 1]}
                   onValueChange={([value]) =>
                     setFormData({ ...formData, storageGb: value })
@@ -355,7 +337,7 @@ export default function DatabaseDeployForm() {
                   min={1}
                   max={10}
                   step={1}
-                  className="w-full"
+                  valueLabel={`${formData.storageGb} GB`}
                 />
                 <div className="flex justify-between text-xs text-charcoal/40">
                   <span>1 GB</span>
@@ -374,7 +356,7 @@ export default function DatabaseDeployForm() {
                     {formData.memoryMb} MB
                   </span>
                 </div>
-                <Slider
+                <EnergySlider
                   value={[formData.memoryMb || 256]}
                   onValueChange={([value]) =>
                     setFormData({ ...formData, memoryMb: value })
@@ -382,7 +364,7 @@ export default function DatabaseDeployForm() {
                   min={128}
                   max={2048}
                   step={128}
-                  className="w-full"
+                  valueLabel={`${formData.memoryMb} MB`}
                 />
                 <div className="flex justify-between text-xs text-charcoal/40">
                   <span>128 MB</span>
@@ -411,12 +393,12 @@ export default function DatabaseDeployForm() {
                   {loading ? (
                     <span className="flex items-center gap-2">
                       <Loader2 className="w-5 h-5 animate-spin" />
-                      Đang chuẩn bị...
+                      Đang kích hoạt...
                     </span>
                   ) : (
                     <span className="flex items-center gap-2">
                       <Database className="w-5 h-5" strokeWidth={1.5} />
-                      Triển khai Database
+                      Triển khai Cơ sở dữ liệu
                     </span>
                   )}
                 </Button>
@@ -425,9 +407,90 @@ export default function DatabaseDeployForm() {
           </CardContent>
         </Card>
 
-        {/* Right Column - Preview */}
+        {/* Right Column - Preview Chamber (6 parts) */}
         <div className="lg:sticky lg:top-6 h-fit">
-          <PreviewCard formData={formData} glowIntensity={glowIntensity} />
+          <motion.div
+            className="relative h-full min-h-[500px] rounded-3xl overflow-hidden"
+            style={{
+              background: "rgba(255, 255, 255, 0.35)",
+              backdropFilter: "blur(30px)",
+              border: "1px solid rgba(255, 255, 255, 0.2)",
+            }}
+          >
+            {/* Dynamic glow based on resources */}
+            <motion.div
+              className="absolute inset-0 pointer-events-none"
+              animate={{
+                opacity: 0.3 + glowIntensity * 0.4,
+              }}
+              transition={{ duration: 0.5 }}
+            >
+              <motion.div
+                className="absolute top-1/4 left-1/2 -translate-x-1/2 w-64 h-64 rounded-full blur-3xl"
+                style={{ backgroundColor: DB_TYPE_COLORS[formData.type].glow }}
+                animate={{
+                  scale: [1, 1.2, 1],
+                  opacity: [0.5, 0.8, 0.5],
+                }}
+                transition={{
+                  duration: 4,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+              />
+            </motion.div>
+
+            {/* Content */}
+            <div className="relative z-10 p-8 flex flex-col items-center justify-center h-full">
+              {/* Header */}
+              <div className="text-center mb-6">
+                <h3 className="text-lg font-serif font-semibold text-charcoal">
+                  {formData.name || "database-name"}
+                </h3>
+              </div>
+
+              {/* Energy Core */}
+              <div className="flex-1 flex items-center justify-center w-full">
+                <EnergyCore
+                  type={formData.type}
+                  memoryMb={formData.memoryMb}
+                  storageGb={formData.storageGb}
+                  isDeploying={loading}
+                />
+              </div>
+
+              {/* Version badge */}
+              <motion.div
+                className="px-4 py-2 rounded-full mb-6"
+                style={{
+                  background: DB_TYPE_COLORS[formData.type].bg,
+                  border: `1px solid ${DB_TYPE_COLORS[formData.type].border}`,
+                }}
+              >
+                <span className="text-sm font-medium" style={{ color: DB_TYPE_COLORS[formData.type].text }}>
+                  v{formData.version}
+                </span>
+              </motion.div>
+
+              {/* Resources preview */}
+              <div className="w-full max-w-xs space-y-4">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-charcoal/60">Storage</span>
+                  <span className="font-semibold text-charcoal">{formData.storageGb} GB</span>
+                </div>
+                <LiquidStorageBar
+                  used={formData.storageGb || 1}
+                  total={10}
+                  height={8}
+                  showLabel={false}
+                />
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-charcoal/60">Memory</span>
+                  <span className="font-semibold text-charcoal">{formData.memoryMb} MB</span>
+                </div>
+              </div>
+            </div>
+          </motion.div>
         </div>
       </motion.div>
 

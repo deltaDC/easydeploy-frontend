@@ -1,10 +1,9 @@
 "use client";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Activity, CheckCircle2, XCircle, Pause } from 'lucide-react';
+import { Activity, CheckCircle2, XCircle, Pause, Loader2 } from 'lucide-react';
 import type { DashboardStats } from '@/types/dashboard';
 import { motion, useInView } from 'framer-motion';
 import { useRef, useEffect, useState } from 'react';
-import { LineChart, Line, ResponsiveContainer } from 'recharts';
 
 interface StatsCardsProps {
   stats: DashboardStats;
@@ -38,18 +37,6 @@ function AnimatedNumber({ value, duration = 2000 }: { value: number; duration?: 
   return <span ref={ref}>{displayValue}</span>;
 }
 
-// Generate sample sparkline data
-function generateSparklineData(value: number) {
-  const data = [];
-  const baseValue = Math.max(0, value - 5);
-  for (let i = 0; i < 12; i++) {
-    data.push({
-      value: baseValue + Math.random() * 10 + (value / 12) * i,
-    });
-  }
-  return data;
-}
-
 export function StatsCards({ stats }: StatsCardsProps) {
   const containerRef = useRef(null);
   const isInView = useInView(containerRef, { once: true, margin: "-50px" });
@@ -61,38 +48,37 @@ export function StatsCards({ stats }: StatsCardsProps) {
       icon: Activity,
       color: 'text-misty-sage',
       bgColor: 'bg-misty-sage/10',
-      shadowColor: 'shadow-misty-sage-md',
-      sparklineColor: '#92AFAD',
+      gradientFrom: 'from-emerald-600',
+      gradientTo: 'to-emerald-400',
     },
     {
-      title: 'Thành công',
+      title: 'Đang chạy',
       value: stats.runningApplications,
       icon: CheckCircle2,
-      color: 'text-emerald-500',
-      bgColor: 'bg-emerald-200/20',
-      shadowColor: 'shadow-[0_10px_30px_-10px_rgba(16,185,129,0.15)]',
-      sparklineColor: '#10B981',
-      description: 'Thành công',
+      color: 'text-emerald-400',
+      bgColor: 'bg-emerald-100/15',
+      gradientFrom: 'from-emerald-600',
+      gradientTo: 'to-emerald-400',
     },
     {
-      title: 'Đang triển khai',
-      value: stats.stoppedApplications,
-      icon: Pause,
-      color: 'text-soft-blue',
-      bgColor: 'bg-soft-blue/10',
-      shadowColor: 'shadow-misty-sage-sm',
-      sparklineColor: '#B9C9D6',
-      description: 'Chờ xử lý',
+      title: 'Đang deploy',
+      value: stats.deployingApplications,
+      icon: Loader2,
+      color: 'text-cyan-400',
+      bgColor: 'bg-cyan-100/15',
+      gradientFrom: 'from-cyan-600',
+      gradientTo: 'to-cyan-400',
+      showSpinner: true,
     },
     {
       title: 'Lỗi/Crash',
       value: stats.failedApplications,
       icon: XCircle,
-      color: 'text-rose-soft',
-      bgColor: 'bg-rose-light/20',
-      shadowColor: 'shadow-[0_10px_30px_-10px_rgba(252,165,165,0.15)]',
-      sparklineColor: '#FCA5A5',
-      description: 'Thất bại',
+      color: 'text-rose-300',
+      bgColor: 'bg-rose-100/15',
+      gradientFrom: 'from-rose-600',
+      gradientTo: 'to-rose-400',
+      hasError: stats.failedApplications > 0,
     },
   ];
 
@@ -100,7 +86,6 @@ export function StatsCards({ stats }: StatsCardsProps) {
     <div ref={containerRef} className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
       {cards.map((card, index) => {
         const Icon = card.icon;
-        const sparklineData = generateSparklineData(card.value);
         
         return (
           <motion.div
@@ -108,45 +93,36 @@ export function StatsCards({ stats }: StatsCardsProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: isInView ? 1 : 0, y: isInView ? 0 : 20 }}
             transition={{ delay: index * 0.1, duration: 0.5 }}
+            className="h-full"
           >
-            <Card className="bg-white/60 backdrop-blur-xl border-0 rounded-3xl shadow-inner-glow-soft relative overflow-hidden group hover:shadow-lg transition-all duration-300">
-              {/* Colored shadow */}
-              <div className={`absolute inset-0 ${card.shadowColor} opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10 rounded-3xl`} />
-              
+            <Card 
+              className={`
+                relative overflow-hidden group transition-all duration-300
+                rounded-3xl h-full flex flex-col
+                ${card.hasError ? 'bg-red-50/50' : 'bg-white/40'}
+                backdrop-blur-[20px]
+                border border-white/60
+                shadow-[0_8px_32px_rgba(31,38,135,0.1)]
+                hover:ring-2 hover:ring-emerald-100 hover:ring-opacity-50
+                hover:shadow-[0_8px_32px_rgba(31,38,135,0.15)]
+              `}
+            >
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4 px-6 pt-6">
                 <CardTitle className="text-sm font-medium text-charcoal">
                   {card.title}
                 </CardTitle>
                 <div className={`p-2.5 rounded-xl ${card.bgColor}`}>
-                  <Icon className={`h-5 w-5 ${card.color}`} strokeWidth={1.5} />
+                  {card.showSpinner ? (
+                    <Icon className={`h-5 w-5 ${card.color} animate-spin`} strokeWidth={1.5} />
+                  ) : (
+                    <Icon className={`h-5 w-5 ${card.color}`} strokeWidth={1.5} />
+                  )}
                 </div>
               </CardHeader>
-              <CardContent className="px-6 pb-6">
-                <div className="text-3xl font-semibold text-charcoal mb-3">
+              <CardContent className="px-6 pb-6 flex-1 flex flex-col justify-between">
+                <div className={`text-4xl font-bold bg-gradient-to-br ${card.gradientFrom} ${card.gradientTo} bg-clip-text text-transparent mb-3`}>
                   <AnimatedNumber value={card.value} />
                 </div>
-                
-                {/* Sparkline Chart */}
-                <div className="h-[40px] w-full min-w-0 min-h-[40px] -mx-2 mb-2">
-                  <ResponsiveContainer width="100%" height="100%" minHeight={40} minWidth={0}>
-                    <LineChart data={sparklineData}>
-                      <Line
-                        type="monotone"
-                        dataKey="value"
-                        stroke={card.sparklineColor}
-                        strokeWidth={1.5}
-                        dot={false}
-                        animationDuration={1000}
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-                
-                {card.description && (
-                  <p className="text-xs text-charcoal/60 mt-2">
-                    {card.description}
-                  </p>
-                )}
               </CardContent>
             </Card>
           </motion.div>
