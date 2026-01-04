@@ -398,7 +398,7 @@ export default function DatabaseDeployForm() {
                   ) : (
                     <span className="flex items-center gap-2">
                       <Database className="w-5 h-5" strokeWidth={1.5} />
-                      Triển khai Database
+                      Triển khai Cơ sở dữ liệu
                     </span>
                   )}
                 </Button>

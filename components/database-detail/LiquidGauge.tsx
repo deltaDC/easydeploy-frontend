@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 
 interface LiquidGaugeProps {
-  value: number; // 0-100 percentage
+  value: number; 
   label: string;
   size?: "sm" | "md" | "lg";
   color?: string;
@@ -18,7 +18,7 @@ export function LiquidGauge({ value, label, size = "md", color = "#10B981" }: Li
 
   const config = sizeConfig[size];
   const percentage = Math.min(Math.max(value, 0), 100);
-  const waterLevel = 100 - percentage; // Invert so water fills from bottom
+  const waterLevel = 100 - percentage; 
 
   return (
     <div className="flex flex-col items-center">
@@ -31,7 +31,6 @@ export function LiquidGauge({ value, label, size = "md", color = "#10B981" }: Li
           boxShadow: "inset 0 0 20px rgba(0, 0, 0, 0.1)",
         }}
       >
-        {/* Water fill */}
         <motion.div
           className="absolute bottom-0 left-0 right-0 rounded-full"
           initial={{ height: "0%" }}
@@ -42,7 +41,6 @@ export function LiquidGauge({ value, label, size = "md", color = "#10B981" }: Li
             boxShadow: `inset 0 0 20px ${color}80`,
           }}
         >
-          {/* Water surface with ripples */}
           <motion.div
             className="absolute top-0 left-0 right-0"
             style={{
@@ -61,7 +59,6 @@ export function LiquidGauge({ value, label, size = "md", color = "#10B981" }: Li
             }}
           />
           
-          {/* Bubbles */}
           {[...Array(3)].map((_, i) => (
             <motion.div
               key={i}
@@ -87,7 +84,6 @@ export function LiquidGauge({ value, label, size = "md", color = "#10B981" }: Li
           ))}
         </motion.div>
 
-        {/* Center percentage */}
         <div className="absolute inset-0 flex items-center justify-center z-10">
           <span className={`font-bold text-charcoal ${config.text}`} style={{ textShadow: "0 0 10px rgba(255,255,255,0.5)" }}>
             {percentage.toFixed(0)}%
@@ -100,4 +96,8 @@ export function LiquidGauge({ value, label, size = "md", color = "#10B981" }: Li
 }
 
 export default LiquidGauge;
+
+
+
+
 

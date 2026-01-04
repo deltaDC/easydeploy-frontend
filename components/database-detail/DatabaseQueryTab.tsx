@@ -76,7 +76,7 @@ export function DatabaseQueryTab({ database }: DatabaseQueryTabProps) {
       animate={{ opacity: 1, y: 0 }}
       className="space-y-6"
     >
-      {/* SQL Editor with Dark Glass Mode - opacity 90%, see mist behind */}
+      {/* SQL Editor with Dark Glass Mode */}
       <div
         className="rounded-3xl overflow-hidden relative"
         style={{

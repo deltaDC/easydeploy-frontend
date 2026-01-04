@@ -1,6 +1,6 @@
 "use client";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Activity, CheckCircle2, XCircle, Pause } from 'lucide-react';
+import { Activity, CheckCircle2, XCircle, Pause, Loader2 } from 'lucide-react';
 import type { DashboardStats } from '@/types/dashboard';
 import { motion, useInView } from 'framer-motion';
 import { useRef, useEffect, useState } from 'react';
@@ -48,25 +48,27 @@ export function StatsCards({ stats }: StatsCardsProps) {
       icon: Activity,
       color: 'text-misty-sage',
       bgColor: 'bg-misty-sage/10',
-      shadowColor: 'shadow-misty-sage-md',
+      gradientFrom: 'from-emerald-600',
+      gradientTo: 'to-emerald-400',
     },
     {
-      title: 'Thành công',
+      title: 'Đang chạy',
       value: stats.runningApplications,
       icon: CheckCircle2,
       color: 'text-emerald-400',
       bgColor: 'bg-emerald-100/15',
-      shadowColor: 'shadow-[0_10px_30px_-10px_rgba(16,185,129,0.15)]',
-      description: 'Thành công',
+      gradientFrom: 'from-emerald-600',
+      gradientTo: 'to-emerald-400',
     },
     {
-      title: 'Đang triển khai',
-      value: stats.stoppedApplications,
-      icon: Pause,
+      title: 'Đang deploy',
+      value: stats.deployingApplications,
+      icon: Loader2,
       color: 'text-cyan-400',
       bgColor: 'bg-cyan-100/15',
-      shadowColor: 'shadow-misty-sage-sm',
-      description: 'Chờ xử lý',
+      gradientFrom: 'from-cyan-600',
+      gradientTo: 'to-cyan-400',
+      showSpinner: true,
     },
     {
       title: 'Lỗi/Crash',
@@ -74,8 +76,9 @@ export function StatsCards({ stats }: StatsCardsProps) {
       icon: XCircle,
       color: 'text-rose-300',
       bgColor: 'bg-rose-100/15',
-      shadowColor: 'shadow-[0_10px_30px_-10px_rgba(252,165,165,0.15)]',
-      description: 'Thất bại',
+      gradientFrom: 'from-rose-600',
+      gradientTo: 'to-rose-400',
+      hasError: stats.failedApplications > 0,
     },
   ];
 
@@ -90,29 +93,36 @@ export function StatsCards({ stats }: StatsCardsProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: isInView ? 1 : 0, y: isInView ? 0 : 20 }}
             transition={{ delay: index * 0.1, duration: 0.5 }}
+            className="h-full"
           >
-            <Card className="bg-white/50 backdrop-blur-2xl border border-white/20 rounded-3xl colored-shadow-sage relative overflow-hidden group hover:colored-shadow-sage-hover transition-all duration-300">
-              {/* Colored shadow */}
-              <div className={`absolute inset-0 ${card.shadowColor} opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10 rounded-3xl`} />
-              
+            <Card 
+              className={`
+                relative overflow-hidden group transition-all duration-300
+                rounded-3xl h-full flex flex-col
+                ${card.hasError ? 'bg-red-50/50' : 'bg-white/40'}
+                backdrop-blur-[20px]
+                border border-white/60
+                shadow-[0_8px_32px_rgba(31,38,135,0.1)]
+                hover:ring-2 hover:ring-emerald-100 hover:ring-opacity-50
+                hover:shadow-[0_8px_32px_rgba(31,38,135,0.15)]
+              `}
+            >
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4 px-6 pt-6">
                 <CardTitle className="text-sm font-medium text-charcoal">
                   {card.title}
                 </CardTitle>
                 <div className={`p-2.5 rounded-xl ${card.bgColor}`}>
-                  <Icon className={`h-5 w-5 ${card.color}`} strokeWidth={1.5} />
+                  {card.showSpinner ? (
+                    <Icon className={`h-5 w-5 ${card.color} animate-spin`} strokeWidth={1.5} />
+                  ) : (
+                    <Icon className={`h-5 w-5 ${card.color}`} strokeWidth={1.5} />
+                  )}
                 </div>
               </CardHeader>
-              <CardContent className="px-6 pb-6">
-                <div className="text-3xl font-semibold text-charcoal mb-3">
+              <CardContent className="px-6 pb-6 flex-1 flex flex-col justify-between">
+                <div className={`text-4xl font-bold bg-gradient-to-br ${card.gradientFrom} ${card.gradientTo} bg-clip-text text-transparent mb-3`}>
                   <AnimatedNumber value={card.value} />
                 </div>
-                
-                {card.description && (
-                  <p className="text-xs text-charcoal/60">
-                    {card.description}
-                  </p>
-                )}
               </CardContent>
             </Card>
           </motion.div>

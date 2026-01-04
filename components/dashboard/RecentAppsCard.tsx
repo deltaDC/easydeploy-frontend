@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -20,7 +21,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { MoreVertical, Play, Square, RotateCw, Trash2, ExternalLink, Clock, Activity } from 'lucide-react';
+import { MoreVertical, Play, Square, RotateCw, Trash2, ExternalLink, Clock, Activity, Terminal } from 'lucide-react';
 import { toast } from 'sonner';
 import Link from 'next/link';
 import type { RecentApplication, DeploymentStatus } from '@/types/dashboard';
@@ -49,13 +50,16 @@ export function RecentAppsCard({ apps, onUpdate }: RecentAppsCardProps) {
       if (isRunning) {
         return (
           <Badge variant="default" className="gap-1.5 bg-emerald-100/50 text-emerald-700 border-emerald-200/30">
-            <div className="h-2.5 w-2.5 rounded-full bg-emerald-500 status-running-glow animate-pulse" style={{ animationDuration: '2s' }} />
+            <div className="relative h-2.5 w-2.5">
+              <div className="absolute inset-0 rounded-full bg-emerald-500 animate-ping opacity-75" />
+              <div className="absolute inset-0 rounded-full bg-emerald-500" />
+            </div>
             Đang chạy
           </Badge>
         );
       } else if (isStopped) {
         return (
-          <Badge variant="secondary" className="gap-1.5">
+          <Badge variant="secondary" className="gap-1.5 bg-gray-100/50 text-gray-700 border-gray-200/30">
             <div className="h-2.5 w-2.5 rounded-full bg-gray-400" />
             Đã dừng
           </Badge>
@@ -68,27 +72,39 @@ export function RecentAppsCard({ apps, onUpdate }: RecentAppsCardProps) {
       SUCCESS: { 
         variant: 'default' as const, 
         label: 'Thành công', 
-        color: 'bg-green-500' 
+        color: 'bg-green-500',
+        bg: 'bg-green-100/50',
+        text: 'text-green-700',
+        border: 'border-green-200/30'
       },
       PENDING: { 
         variant: 'secondary' as const, 
         label: 'Chờ xử lý', 
-        color: 'bg-gray-500' 
+        color: 'bg-gray-500',
+        bg: 'bg-gray-100/50',
+        text: 'text-gray-700',
+        border: 'border-gray-200/30'
       },
       FAILED: { 
         variant: 'destructive' as const, 
         label: 'Lỗi', 
-        color: 'bg-red-500' 
+        color: 'bg-red-500',
+        bg: 'bg-red-100/50',
+        text: 'text-red-700',
+        border: 'border-red-200/30'
       },
       IN_PROGRESS: { 
         variant: 'outline' as const, 
         label: 'Đang deploy', 
-        color: 'bg-blue-500' 
+        color: 'bg-blue-500',
+        bg: 'bg-blue-100/50',
+        text: 'text-blue-700',
+        border: 'border-blue-200/30'
       },
     };
     const config = variants[app.status];
     return (
-      <Badge variant={config.variant} className="gap-1.5">
+      <Badge variant={config.variant} className={`gap-1.5 ${config.bg} ${config.text} ${config.border}`}>
         <div className={`h-2.5 w-2.5 rounded-full ${config.color}`} />
         {config.label}
       </Badge>
@@ -170,100 +186,92 @@ export function RecentAppsCard({ apps, onUpdate }: RecentAppsCardProps) {
 
   return (
     <>
-      <Card className="frosted-glass-panel rounded-3xl colored-shadow-sage border-0">
-        <CardHeader>
-          <CardTitle className="text-charcoal">Ứng dụng gần đây</CardTitle>
-          <CardDescription className="text-charcoal/60">5 ứng dụng được triển khai gần nhất</CardDescription>
+      <Card className="bg-white/40 backdrop-blur-[20px] border border-white/60 rounded-3xl shadow-[0_8px_32px_rgba(31,38,135,0.1)]">
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div>
+            <CardTitle className="text-charcoal">Hoạt động gần đây</CardTitle>
+            <CardDescription className="text-charcoal/60">5 ứng dụng được triển khai gần nhất</CardDescription>
+          </div>
+          <Link 
+            href="/apps" 
+            className="text-sm text-charcoal/60 hover:text-charcoal transition-colors"
+          >
+            Xem tất cả
+          </Link>
         </CardHeader>
         <CardContent>
-          <div className="space-y-6">
-            {apps.map((app) => (
-              <div
+          <div className="space-y-3">
+            {apps.map((app, index) => (
+              <motion.div
                 key={app.id}
-                className="flex items-center justify-between p-4 rounded-2xl hover:bg-white/10 hover:shadow-[0_0_20px_rgba(146,175,173,0.1)] transition-all duration-300"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.05 }}
+                className="group relative"
               >
-                <div className="flex-1 space-y-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <Link
-                      href={`/apps/${app.id}`}
-                      className="font-medium hover:underline truncate"
-                    >
-                      {app.name}
-                    </Link>
-                    {app.publicUrl && (
-                      <a
-                        href={app.publicUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-charcoal/50 hover:text-charcoal shrink-0 icon-glow-soft"
-                        title={app.publicUrl}
-                      >
-                        <ExternalLink className="h-3 w-3" strokeWidth={1.5} />
-                      </a>
-                    )}
+                <div
+                  className="
+                    flex items-center gap-4 p-4 rounded-2xl
+                    bg-white/40 backdrop-blur-[20px] border border-white/60
+                    hover:bg-white/60 hover:shadow-[0_8px_32px_rgba(31,38,135,0.15)]
+                    hover:-translate-y-1 hover:ring-2 hover:ring-emerald-100 hover:ring-opacity-50
+                    transition-all duration-300
+                  "
+                >
+                  {/* Avatar/Favicon */}
+                  <div className="flex-shrink-0 w-10 h-10 rounded-full bg-white/60 backdrop-blur-sm border border-white/60 flex items-center justify-center">
+                    <Activity className="h-5 w-5 text-emerald-500" strokeWidth={1.5} />
                   </div>
-                  <div className="flex items-center gap-3 text-xs text-charcoal/50">
-                    <span className="flex items-center gap-1">
-                      <Clock className="h-3 w-3 icon-glow-soft" strokeWidth={1.5} />
-                      {formatDistanceToNow(new Date(app.updatedAt), {
-                        addSuffix: true,
-                        locale: vi,
-                      })}
-                    </span>
+
+                  {/* App Info */}
+                  <div className="flex-1 space-y-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <Link
+                        href={`/apps/${app.id}`}
+                        className="font-medium text-charcoal hover:text-emerald-600 transition-colors truncate"
+                      >
+                        {app.name}
+                      </Link>
+                    </div>
+                    <div className="flex items-center gap-3 text-xs text-charcoal/50">
+                      <span className="flex items-center gap-1">
+                        <Clock className="h-3 w-3" strokeWidth={1.5} />
+                        {formatDistanceToNow(new Date(app.updatedAt), {
+                          addSuffix: true,
+                          locale: vi,
+                        })}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Status Badge */}
+                  <div className="flex items-center gap-2 shrink-0">
+                    {getStatusBadge(app)}
+
+                    {/* Hover Actions - Hidden by default, shown on hover */}
+                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <Link
+                        href={`/apps/${app.id}?tab=logs`}
+                        className="p-2 rounded-lg hover:bg-white/40 transition-colors"
+                        title="Xem logs"
+                      >
+                        <Terminal className="h-4 w-4 text-charcoal/60 hover:text-charcoal" strokeWidth={1.5} />
+                      </Link>
+                      {app.publicUrl && (
+                        <a
+                          href={app.publicUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-2 rounded-lg hover:bg-white/40 transition-colors"
+                          title="Mở web"
+                        >
+                          <ExternalLink className="h-4 w-4 text-charcoal/60 hover:text-charcoal" strokeWidth={1.5} />
+                        </a>
+                      )}
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  {getStatusBadge(app)}
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        disabled={isActionLoading && actionAppId === app.id}
-                        className="icon-glow-soft"
-                      >
-                        <MoreVertical className="h-4 w-4" strokeWidth={1.5} />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      {app.status === 'SUCCESS' && (
-                        <DropdownMenuItem
-                          onClick={() => handleAction('stop', app)}
-                          className="gap-2"
-                        >
-                          <Square className="h-4 w-4" />
-                          Dừng
-                        </DropdownMenuItem>
-                      )}
-                      {app.status !== 'SUCCESS' && app.status !== 'IN_PROGRESS' && (
-                        <DropdownMenuItem
-                          onClick={() => handleAction('restart', app)}
-                          className="gap-2"
-                        >
-                          <Play className="h-4 w-4" />
-                          Khởi động
-                        </DropdownMenuItem>
-                      )}
-                      {app.status !== 'IN_PROGRESS' && (
-                        <DropdownMenuItem
-                          onClick={() => handleAction('restart', app)}
-                          className="gap-2"
-                        >
-                          <RotateCw className="h-4 w-4" />
-                          Khởi động lại
-                        </DropdownMenuItem>
-                      )}
-                      <DropdownMenuItem
-                        onClick={() => handleAction('delete', app)}
-                        className="gap-2 text-destructive focus:text-destructive"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                        Xóa
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </CardContent>

@@ -2478,8 +2478,50 @@ body {
 
   .misty-noise-texture {
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-    background-size: 200px 200px;
+  }
+
+  /* Dashboard Misty Morning - Animated Blobs */
+  .animate-blob {
+    animation: blob 20s ease-in-out infinite;
+  }
+
+  @keyframes blob {
+    0%, 100% {
+      transform: translate(0, 0) scale(1);
+    }
+    25% {
+      transform: translate(20px, -20px) scale(1.1);
+    }
+    50% {
+      transform: translate(-20px, 20px) scale(0.9);
+    }
+    75% {
+      transform: translate(20px, 20px) scale(1.05);
+    }
+  }
+
+  /* Dashboard Blob Colors */
+  .blob-mint {
+    background: radial-gradient(circle, rgba(209, 250, 229, 0.6), transparent 70%);
+  }
+
+  .blob-yellow {
+    background: radial-gradient(circle, rgba(254, 249, 195, 0.5), transparent 70%);
+  }
+
+  .blob-blue {
+    background: radial-gradient(circle, rgba(186, 230, 253, 0.5), transparent 70%);
+  }
+
+  /* Noise Overlay for Dashboard */
+  .dashboard-noise-overlay {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
     opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    background-size: 200px 200px;
   }
 
   /* Timeline connector */
