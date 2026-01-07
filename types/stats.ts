@@ -14,6 +14,12 @@ export interface SystemStatsSummary {
   avgDeploymentDurationSeconds: number;
   totalWebhookEvents: number;
   successfulWebhookEvents: number;
+  systemUptime?: number;
+  avgResponseTime?: number;
+  totalUsersChangePercent?: number;
+  runningAppsChangePercent?: number;
+  successRateChangePercent?: number;
+  systemUptimeChangePercent?: number;
 }
 
 export interface StatsTrendPoint {

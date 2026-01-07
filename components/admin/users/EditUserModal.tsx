@@ -28,8 +28,8 @@ interface EditUserModalProps {
 }
 
 const AVAILABLE_ROLES = [
-  { value: 'ADMIN', label: 'Admin', description: 'Full system access' },
-  { value: 'DEVELOPER', label: 'Developer', description: 'Can deploy and manage own apps' },
+  { value: 'ADMIN', label: 'Quản trị viên', description: 'Quyền truy cập đầy đủ hệ thống' },
+  { value: 'DEVELOPER', label: 'Nhà phát triển', description: 'Có thể triển khai và quản lý ứng dụng của mình' },
 ];
 
 export default function EditUserModal({ user, onSuccess, onEdit }: EditUserModalProps) {
@@ -56,7 +56,7 @@ export default function EditUserModal({ user, onSuccess, onEdit }: EditUserModal
     e.preventDefault();
     
     if (selectedRoles.length === 0) {
-      alert('User must have at least one role');
+      alert('Người dùng phải có ít nhất một vai trò');
       return;
     }
 
@@ -77,21 +77,21 @@ export default function EditUserModal({ user, onSuccess, onEdit }: EditUserModal
       <DialogTrigger asChild>
         <Button variant="outline" size="sm" className="gap-2">
           <Edit className="h-4 w-4" />
-          Edit Roles
+          Chỉnh sửa vai trò
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px]">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>Edit User Roles</DialogTitle>
+            <DialogTitle>Chỉnh sửa vai trò người dùng</DialogTitle>
             <DialogDescription>
-              Update roles for <strong>{user.email}</strong>
+              Cập nhật vai trò cho <strong>{user.email}</strong>
             </DialogDescription>
           </DialogHeader>
 
           <div className="py-6 space-y-4">
             <div className="space-y-3">
-              <Label>Roles</Label>
+              <Label>Vai trò</Label>
               {AVAILABLE_ROLES.map((role) => (
                 <div key={role.value} className="flex items-start space-x-3">
                   <Checkbox
@@ -116,8 +116,8 @@ export default function EditUserModal({ user, onSuccess, onEdit }: EditUserModal
             </div>
 
             {selectedRoles.length === 0 && (
-              <p className="text-sm text-red-500">
-                ⚠️ User must have at least one role
+                <p className="text-sm text-red-500">
+                Người dùng phải có ít nhất một vai trò
               </p>
             )}
           </div>
@@ -129,10 +129,10 @@ export default function EditUserModal({ user, onSuccess, onEdit }: EditUserModal
               onClick={() => setOpen(false)}
               disabled={isLoading}
             >
-              Cancel
+              Hủy
             </Button>
             <Button type="submit" disabled={isLoading || selectedRoles.length === 0}>
-              {isLoading ? 'Saving...' : 'Save Changes'}
+              {isLoading ? 'Đang lưu...' : 'Lưu thay đổi'}
             </Button>
           </DialogFooter>
         </form>

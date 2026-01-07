@@ -40,7 +40,7 @@ export default function ActivateUserModal({
 
   const handleActivate = async () => {
     if (!reason.trim()) {
-      alert('Please provide a reason');
+      alert('Vui lòng cung cấp lý do');
       return;
     }
 
@@ -65,30 +65,30 @@ export default function ActivateUserModal({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-green-600">
             <CheckCircle className="w-5 h-5" />
-            Activate User
+            Kích hoạt người dùng
           </DialogTitle>
           <DialogDescription>
-            This will activate user <strong>{userEmail}</strong> and restore access.
+            Hành động này sẽ kích hoạt người dùng <strong>{userEmail}</strong> và khôi phục quyền truy cập.
           </DialogDescription>
         </DialogHeader>
 
         <div className="bg-green-50 border border-green-200 rounded-lg p-4 space-y-2">
-          <p className="text-sm font-medium text-green-800">Effects:</p>
+          <p className="text-sm font-medium text-green-800">Ảnh hưởng:</p>
           <ul className="text-sm text-green-700 space-y-1 list-disc list-inside">
-            <li>Set user status to <strong>ACTIVE</strong></li>
-            <li>Restore login access</li>
-            <li>Allow user to manage projects again</li>
-            <li>Enable API access</li>
+            <li>Đặt trạng thái người dùng thành <strong>ACTIVE</strong></li>
+            <li>Khôi phục quyền truy cập đăng nhập</li>
+            <li>Cho phép người dùng quản lý dự án lại</li>
+            <li>Bật quyền truy cập API</li>
           </ul>
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="reason">
-            Reason <span className="text-red-500">*</span>
+            Lý do <span className="text-red-500">*</span>
           </Label>
           <Textarea
             id="reason"
-            placeholder="Why are you activating this user? (e.g., appeal approved, issue resolved, account reviewed)"
+            placeholder="Tại sao bạn kích hoạt người dùng này? (ví dụ: kháng cáo được chấp thuận, vấn đề đã được giải quyết, tài khoản đã được xem xét)"
             value={reason}
             onChange={(e: any) => setReason(e.target.value)}
             rows={4}
@@ -98,14 +98,14 @@ export default function ActivateUserModal({
 
         <DialogFooter>
           <Button variant="outline" onClick={handleClose} disabled={isLoading}>
-            Cancel
+            Hủy
           </Button>
           <Button
             onClick={handleActivate}
             disabled={isLoading || !reason.trim()}
             className="bg-green-600 hover:bg-green-700"
           >
-            {isLoading ? 'Activating...' : 'Activate User'}
+            {isLoading ? 'Đang kích hoạt...' : 'Kích hoạt người dùng'}
           </Button>
         </DialogFooter>
       </DialogContent>

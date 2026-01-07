@@ -60,7 +60,7 @@ export const formatDate = (dateString: string | null): string => {
  * Format relative time (e.g., "2 hours ago")
  */
 export const formatRelativeTime = (dateString: string | null): string => {
-  if (!dateString) return 'Never';
+  if (!dateString) return 'Chưa bao giờ';
   
   const date = new Date(dateString);
   const now = new Date();
@@ -69,10 +69,10 @@ export const formatRelativeTime = (dateString: string | null): string => {
   const diffHours = Math.floor(diffMs / 3600000);
   const diffDays = Math.floor(diffMs / 86400000);
   
-  if (diffMins < 1) return 'Just now';
-  if (diffMins < 60) return `${diffMins} minutes ago`;
-  if (diffHours < 24) return `${diffHours} hours ago`;
-  if (diffDays < 30) return `${diffDays} days ago`;
+  if (diffMins < 1) return 'Vừa xong';
+  if (diffMins < 60) return `${diffMins} phút trước`;
+  if (diffHours < 24) return `${diffHours} giờ trước`;
+  if (diffDays < 30) return `${diffDays} ngày trước`;
   
   return formatDate(dateString);
 };

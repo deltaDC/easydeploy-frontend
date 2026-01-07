@@ -1,4 +1,4 @@
-// Types for UC14 - Monitoring & Log Management
+// Types for Monitoring & Log Management
 
 export interface MonitoringDashboard {
   totalContainers: number;
@@ -124,6 +124,13 @@ export interface SystemMetrics {
   uptimeSeconds: number;
   activeConnections: number;
   maxConnections: number;
+  systemUptimePercent?: number;
+  diskUsage?: number;
+  networkIO?: string;
+  cpuTrend?: string;
+  cpuChange?: string;
+  memoryTrend?: string;
+  memoryChange?: string;
 }
 
 export interface TimeSeriesData {

@@ -40,7 +40,7 @@ export default function SuspendUserModal({
 
   const handleSuspend = async () => {
     if (!reason.trim()) {
-      alert('Please provide a reason');
+      alert('Vui lòng cung cấp lý do');
       return;
     }
 
@@ -65,30 +65,30 @@ export default function SuspendUserModal({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-yellow-600">
             <Pause className="w-5 h-5" />
-            Suspend User
+            Tạm khóa người dùng
           </DialogTitle>
           <DialogDescription>
-            This will temporarily suspend user <strong>{userEmail}</strong>. This action will:
+            Hành động này sẽ tạm khóa người dùng <strong>{userEmail}</strong>. Hành động này sẽ:
           </DialogDescription>
         </DialogHeader>
 
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 space-y-2">
-          <p className="text-sm font-medium text-yellow-800">Effects:</p>
+          <p className="text-sm font-medium text-yellow-800">Ảnh hưởng:</p>
           <ul className="text-sm text-yellow-700 space-y-1 list-disc list-inside">
-            <li>Set user status to <strong>SUSPENDED</strong></li>
-            <li>Temporarily disable login access</li>
-            <li>Pause all active projects</li>
-            <li>Can be reactivated by admin later</li>
+            <li>Đặt trạng thái người dùng thành <strong>SUSPENDED</strong></li>
+            <li>Tạm thời vô hiệu hóa quyền truy cập đăng nhập</li>
+            <li>Tạm dừng tất cả dự án đang hoạt động</li>
+            <li>Có thể được kích hoạt lại bởi quản trị viên sau</li>
           </ul>
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="reason">
-            Reason <span className="text-red-500">*</span>
+            Lý do <span className="text-red-500">*</span>
           </Label>
           <Textarea
             id="reason"
-            placeholder="Why are you suspending this user? (e.g., under investigation, temporary violation)"
+            placeholder="Tại sao bạn tạm khóa người dùng này? (ví dụ: đang điều tra, vi phạm tạm thời)"
             value={reason}
             onChange={(e: any) => setReason(e.target.value)}
             rows={4}
@@ -98,14 +98,14 @@ export default function SuspendUserModal({
 
         <DialogFooter>
           <Button variant="outline" onClick={handleClose} disabled={isLoading}>
-            Cancel
+            Hủy
           </Button>
           <Button
             onClick={handleSuspend}
             disabled={isLoading || !reason.trim()}
             className="bg-yellow-600 hover:bg-yellow-700"
           >
-            {isLoading ? 'Suspending...' : 'Suspend User'}
+            {isLoading ? 'Đang tạm khóa...' : 'Tạm khóa người dùng'}
           </Button>
         </DialogFooter>
       </DialogContent>

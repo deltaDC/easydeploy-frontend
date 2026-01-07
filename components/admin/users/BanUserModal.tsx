@@ -40,7 +40,7 @@ export default function BanUserModal({
 
   const handleBan = async () => {
     if (!reason.trim()) {
-      alert('Please provide a reason');
+      alert('Vui lòng cung cấp lý do');
       return;
     }
 
@@ -65,31 +65,31 @@ export default function BanUserModal({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-orange-600">
             <AlertTriangle className="w-5 h-5" />
-            Ban User
+            Cấm người dùng
           </DialogTitle>
           <DialogDescription>
-            This will permanently ban user <strong>{userEmail}</strong>. This action will:
+            Hành động này sẽ cấm vĩnh viễn người dùng <strong>{userEmail}</strong>. Hành động này sẽ:
           </DialogDescription>
         </DialogHeader>
 
         <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 space-y-2">
-          <p className="text-sm font-medium text-orange-800">Effects:</p>
+          <p className="text-sm font-medium text-orange-800">Ảnh hưởng:</p>
           <ul className="text-sm text-orange-700 space-y-1 list-disc list-inside">
-            <li>Set user status to <strong>BANNED</strong></li>
-            <li>Revoke all authentication tokens</li>
-            <li>Suspend all active projects</li>
-            <li>Disable API access</li>
-            <li>User cannot login anymore</li>
+            <li>Đặt trạng thái người dùng thành <strong>BANNED</strong></li>
+            <li>Thu hồi tất cả token xác thực</li>
+            <li>Tạm dừng tất cả dự án đang hoạt động</li>
+            <li>Vô hiệu hóa quyền truy cập API</li>
+            <li>Người dùng không thể đăng nhập nữa</li>
           </ul>
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="reason">
-            Reason <span className="text-red-500">*</span>
+            Lý do <span className="text-red-500">*</span>
           </Label>
           <Textarea
             id="reason"
-            placeholder="Why are you banning this user? (e.g., spam, malicious activity, ToS violation)"
+            placeholder="Tại sao bạn cấm người dùng này? (ví dụ: spam, hoạt động độc hại, vi phạm điều khoản)"
             value={reason}
             onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setReason(e.target.value)}
             rows={4}
@@ -99,14 +99,14 @@ export default function BanUserModal({
 
         <DialogFooter>
           <Button variant="outline" onClick={handleClose} disabled={isLoading}>
-            Cancel
+            Hủy
           </Button>
           <Button
             onClick={handleBan}
             disabled={isLoading || !reason.trim()}
             className="bg-orange-600 hover:bg-orange-700"
           >
-            {isLoading ? 'Banning...' : 'Ban User'}
+            {isLoading ? 'Đang cấm...' : 'Cấm người dùng'}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -15,10 +15,10 @@ export const useUserActions = () => {
     try {
       const data: UpdateUserRequest = { roles: roles as UserRole[] };
       await userManagementService.updateUser(userId, data);
-      toast.success('User updated successfully');
+      toast.success('Cập nhật người dùng thành công');
       return true;
     } catch (error: any) {
-      toast.error(error?.response?.data?.message || 'Failed to update user');
+      toast.error(error?.response?.data?.message || 'Không thể cập nhật người dùng');
       return false;
     } finally {
       setIsLoading(false);
@@ -30,10 +30,10 @@ export const useUserActions = () => {
     try {
       const data: UserActionRequest = { reason };
       await userManagementService.banUser(userId, data);
-      toast.success('User banned successfully');
+      toast.success('Cấm người dùng thành công');
       return true;
     } catch (error: any) {
-      toast.error(error?.response?.data?.message || 'Failed to ban user');
+      toast.error(error?.response?.data?.message || 'Không thể cấm người dùng');
       return false;
     } finally {
       setIsLoading(false);
@@ -45,10 +45,10 @@ export const useUserActions = () => {
     try {
       const data: UserActionRequest = { reason };
       await userManagementService.suspendUser(userId, data);
-      toast.success('User suspended successfully');
+      toast.success('Tạm khóa người dùng thành công');
       return true;
     } catch (error: any) {
-      toast.error(error?.response?.data?.message || 'Failed to suspend user');
+      toast.error(error?.response?.data?.message || 'Không thể tạm khóa người dùng');
       return false;
     } finally {
       setIsLoading(false);
@@ -60,10 +60,10 @@ export const useUserActions = () => {
     try {
       const data: UserActionRequest = { reason };
       await userManagementService.deleteUser(userId, data);
-      toast.success('User deleted successfully');
+      toast.success('Xóa người dùng thành công');
       return true;
     } catch (error: any) {
-      toast.error(error?.response?.data?.message || 'Failed to delete user');
+      toast.error(error?.response?.data?.message || 'Không thể xóa người dùng');
       return false;
     } finally {
       setIsLoading(false);
@@ -75,10 +75,10 @@ export const useUserActions = () => {
     try {
       const data: UserActionRequest = { reason };
       await userManagementService.activateUser(userId, data);
-      toast.success('User activated successfully');
+      toast.success('Kích hoạt người dùng thành công');
       return true;
     } catch (error: any) {
-      toast.error(error?.response?.data?.message || 'Failed to activate user');
+      toast.error(error?.response?.data?.message || 'Không thể kích hoạt người dùng');
       return false;
     } finally {
       setIsLoading(false);

@@ -12,6 +12,7 @@ import type {
   UpdateUserRequest,
   UserActionRequest,
   ActionResponse,
+  ApplicationDetailDTO,
 } from '@/types/user-management';
 
 const USER_MANAGEMENT_BASE = '/admin/users';
@@ -113,6 +114,40 @@ export const activateUser = async (
   return response.data;
 };
 
+/**
+ * Lấy danh sách applications của user
+ */
+export const getUserApplications = async (userId: string): Promise<any[]> => {
+  const response = await api.get<any[]>(`${USER_MANAGEMENT_BASE}/${userId}/applications`);
+  return response.data;
+};
+
+/**
+ * Lấy lịch sử đăng nhập của user
+ */
+export const getUserLoginHistory = async (
+  userId: string,
+  limit: number = 20
+): Promise<any[]> => {
+  const response = await api.get<any[]>(`${USER_MANAGEMENT_BASE}/${userId}/login-history`, {
+    params: { limit },
+  });
+  return response.data;
+};
+
+/**
+ * Lấy thông tin chi tiết dự án của user (chỉ thông tin cơ bản, không bao gồm secrets)
+ */
+export const getApplicationForAdmin = async (
+  userId: string,
+  applicationId: string
+): Promise<ApplicationDetailDTO> => {
+  const response = await api.get<ApplicationDetailDTO>(
+    `${USER_MANAGEMENT_BASE}/${userId}/applications/${applicationId}`
+  );
+  return response.data;
+};
+
 // Export tất cả thành 1 object
 const userManagementService = {
   getAllUsers,
@@ -122,6 +157,9 @@ const userManagementService = {
   suspendUser,
   deleteUser,
   activateUser,
+  getUserApplications,
+  getUserLoginHistory,
+  getApplicationForAdmin,
 };
 
 export default userManagementService;
