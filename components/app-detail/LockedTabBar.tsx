@@ -9,6 +9,7 @@ interface LockedTabBarProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
   tabsLocked: boolean;
+  isFailed?: boolean;
   showSuccessAnimation: boolean;
   onSuccessAnimationComplete?: () => void;
 }
@@ -51,6 +52,7 @@ export function LockedTabBar({
   activeTab,
   onTabChange,
   tabsLocked,
+  isFailed = false,
   showSuccessAnimation,
   onSuccessAnimationComplete,
 }: LockedTabBarProps) {
@@ -71,8 +73,11 @@ export function LockedTabBar({
     const tab = TABS.find((t) => t.id === tabId);
     if (!tab) return;
 
-    // If locked and this tab should be locked, don't allow change
-    if (tabsLocked && tab.lockedWhenDeploying) {
+    // Check if tab should be locked (when deploying or when failed for metrics/logs)
+    const isTabLocked = (tabsLocked && tab.lockedWhenDeploying) || 
+                       (isFailed && (tab.id === "metrics" || tab.id === "logs"));
+    
+    if (isTabLocked) {
       return;
     }
 
@@ -99,7 +104,8 @@ export function LockedTabBar({
         <TabsList className="flex w-full glass-card p-2 justify-between gap-2">
           {TABS.map((tab, index) => {
             const Icon = tab.icon;
-            const isLocked = tabsLocked && tab.lockedWhenDeploying;
+            const isLocked = (tabsLocked && tab.lockedWhenDeploying) || 
+                            (isFailed && (tab.id === "metrics" || tab.id === "logs"));
             const isActive = activeTab === tab.id;
 
             return (
@@ -144,7 +150,7 @@ export function LockedTabBar({
 
       {/* Locked Indicator */}
       <AnimatePresence>
-        {tabsLocked && (
+        {(tabsLocked || isFailed) && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -152,7 +158,9 @@ export function LockedTabBar({
             className="absolute -bottom-8 left-0 right-0 flex justify-center"
           >
             <span className="text-xs text-amber-600/80 bg-amber-50/80 px-3 py-1 rounded-full backdrop-blur-sm">
-              Các tab khác sẽ mở khóa sau khi triển khai hoàn tất
+              {isFailed 
+                ? "Các tab Hiệu suất và Nhật ký Runtime không khả dụng khi build thất bại"
+                : "Các tab khác sẽ mở khóa sau khi triển khai hoàn tất"}
             </span>
           </motion.div>
         )}

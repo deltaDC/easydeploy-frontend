@@ -171,6 +171,7 @@ export default function DatabaseDeployForm() {
   const [showJourney, setShowJourney] = useState(false);
   const [errorDialog, setErrorDialog] = useState({ open: false, message: "" });
   const [createdDbId, setCreatedDbId] = useState<string | null>(null);
+  const [nameError, setNameError] = useState<string>("");
   const [formData, setFormData] = useState<CreateDatabaseDto>({
     name: "",
     type: DatabaseType.POSTGRESQL,
@@ -183,8 +184,27 @@ export default function DatabaseDeployForm() {
   const glowIntensity =
     ((formData.storageGb || 1) / 10 + (formData.memoryMb || 256) / 8192) / 2;
 
+  // Validate database name
+  const validateName = (name: string) => {
+    if (name.includes(" ")) {
+      setNameError("Tên database không được chứa khoảng trắng");
+      return false;
+    }
+    setNameError("");
+    return true;
+  };
+
+  const isFormValid = () => {
+    return formData.name.trim().length >= 3 && !nameError;
+  };
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    
+    if (!validateName(formData.name) || !isFormValid()) {
+      return;
+    }
+    
     setLoading(true);
 
     try {
@@ -250,12 +270,25 @@ export default function DatabaseDeployForm() {
                 <NeumorphicInput
                   id="name"
                   value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  onChange={(e) => {
+                    const newName = e.target.value;
+                    setFormData({ ...formData, name: newName });
+                    validateName(newName);
+                  }}
                   placeholder="my-database"
                   required
                   minLength={3}
                   maxLength={50}
                 />
+                {nameError && (
+                  <motion.p
+                    initial={{ opacity: 0, y: -5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-sm text-red-500 mt-1"
+                  >
+                    {nameError}
+                  </motion.p>
+                )}
               </div>
 
               {/* Database Type Selection */}
@@ -379,13 +412,13 @@ export default function DatabaseDeployForm() {
               >
                 <Button
                   type="submit"
-                  disabled={loading}
+                  disabled={loading || !isFormValid()}
                   className="w-full py-6 text-base font-semibold rounded-xl transition-all duration-300"
                   style={{
-                    background: loading
+                    background: loading || !isFormValid()
                       ? "rgba(146, 175, 173, 0.5)"
                       : "linear-gradient(135deg, #92AFAD, #7A9694)",
-                    boxShadow: loading
+                    boxShadow: loading || !isFormValid()
                       ? "none"
                       : "0 10px 30px rgba(146, 175, 173, 0.4)",
                   }}

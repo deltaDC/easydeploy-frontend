@@ -252,6 +252,9 @@ export default function ApplicationDetailPage() {
     if (isDeploying && tab !== "build-logs") {
       return;
     }
+    if (isFailed && (tab === "metrics" || tab === "logs")) {
+      return;
+    }
     setActiveTab(tab);
   };
 
@@ -398,6 +401,7 @@ export default function ApplicationDetailPage() {
           activeTab={activeTab}
           onTabChange={handleTabChange}
           tabsLocked={tabsLocked}
+          isFailed={isFailed}
           showSuccessAnimation={showSuccessAnimation}
           onSuccessAnimationComplete={dismissSuccessAnimation}
         />
@@ -421,6 +425,7 @@ export default function ApplicationDetailPage() {
                   application={application}
                   containerStatus={containerStatus}
                   onActionComplete={handleActionComplete}
+                  isFailed={isFailed}
                 />
               )}
             </motion.div>

@@ -17,7 +17,18 @@ interface DatabaseOverviewTabProps {
 
 // Helper to calculate uptime - pure function
 function calculateUptime(createdAt: string): number {
-  const createdTime = new Date(createdAt).getTime();
+  if (!createdAt) return 0;
+  
+  let dateObj: Date;
+  const hasTimezone = createdAt.includes('Z') || /[+-]\d{2}:\d{2}$/.test(createdAt);
+  
+  if (!hasTimezone) {
+    dateObj = new Date(createdAt + 'Z');
+  } else {
+    dateObj = new Date(createdAt);
+  }
+  
+  const createdTime = dateObj.getTime();
   const now = Date.now();
   return Math.floor((now - createdTime) / 1000);
 }

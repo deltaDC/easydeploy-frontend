@@ -105,24 +105,6 @@ export function ConnectionVault({
               >
                 {connectionString}
               </code>
-              {/* Blur layer fade from left to right */}
-              {!showConnectionString && (
-                <motion.div
-                  className="absolute inset-0 pointer-events-none"
-                  style={{
-                    background: "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.8) 50%, transparent 100%)",
-                    backdropFilter: "blur(8px)",
-                  }}
-                  animate={{
-                    x: ["-100%", "200%"],
-                  }}
-                  transition={{
-                    duration: 2,
-                    repeat: Infinity,
-                    ease: "linear",
-                  }}
-                />
-              )}
             </div>
           </div>
           <div className="flex gap-2 flex-shrink-0">

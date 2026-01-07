@@ -208,13 +208,13 @@ export function DatabaseMetricsChart({ databaseId }: DatabaseMetricsChartProps) 
           </CardHeader>
           <CardContent className="flex flex-col items-center">
             <LiquidGauge
-              value={metrics.diskUsagePercent || metrics.storageUsagePercent || 0}
+              value={metrics.storageUsagePercent || 0}
               label="Storage"
               size="md"
               color="#10b981"
             />
             <p className="text-xs text-muted-foreground mt-2 text-center">
-              {formatBytes(metrics.diskUsageBytes || metrics.databaseSizeBytes || 0)}
+              {formatBytes(metrics.databaseSizeBytes || 0)}
             </p>
           </CardContent>
         </Card>

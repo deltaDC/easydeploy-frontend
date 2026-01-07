@@ -34,6 +34,7 @@ interface OverviewTabProps {
   application: ApplicationDetail;
   containerStatus?: string;
   onActionComplete?: () => void;
+  isFailed?: boolean;
 }
 
 // Environment Variable Item Component
@@ -213,6 +214,7 @@ export function OverviewTab({
   application,
   containerStatus,
   onActionComplete,
+  isFailed = false,
 }: OverviewTabProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [currentAction, setCurrentAction] = useState<string | null>(null);
@@ -555,7 +557,7 @@ export function OverviewTab({
                 icon={Play}
                 label="Khởi động Container"
                 onClick={() => handleAction("start", "Khởi động")}
-                disabled={isRunning || isDeploying}
+                disabled={isRunning || isDeploying || isFailed}
                 loading={isLoading && currentAction === "start"}
                 variant="default"
               />
@@ -564,7 +566,7 @@ export function OverviewTab({
                 icon={Square}
                 label="Dừng Container"
                 onClick={() => handleAction("stop", "Dừng")}
-                disabled={isStopped || isDeploying}
+                disabled={isStopped || isDeploying || isFailed}
                 loading={isLoading && currentAction === "stop"}
                 variant="stop"
               />
@@ -573,7 +575,7 @@ export function OverviewTab({
                 icon={RotateCcw}
                 label="Khởi động lại Container"
                 onClick={() => handleAction("restart", "Khởi động lại")}
-                disabled={isStopped || isDeploying}
+                disabled={isStopped || isDeploying || isFailed}
                 loading={isLoading && currentAction === "restart"}
                 variant="outline"
               />
