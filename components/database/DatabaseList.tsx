@@ -154,7 +154,7 @@ function EmptyState() {
           />
         </motion.div>
 
-        <h3 className="text-2xl font-serif font-semibold text-charcoal mb-3">
+        <h3 className="text-2xl font-bold text-charcoal mb-3">
           Chưa có cơ sở dữ liệu nào
         </h3>
         <p className="text-charcoal/60 mb-8 text-center max-w-md">

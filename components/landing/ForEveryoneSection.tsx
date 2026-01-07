@@ -42,7 +42,7 @@ export function ForEveryoneSection() {
 					transition={{ duration: 0.8 }}
 				>
 					<div className="text-center mb-16">
-						<h2 className="font-serif text-4xl md:text-5xl font-semibold text-charcoal mb-4">
+						<h2 className="text-4xl md:text-5xl font-bold text-charcoal mb-4">
 							Dành cho mọi người
 						</h2>
 						<p className="text-body-lg text-charcoal/70 max-w-2xl mx-auto">

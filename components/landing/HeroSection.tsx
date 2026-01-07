@@ -58,22 +58,22 @@ export function HeroSection() {
 						</motion.p>
 
 						{/* Headline */}
-						<h1 className="font-serif text-5xl md:text-6xl lg:text-7xl font-semibold text-charcoal leading-tight">
+						<h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-charcoal leading-tight">
 							<motion.span
 								initial={{ opacity: 0, y: 20 }}
 								animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 20 }}
 								transition={{ delay: 0.3, duration: 0.6 }}
 								className="block"
 							>
-								The Clear Path
+								Triển khai dễ dàng
 							</motion.span>
 							<motion.span
 								initial={{ opacity: 0, y: 20 }}
 								animate={{ opacity: isVisible ? 1 : 0, y: isVisible ? 0 : 20 }}
 								transition={{ delay: 0.5, duration: 0.6 }}
-								className="block text-misty-sage"
+								className="block text-green-600"
 							>
-								to Cloud
+								lên đám mây
 							</motion.span>
 						</h1>
 
@@ -97,7 +97,8 @@ export function HeroSection() {
 							<Button
 								asChild
 								size="lg"
-								className="bg-gradient-to-b from-misty-sage to-[#6B8A87] hover:from-[#6B8A87] hover:to-misty-sage text-white border-2 border-misty-sage/30 rounded-full px-8 py-6 text-base font-medium shadow-misty-lg hover:shadow-misty-xl transition-all"
+								variant="success"
+								className="rounded-full px-8 py-6 text-base font-medium shadow-lg hover:shadow-xl transition-all"
 							>
 								<Link href="/register">
 									Bắt đầu miễn phí
@@ -107,10 +108,10 @@ export function HeroSection() {
 							<Button
 								variant="outline"
 								size="lg"
-								onClick={scrollToDemo}
-								className="border-misty-sage/20 text-charcoal hover:bg-misty-sage/5 hover:border-misty-sage/40 rounded-full px-8 py-6 text-base font-medium shadow-misty-sm hover:shadow-misty transition-all"
+								asChild
+								className="rounded-full px-8 py-6 text-base font-medium shadow-sm hover:shadow-md transition-all"
 							>
-								Khám phá quy trình Live
+								<Link href="/login">Đăng nhập ngay</Link>
 							</Button>
 						</motion.div>
 					</motion.div>
@@ -155,9 +156,9 @@ export function HeroSection() {
 									</ResponsiveContainer>
 								</div>
 								<div className="mt-4 text-center">
-									<div className="inline-flex items-center gap-2 text-sm text-misty-sage">
-										<div className="w-2 h-2 rounded-full bg-misty-sage animate-pulse" />
-										<span>App đang Live</span>
+									<div className="inline-flex items-center gap-2 text-sm text-green-600">
+										<div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+										<span>Ứng dụng đang hoạt động</span>
 									</div>
 								</div>
 							</div>

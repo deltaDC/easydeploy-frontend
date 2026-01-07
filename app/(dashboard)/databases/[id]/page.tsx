@@ -21,8 +21,8 @@ import {
 // Tab configuration
 const TABS: { id: DatabaseTab; label: string; icon: React.ElementType }[] = [
   { id: "overview", label: "Tổng quan", icon: LayoutGrid },
-  { id: "query", label: "Query", icon: DatabaseIcon },
-  { id: "metrics", label: "Metrics", icon: Activity },
+  { id: "query", label: "Truy vấn", icon: DatabaseIcon },
+  { id: "metrics", label: "Hiệu suất", icon: Activity },
   { id: "logs", label: "Nhật ký", icon: Terminal },
   { id: "connections", label: "Kết nối", icon: Link2 },
 ];
@@ -134,11 +134,11 @@ function NotFoundState({ onBack }: { onBack: () => void }) {
       >
         <DatabaseIcon className="w-10 h-10 text-charcoal/30" strokeWidth={1.5} />
       </div>
-      <h2 className="text-2xl font-serif font-semibold text-charcoal mb-2">
-        Không tìm thấy Database
+      <h2 className="text-2xl font-bold text-charcoal mb-2">
+        Không tìm thấy cơ sở dữ liệu
       </h2>
       <p className="text-charcoal/60 mb-6">
-        Database bạn đang tìm kiếm không tồn tại hoặc đã bị xóa.
+        Cơ sở dữ liệu bạn đang tìm kiếm không tồn tại hoặc đã bị xóa.
       </p>
       <motion.button
         whileHover={{ scale: 1.02 }}

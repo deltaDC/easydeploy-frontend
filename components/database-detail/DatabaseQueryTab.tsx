@@ -43,15 +43,15 @@ export function DatabaseQueryTab({ database }: DatabaseQueryTabProps) {
               >
                 <DatabaseIcon className="w-10 h-10 text-blue-500" strokeWidth={1.5} />
               </motion.div>
-              <h3 className="text-xl font-serif font-semibold text-charcoal mb-2">
+              <h3 className="text-xl font-semibold text-charcoal mb-2">
                 {database.status === DatabaseStatus.STOPPED
-                  ? "Database đã dừng"
-                  : "Database đang được triển khai"}
+                  ? "Cơ sở dữ liệu đã dừng"
+                  : "Cơ sở dữ liệu đang được triển khai"}
               </h3>
               <p className="text-sm text-charcoal/60 mb-4 max-w-md mx-auto">
                 {database.status === DatabaseStatus.STOPPED
-                  ? "Vui lòng khởi động database để sử dụng Query Editor."
-                  : "Query Editor sẽ khả dụng sau khi database được khởi động."}
+                  ? "Vui lòng khởi động cơ sở dữ liệu để sử dụng trình chỉnh sửa truy vấn."
+                  : "Trình chỉnh sửa truy vấn sẽ khả dụng sau khi cơ sở dữ liệu được khởi động."}
               </p>
               <Badge
                 className="px-4 py-1.5"

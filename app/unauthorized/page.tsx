@@ -20,7 +20,7 @@ export default function UnauthorizedPage() {
 
 				<Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
 					<CardHeader className="text-center pb-6">
-						<CardTitle className="text-xl font-semibold text-red-600">403 - Forbidden</CardTitle>
+						<CardTitle className="text-xl font-semibold text-red-600">403 - Bị cấm truy cập</CardTitle>
 						<CardDescription>
 							Trang này chỉ dành cho quản trị viên hoặc người dùng có quyền phù hợp
 						</CardDescription>

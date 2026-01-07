@@ -68,7 +68,7 @@ export function ExportStatsModal({
           <DialogFooter>
             <Button
               type="button"
-              variant="outline"
+              variant="secondary"
               onClick={handleClose}
               disabled={isLoading}
             >
@@ -77,7 +77,7 @@ export function ExportStatsModal({
             <Button
               type="submit"
               disabled={isLoading}
-              className="bg-sky-500 hover:bg-sky-600 text-white"
+              variant="success"
             >
               {isLoading ? "Đang xuất..." : "Xuất PDF"}
             </Button>

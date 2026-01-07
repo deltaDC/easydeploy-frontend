@@ -122,13 +122,13 @@ export function UpdateAvatarModal({
           <DialogFooter>
             <Button
               type="button"
-              variant="outline"
+              variant="secondary"
               onClick={onClose}
               disabled={isLoading}
             >
               Hủy
             </Button>
-            <Button type="submit" disabled={isLoading}>
+            <Button type="submit" disabled={isLoading} variant="success">
               {isLoading ? "Đang cập nhật..." : "Cập nhật"}
             </Button>
           </DialogFooter>

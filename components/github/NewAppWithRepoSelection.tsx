@@ -656,7 +656,7 @@ export default function NewAppWithRepoSelection() {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="font-serif text-4xl font-bold text-charcoal mb-2">Tạo ứng dụng mới</h1>
+            <h1 className="text-4xl font-bold text-charcoal mb-2">Tạo ứng dụng mới</h1>
             <p className="text-charcoal/70">
               Chọn repository và cấu hình triển khai
             </p>

@@ -82,7 +82,7 @@ export function MistyDatabaseHeader({
             <DatabaseTypeIcon type={database.type} size="lg" />
 
             <div>
-              <h1 className="text-2xl font-serif font-bold text-charcoal">
+              <h1 className="text-2xl font-bold text-charcoal">
                 {database.name}
               </h1>
               <div className="flex items-center gap-3 mt-1">

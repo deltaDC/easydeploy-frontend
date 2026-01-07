@@ -1,8 +1,12 @@
 "use client";
 import { ReactNode } from "react";
+import { SidebarProvider, useSidebar } from "@/contexts/SidebarContext";
 import DashboardSidebar from "./DashboardSidebar";
+import { motion } from "framer-motion";
 
-export default function DashboardLayout({ children }: { children: ReactNode }) {
+function DashboardContent({ children }: { children: ReactNode }) {
+	const { collapsed } = useSidebar();
+
 	return (
 		<div className="min-h-screen misty-morning-background relative overflow-hidden">
 			{/* Mesh Gradient Base */}
@@ -39,11 +43,24 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 			<DashboardSidebar />
 
 			{/* Main Content */}
-			<main className="ml-[260px] min-h-screen relative z-10">
+			<motion.main
+				initial={false}
+				animate={{ marginLeft: collapsed ? '80px' : '260px' }}
+				transition={{ duration: 0.3, ease: "easeInOut" }}
+				className="min-h-screen relative z-10"
+			>
 				<div className="container-page py-8 px-6">
 					{children}
 				</div>
-			</main>
+			</motion.main>
 		</div>
+	);
+}
+
+export default function DashboardLayout({ children }: { children: ReactNode }) {
+	return (
+		<SidebarProvider>
+			<DashboardContent>{children}</DashboardContent>
+		</SidebarProvider>
 	);
 }

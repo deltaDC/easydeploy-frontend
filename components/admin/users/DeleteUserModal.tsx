@@ -40,7 +40,7 @@ export default function DeleteUserModal({
 
   const handleDelete = async () => {
     if (!reason.trim()) {
-      alert('Vui lòng cung cấp lý do');
+      alert('Vui lòng nhập lý do');
       return;
     }
 
@@ -80,9 +80,9 @@ export default function DeleteUserModal({
               <ul className="text-sm text-red-700 space-y-1 list-disc list-inside mt-1">
                 <li>Tất cả dữ liệu người dùng sẽ bị <strong>xóa vĩnh viễn</strong></li>
                 <li>Tất cả dự án phải được dừng/xóa trước</li>
-                <li>Tất cả nhật ký và lịch sử hoạt động sẽ bị xóa</li>
-                <li>Ánh xạ tên miền sẽ bị hủy liên kết</li>
-                <li>Hành động này <strong>KHÔNG THỂ hoàn tác</strong></li>
+                <li>Tất cả logs và lịch sử hoạt động sẽ bị xóa</li>
+                <li>Các liên kết tên miền sẽ bị hủy</li>
+                <li>Hành động này <strong>KHÔNG THỂ</strong> hoàn tác</li>
               </ul>
             </div>
           </div>
@@ -90,7 +90,7 @@ export default function DeleteUserModal({
 
         <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
           <p className="text-sm text-gray-700">
-            <strong>Lưu ý:</strong> Nếu người dùng có dự án đang hoạt động, bạn phải cấm hoặc tạm khóa họ trước khi xóa.
+            <strong>Lưu ý:</strong> Nếu người dùng có dự án đang hoạt động, bạn phải cấm hoặc tạm ngưng họ trước khi xóa.
           </p>
         </div>
 
@@ -109,7 +109,7 @@ export default function DeleteUserModal({
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={handleClose} disabled={isLoading}>
+          <Button variant="secondary" onClick={handleClose} disabled={isLoading}>
             Hủy
           </Button>
           <Button

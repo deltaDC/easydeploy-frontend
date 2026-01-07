@@ -127,7 +127,7 @@ function ContainersList({ containers, onViewDetail }: ContainersListProps) {
               <div className="flex items-center justify-between text-xs">
                 <span className="flex items-center gap-1 text-muted-foreground">
                   <HardDrive className="h-3 w-3" />
-                  Memory
+                  Bộ nhớ
                 </span>
                 <span className="font-medium">{container.memoryUsage.toFixed(1)}%</span>
               </div>
@@ -146,7 +146,7 @@ function ContainersList({ containers, onViewDetail }: ContainersListProps) {
             <div className="flex items-center justify-between text-xs text-muted-foreground">
               <span className="flex items-center gap-1">
                 <Clock className="h-3 w-3" />
-                Uptime
+                Thời gian hoạt động
               </span>
               <span>{formatUptime(container.uptime)}</span>
             </div>
@@ -159,7 +159,7 @@ function ContainersList({ containers, onViewDetail }: ContainersListProps) {
               onClick={() => onViewDetail(container.containerId)}
             >
               <Eye className="h-3 w-3 mr-1" />
-              View Details
+              Xem chi tiết
             </Button>
           </CardContent>
         </Card>

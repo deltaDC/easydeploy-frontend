@@ -50,7 +50,7 @@ export default function UserFiltersBar({
         <div className="flex-1 relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
           <Input
-            placeholder="Search by email or username..."
+            placeholder="Tìm kiếm theo email hoặc username..."
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
             className="pl-10"
@@ -65,14 +65,14 @@ export default function UserFiltersBar({
           }
         >
           <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Filter by status" />
+            <SelectValue placeholder="Lọc theo trạng thái" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="ALL">All Status</SelectItem>
-            <SelectItem value={UserStatus.ACTIVE}>Active</SelectItem>
-            <SelectItem value={UserStatus.SUSPENDED}>Suspended</SelectItem>
-            <SelectItem value={UserStatus.BANNED}>Banned</SelectItem>
-            <SelectItem value={UserStatus.DELETED}>Deleted</SelectItem>
+            <SelectItem value="ALL">Tất cả trạng thái</SelectItem>
+            <SelectItem value={UserStatus.ACTIVE}>Hoạt động</SelectItem>
+            <SelectItem value={UserStatus.SUSPENDED}>Tạm ngưng</SelectItem>
+            <SelectItem value={UserStatus.BANNED}>Bị cấm</SelectItem>
+            <SelectItem value={UserStatus.DELETED}>Đã xóa</SelectItem>
           </SelectContent>
         </Select>
 
@@ -82,12 +82,12 @@ export default function UserFiltersBar({
           onValueChange={(value) => onFilterChange({ sortBy: value })}
         >
           <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Sort by" />
+            <SelectValue placeholder="Sắp xếp theo" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="createdAt">Created Date</SelectItem>
+            <SelectItem value="createdAt">Ngày tạo</SelectItem>
             <SelectItem value="email">Email</SelectItem>
-            <SelectItem value="totalProjects">Projects</SelectItem>
+            <SelectItem value="totalProjects">Dự án</SelectItem>
           </SelectContent>
         </Select>
 
@@ -102,8 +102,8 @@ export default function UserFiltersBar({
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value={SortDirection.ASC}>Ascending</SelectItem>
-            <SelectItem value={SortDirection.DESC}>Descending</SelectItem>
+            <SelectItem value={SortDirection.ASC}>Tăng dần</SelectItem>
+            <SelectItem value={SortDirection.DESC}>Giảm dần</SelectItem>
           </SelectContent>
         </Select>
 
@@ -116,10 +116,10 @@ export default function UserFiltersBar({
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="10">10 / page</SelectItem>
-            <SelectItem value="20">20 / page</SelectItem>
-            <SelectItem value="50">50 / page</SelectItem>
-            <SelectItem value="100">100 / page</SelectItem>
+            <SelectItem value="10">10 / trang</SelectItem>
+            <SelectItem value="20">20 / trang</SelectItem>
+            <SelectItem value="50">50 / trang</SelectItem>
+            <SelectItem value="100">100 / trang</SelectItem>
           </SelectContent>
         </Select>
 
@@ -131,10 +131,10 @@ export default function UserFiltersBar({
 
       {/* Total count */}
       <div className="mt-4 text-sm text-gray-600">
-        Total: <span className="font-semibold">{totalUsers}</span> users
+        Tổng: <span className="font-semibold">{totalUsers}</span> người dùng
         {filters.size && (
           <span className="ml-2">
-            (Page {filters.page || 1} of {Math.ceil(totalUsers / filters.size)})
+            (Trang {filters.page || 1} / {Math.ceil(totalUsers / filters.size)})
           </span>
         )}
       </div>

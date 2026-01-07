@@ -22,7 +22,7 @@ export function VideoSection() {
 					className="max-w-4xl mx-auto"
 				>
 					<div className="text-center mb-12">
-						<h2 className="font-serif text-4xl md:text-5xl font-semibold text-charcoal mb-4">
+						<h2 className="text-4xl md:text-5xl font-bold text-charcoal mb-4">
 							Xem quy trình triển khai
 						</h2>
 						<p className="text-body-lg text-charcoal/70 max-w-2xl mx-auto">

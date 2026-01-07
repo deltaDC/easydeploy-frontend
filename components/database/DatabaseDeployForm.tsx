@@ -107,7 +107,7 @@ function PreviewCard({
           <p className="text-xs text-charcoal/50 uppercase tracking-wider mb-2">
             Xem trước
           </p>
-          <h3 className="text-lg font-serif font-semibold text-charcoal">
+          <h3 className="text-lg font-semibold text-charcoal">
             {formData.name || "database-name"}
           </h3>
         </div>
@@ -253,7 +253,7 @@ export default function DatabaseDeployForm() {
           }}
         >
           <CardHeader>
-            <CardTitle className="text-2xl font-serif text-charcoal">
+            <CardTitle className="text-2xl text-charcoal">
               Cấu hình Database
             </CardTitle>
             <CardDescription className="text-charcoal/60">
@@ -477,7 +477,7 @@ export default function DatabaseDeployForm() {
             <div className="relative z-10 p-8 flex flex-col items-center justify-center h-full">
               {/* Header */}
               <div className="text-center mb-6">
-                <h3 className="text-lg font-serif font-semibold text-charcoal">
+                <h3 className="text-lg font-semibold text-charcoal">
                   {formData.name || "database-name"}
                 </h3>
               </div>

@@ -66,7 +66,7 @@ export default function ContainerDetailDialog({
     const days = Math.floor(seconds / 86400);
     const hours = Math.floor((seconds % 86400) / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
-    
+
     if (days > 0) {
       return `${days}d ${hours}h ${minutes}m`;
     }
@@ -94,24 +94,24 @@ export default function ContainerDetailDialog({
             {/* Status & Actions */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">Status:</span>
+                <span className="text-sm text-muted-foreground">Trạng thái:</span>
                 <Badge variant={container.status === 'running' ? 'default' : 'secondary'} className="capitalize">
                   {container.status}
                 </Badge>
               </div>
-              
+
               {!showReasonInput && (
                 <div className="flex gap-2">
                   {container.status === 'running' && (
                     <>
                       <Button
                         size="sm"
-                        variant="outline"
+                        variant="warning"
                         onClick={() => handleAction('restart')}
                         disabled={isLoading}
                       >
                         <RefreshCw className="h-3 w-3 mr-1" />
-                        Restart
+                        Khởi động lại
                       </Button>
                       <Button
                         size="sm"
@@ -120,19 +120,19 @@ export default function ContainerDetailDialog({
                         disabled={isLoading}
                       >
                         <StopCircle className="h-3 w-3 mr-1" />
-                        Stop
+                        Dừng
                       </Button>
                     </>
                   )}
                   {container.status !== 'running' && (
                     <Button
                       size="sm"
-                      variant="default"
+                      variant="success"
                       onClick={() => handleAction('start')}
                       disabled={isLoading}
                     >
                       <PlayCircle className="h-3 w-3 mr-1" />
-                      Start
+                      Khởi động
                     </Button>
                   )}
                 </div>
@@ -153,7 +153,7 @@ export default function ContainerDetailDialog({
                 <div className="flex gap-2 justify-end">
                   <Button
                     size="sm"
-                    variant="outline"
+                    variant="secondary"
                     onClick={() => {
                       setShowReasonInput(false);
                       setPendingAction(null);
@@ -164,6 +164,7 @@ export default function ContainerDetailDialog({
                   </Button>
                   <Button
                     size="sm"
+                    variant="success"
                     onClick={executeAction}
                     disabled={!actionReason.trim() || isLoading}
                   >
@@ -180,15 +181,14 @@ export default function ContainerDetailDialog({
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Cpu className="h-4 w-4" />
-                  <span>CPU Usage</span>
+                  <span>CPU sử dụng</span>
                 </div>
                 <div className="text-2xl font-bold">{container.metrics.cpuUsage.toFixed(1)}%</div>
                 <div className="h-2 bg-secondary rounded-full overflow-hidden">
                   <div
-                    className={`h-full transition-all ${
-                      container.metrics.cpuUsage > 80 ? 'bg-red-500' : 
-                      container.metrics.cpuUsage > 60 ? 'bg-yellow-500' : 'bg-green-500'
-                    }`}
+                    className={`h-full transition-all ${container.metrics.cpuUsage > 80 ? 'bg-red-500' :
+                        container.metrics.cpuUsage > 60 ? 'bg-yellow-500' : 'bg-green-500'
+                      }`}
                     style={{ width: `${Math.min(container.metrics.cpuUsage, 100)}%` }}
                   />
                 </div>
@@ -197,15 +197,14 @@ export default function ContainerDetailDialog({
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <HardDrive className="h-4 w-4" />
-                  <span>Memory Usage</span>
+                  <span>Bộ nhớ sử dụng</span>
                 </div>
                 <div className="text-2xl font-bold">{container.metrics.memoryUsage.toFixed(1)}%</div>
                 <div className="h-2 bg-secondary rounded-full overflow-hidden">
                   <div
-                    className={`h-full transition-all ${
-                      container.metrics.memoryUsage > 90 ? 'bg-red-500' : 
-                      container.metrics.memoryUsage > 70 ? 'bg-yellow-500' : 'bg-green-500'
-                    }`}
+                    className={`h-full transition-all ${container.metrics.memoryUsage > 90 ? 'bg-red-500' :
+                        container.metrics.memoryUsage > 70 ? 'bg-yellow-500' : 'bg-green-500'
+                      }`}
                     style={{ width: `${Math.min(container.metrics.memoryUsage, 100)}%` }}
                   />
                 </div>
@@ -214,7 +213,7 @@ export default function ContainerDetailDialog({
               <div className="space-y-1">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Clock className="h-4 w-4" />
-                  <span>Uptime</span>
+                  <span>Thời gian hoạt động</span>
                 </div>
                 <div className="text-lg font-semibold">{formatUptime(container.uptime)}</div>
               </div>
@@ -222,7 +221,7 @@ export default function ContainerDetailDialog({
               <div className="space-y-1">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Calendar className="h-4 w-4" />
-                  <span>Created At</span>
+                  <span>Ngày tạo</span>
                 </div>
                 <div className="text-sm">{format(new Date(container.createdAt), 'PPp', { locale: vi })}</div>
               </div>
@@ -234,16 +233,16 @@ export default function ContainerDetailDialog({
             <div className="space-y-3">
               <div className="flex items-center gap-2 text-sm font-semibold">
                 <Image className="h-4 w-4" />
-                <span>Container Information</span>
+                <span>Thông tin Container</span>
               </div>
-              
+
               <div className="grid gap-2 text-sm">
                 <div className="flex justify-between items-start py-2 border-b gap-4">
-                  <span className="text-muted-foreground shrink-0 min-w-[140px]">Container Name</span>
+                  <span className="text-muted-foreground shrink-0 min-w-[140px]">Tên Container</span>
                   <span className="font-mono text-xs text-right break-all">{container.containerName}</span>
                 </div>
                 <div className="flex justify-between items-start py-2 border-b gap-4">
-                  <span className="text-muted-foreground shrink-0 min-w-[140px]">Image</span>
+                  <span className="text-muted-foreground shrink-0 min-w-[140px]">Hình ảnh</span>
                   <span className="font-mono text-xs text-right break-all">{container.image}</span>
                 </div>
                 <div className="flex justify-between items-start py-2 border-b gap-4">
@@ -260,7 +259,7 @@ export default function ContainerDetailDialog({
                 <div className="space-y-3">
                   <div className="flex items-center gap-2 text-sm font-semibold">
                     <Network className="h-4 w-4" />
-                    <span>Port Mappings</span>
+                    <span>Cổng kết nối</span>
                   </div>
                   <div className="grid gap-2 text-sm">
                     {Object.entries(container.ports).map(([containerPort, hostPort]) => (
@@ -281,7 +280,7 @@ export default function ContainerDetailDialog({
                 <div className="space-y-3">
                   <div className="flex items-center gap-2 text-sm font-semibold">
                     <Settings className="h-4 w-4" />
-                    <span>Environment Variables</span>
+                    <span>Biến môi trường</span>
                   </div>
                   <div className="h-[250px] border rounded-lg p-4 overflow-y-auto bg-muted/30">
                     <div className="space-y-3 text-xs font-mono">
@@ -302,7 +301,7 @@ export default function ContainerDetailDialog({
               <>
                 <Separator />
                 <div className="space-y-3">
-                  <div className="text-sm font-semibold">Container Logs (Recent)</div>
+                  <div className="text-sm font-semibold">Nhật ký Container</div>
                   <div className="h-[350px] border rounded-lg p-4 bg-muted/50 overflow-y-auto">
                     <pre className="text-xs font-mono whitespace-pre-wrap break-all leading-relaxed">
                       {container.logs}

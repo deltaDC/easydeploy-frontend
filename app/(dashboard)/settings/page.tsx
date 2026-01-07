@@ -411,6 +411,7 @@ export default function SettingsPage() {
 						disabled={isSaving}
 						className="gap-2 min-w-[200px]"
 						size="lg"
+						variant="success"
 					>
 						{isSaving ? (
 							<>

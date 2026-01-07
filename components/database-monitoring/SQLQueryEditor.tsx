@@ -37,8 +37,8 @@ export function SQLQueryEditor({ databaseId, databaseType }: SQLQueryEditorProps
   const handleExecuteQuery = async () => {
     if (!query.trim()) {
       toast({
-        title: "Error",
-        description: "Please enter a query",
+        title: "Lỗi",
+        description: "Vui lòng nhập truy vấn",
         variant: "destructive",
       });
       return;
@@ -59,19 +59,19 @@ export function SQLQueryEditor({ databaseId, databaseType }: SQLQueryEditorProps
 
       if (result.message.toLowerCase().includes("error")) {
         toast({
-          title: "Query Error",
+          title: "Lỗi truy vấn",
           description: result.message,
           variant: "destructive",
         });
       } else {
         toast({
-          title: "Query Executed",
+          title: "Truy vấn đã thực thi",
           description: result.message,
         });
       }
     } catch (error: any) {
       toast({
-        title: "Execution Failed",
+        title: "Thực thi thất bại",
         description: error.response?.data?.message || error.message,
         variant: "destructive",
       });
@@ -113,14 +113,14 @@ export function SQLQueryEditor({ databaseId, databaseType }: SQLQueryEditorProps
         <div className="flex items-center justify-between mb-4">
           <div>
             <h3 className="text-lg font-semibold text-white/90">
-              {databaseType === "MONGODB" ? "MongoDB Query Editor" : 
-               databaseType === "REDIS" ? "Redis Command Editor" : 
-               "SQL Query Editor"}
+              {databaseType === "MONGODB" ? "Trình chỉnh sửa truy vấn MongoDB" : 
+               databaseType === "REDIS" ? "Trình chỉnh sửa lệnh Redis" : 
+               "Trình chỉnh sửa truy vấn SQL"}
             </h3>
             <p className="text-sm text-white/60 mt-1">
-              {databaseType === "MONGODB" ? "Write and execute MongoDB queries" :
-               databaseType === "REDIS" ? "Execute Redis commands" :
-               "Write and execute SQL queries (SELECT, INSERT, UPDATE, DELETE)"}
+              {databaseType === "MONGODB" ? "Viết và thực thi truy vấn MongoDB" :
+               databaseType === "REDIS" ? "Thực thi lệnh Redis" :
+               "Viết và thực thi truy vấn SQL (SELECT, INSERT, UPDATE, DELETE)"}
             </p>
           </div>
           {/* Execute button: Play triangle in glowing circle */}
@@ -164,10 +164,10 @@ export function SQLQueryEditor({ databaseId, databaseType }: SQLQueryEditorProps
           onKeyDown={handleKeyDown}
           placeholder={
             databaseType === "MONGODB" 
-              ? "Examples:\nshow collections\ndb.users.find({})\ndb.users.count()" 
+              ? "Ví dụ:\nshow collections\ndb.users.find({})\ndb.users.count()" 
               : databaseType === "REDIS"
-              ? "Examples:\nKEYS *\nGET mykey\nHGETALL user:1\nINFO"
-              : "Enter your SQL query here..."
+              ? "Ví dụ:\nKEYS *\nGET mykey\nHGETALL user:1\nINFO"
+              : "Nhập truy vấn SQL của bạn tại đây..."
           }
           className="font-mono min-h-[200px] text-sm bg-transparent border-white/20 text-white placeholder:text-white/40 focus:ring-2 focus:ring-pink-500/50"
           style={{
@@ -177,27 +177,27 @@ export function SQLQueryEditor({ databaseId, databaseType }: SQLQueryEditorProps
           spellCheck={false}
         />
         <div className="mt-2 text-xs text-white/50">
-          Press <kbd className="px-1 py-0.5 bg-white/10 rounded text-white/70">Ctrl</kbd> + <kbd className="px-1 py-0.5 bg-white/10 rounded text-white/70">Enter</kbd> to execute
+          Nhấn <kbd className="px-1 py-0.5 bg-white/10 rounded text-white/70">Ctrl</kbd> + <kbd className="px-1 py-0.5 bg-white/10 rounded text-white/70">Enter</kbd> để thực thi
         </div>
         
         {/* Example queries */}
         {databaseType === "MONGODB" && (
           <div className="mt-3 p-3 bg-white/10 rounded text-xs space-y-1">
-            <div className="font-semibold mb-2 text-white/80">Example MongoDB queries:</div>
+            <div className="font-semibold mb-2 text-white/80">Ví dụ truy vấn MongoDB:</div>
             <div className="space-y-1 font-mono text-white/60">
-              <div>• <span className="text-white/90">show collections</span> - List all collections</div>
-              <div>• <span className="text-white/90">db.collection.find(&#123;&#125;)</span> - Find all documents</div>
-              <div>• <span className="text-white/90">db.collection.find(&#123;&quot;field&quot;: &quot;value&quot;&#125;)</span> - Find with filter</div>
-              <div>• <span className="text-white/90">db.collection.count()</span> - Count documents</div>
-              <div>• <span className="text-white/90">db.collection.aggregate([&#123;$match: &#123;&#125;&#125;])</span> - Aggregation pipeline</div>
-              <div>• <span className="text-white/90">db.collection.createIndex(&#123;&quot;field&quot;: 1&#125;)</span> - Create index</div>
+              <div>• <span className="text-white/90">show collections</span> - Liệt kê tất cả collections</div>
+              <div>• <span className="text-white/90">db.collection.find(&#123;&#125;)</span> - Tìm tất cả documents</div>
+              <div>• <span className="text-white/90">db.collection.find(&#123;&quot;field&quot;: &quot;value&quot;&#125;)</span> - Tìm với bộ lọc</div>
+              <div>• <span className="text-white/90">db.collection.count()</span> - Đếm documents</div>
+              <div>• <span className="text-white/90">db.collection.aggregate([&#123;$match: &#123;&#125;&#125;])</span> - Pipeline tổng hợp</div>
+              <div>• <span className="text-white/90">db.collection.createIndex(&#123;&quot;field&quot;: 1&#125;)</span> - Tạo index</div>
             </div>
           </div>
         )}
         
         {databaseType === "REDIS" && (
           <div className="mt-3 p-3 bg-white/10 rounded text-xs space-y-1">
-            <div className="font-semibold mb-2 text-white/80">Example Redis commands:</div>
+            <div className="font-semibold mb-2 text-white/80">Ví dụ lệnh Redis:</div>
             <div className="space-y-1 font-mono text-white/60">
               <div className="mb-1 text-white/90 font-semibold">String:</div>
               <div>• <span className="text-white/90">GET key</span> / <span className="text-white/90">SET key value</span> / <span className="text-white/90">MGET key1 key2</span></div>
@@ -210,7 +210,7 @@ export function SQLQueryEditor({ databaseId, databaseType }: SQLQueryEditorProps
               <div>• <span className="text-white/90">SADD set member</span> / <span className="text-white/90">SMEMBERS set</span></div>
               <div className="mb-1 mt-2 text-white/90 font-semibold">Sorted Set:</div>
               <div>• <span className="text-white/90">ZADD zset 1 member</span> / <span className="text-white/90">ZRANGE zset 0 -1 WITHSCORES</span></div>
-              <div className="mb-1 mt-2 text-white/90 font-semibold">Other:</div>
+              <div className="mb-1 mt-2 text-white/90 font-semibold">Khác:</div>
               <div>• <span className="text-white/90">KEYS *</span> / <span className="text-white/90">TTL key</span> / <span className="text-white/90">INFO</span></div>
             </div>
           </div>
@@ -237,7 +237,7 @@ export function SQLQueryEditor({ databaseId, databaseType }: SQLQueryEditorProps
                 ) : (
                   <CheckCircle2 className="h-5 w-5 text-emerald-500" />
                 )}
-                Results
+                Kết quả
               </h3>
               <div className="flex items-center gap-4 text-sm text-charcoal/60">
                 <span className="flex items-center gap-1">
@@ -246,11 +246,11 @@ export function SQLQueryEditor({ databaseId, databaseType }: SQLQueryEditorProps
                 </span>
                 {result.rowCount !== undefined && (
                   <span>
-                    {result.rowCount} {result.rowCount === 1 ? "row" : "rows"}
+                    {result.rowCount} {result.rowCount === 1 ? "dòng" : "dòng"}
                   </span>
                 )}
                 {result.affectedRows !== undefined && (
-                  <span>{result.affectedRows} affected</span>
+                  <span>{result.affectedRows} đã thay đổi</span>
                 )}
               </div>
             </div>
@@ -307,7 +307,7 @@ export function SQLQueryEditor({ databaseId, databaseType }: SQLQueryEditorProps
               </div>
             ) : result.queryType === "SELECT" ? (
               <div className="text-center py-8 text-charcoal/60">
-                Query returned no results
+                Truy vấn không trả về kết quả
               </div>
             ) : (
               <div className="py-4">

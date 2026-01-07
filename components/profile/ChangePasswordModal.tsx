@@ -250,13 +250,13 @@ export function ChangePasswordModal({ isOpen, onClose }: ChangePasswordModalProp
           <DialogFooter>
             <Button
               type="button"
-              variant="outline"
+              variant="secondary"
               onClick={handleClose}
               disabled={isLoading || success}
             >
               Hủy
             </Button>
-            <Button type="submit" disabled={isLoading || success}>
+            <Button type="submit" disabled={isLoading || success} variant="success">
               {isLoading ? "Đang xử lý..." : success ? "Thành công!" : "Đổi mật khẩu"}
             </Button>
           </DialogFooter>

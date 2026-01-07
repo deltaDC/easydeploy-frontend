@@ -50,7 +50,7 @@ export default function DeleteConfirmDialog({
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button variant="secondary" onClick={() => onOpenChange(false)}>
             Hủy
           </Button>
           <Button variant="destructive" onClick={handleConfirm}>

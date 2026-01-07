@@ -86,7 +86,7 @@ export function UptimeZenCircle({ uptimeSeconds, size = 160 }: UptimeZenCirclePr
         {/* Center content with uptime */}
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <motion.span
-            className="text-2xl font-serif font-semibold text-charcoal"
+            className="text-2xl font-semibold text-charcoal"
             animate={{
               opacity: [0.8, 1, 0.8],
             }}
@@ -98,13 +98,13 @@ export function UptimeZenCircle({ uptimeSeconds, size = 160 }: UptimeZenCirclePr
           >
             {formatUptime(uptimeSeconds)}
           </motion.span>
-          <span className="text-xs text-charcoal/40 mt-1 font-serif">Uptime</span>
+          <span className="text-xs text-charcoal/40 mt-1">Uptime</span>
         </div>
       </div>
 
       {/* Zen breathing text */}
       <motion.p
-        className="mt-4 text-xs text-charcoal/30 font-serif italic"
+        className="mt-4 text-xs text-charcoal/30 italic"
         animate={{
           opacity: [0.3, 0.5, 0.3],
         }}
