@@ -21,7 +21,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { MoreVertical, Play, Square, RotateCw, Trash2, ExternalLink, Clock, Activity, Terminal } from 'lucide-react';
+import { MoreVertical, Play, Square, RotateCw, Trash2, Clock, Activity } from 'lucide-react';
 import { toast } from 'sonner';
 import Link from 'next/link';
 import type { RecentApplication, DeploymentStatus } from '@/types/dashboard';
@@ -160,10 +160,10 @@ export function RecentAppsCard({ apps, onUpdate }: RecentAppsCardProps) {
 
   if (apps.length === 0) {
     return (
-      <Card>
+      <Card className="h-full flex flex-col">
         <CardHeader>
           <CardTitle>Ứng dụng gần đây</CardTitle>
-          <CardDescription>5 ứng dụng được triển khai gần nhất</CardDescription>
+          <CardDescription>4 ứng dụng được triển khai gần nhất</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="text-center py-12 space-y-3">
@@ -186,11 +186,11 @@ export function RecentAppsCard({ apps, onUpdate }: RecentAppsCardProps) {
 
   return (
     <>
-      <Card className="bg-white/40 backdrop-blur-[20px] border border-white/60 rounded-3xl shadow-[0_8px_32px_rgba(31,38,135,0.1)]">
+      <Card className="bg-white/40 backdrop-blur-[20px] border border-white/60 rounded-3xl shadow-[0_8px_32px_rgba(31,38,135,0.1)] h-full flex flex-col">
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
             <CardTitle className="text-charcoal">Hoạt động gần đây</CardTitle>
-            <CardDescription className="text-charcoal/60">5 ứng dụng được triển khai gần nhất</CardDescription>
+            <CardDescription className="text-charcoal/60">4 ứng dụng được triển khai gần nhất</CardDescription>
           </div>
           <Link 
             href="/apps" 
@@ -199,9 +199,9 @@ export function RecentAppsCard({ apps, onUpdate }: RecentAppsCardProps) {
             Xem tất cả
           </Link>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {apps.map((app, index) => (
+        <CardContent className="flex-1 flex flex-col">
+          <div className="space-y-3 flex-1">
+            {apps.slice(0, 4).map((app, index) => (
               <motion.div
                 key={app.id}
                 initial={{ opacity: 0, y: 10 }}
@@ -245,30 +245,8 @@ export function RecentAppsCard({ apps, onUpdate }: RecentAppsCardProps) {
                   </div>
 
                   {/* Status Badge */}
-                  <div className="flex items-center gap-2 shrink-0">
+                  <div className="flex items-center shrink-0">
                     {getStatusBadge(app)}
-
-                    {/* Hover Actions - Hidden by default, shown on hover */}
-                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <Link
-                        href={`/apps/${app.id}?tab=logs`}
-                        className="p-2 rounded-lg hover:bg-white/40 transition-colors"
-                        title="Xem logs"
-                      >
-                        <Terminal className="h-4 w-4 text-charcoal/60 hover:text-charcoal" strokeWidth={1.5} />
-                      </Link>
-                      {app.publicUrl && (
-                        <a
-                          href={app.publicUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="p-2 rounded-lg hover:bg-white/40 transition-colors"
-                          title="Mở web"
-                        >
-                          <ExternalLink className="h-4 w-4 text-charcoal/60 hover:text-charcoal" strokeWidth={1.5} />
-                        </a>
-                      )}
-                    </div>
                   </div>
                 </div>
               </motion.div>

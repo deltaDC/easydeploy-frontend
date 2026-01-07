@@ -6,17 +6,21 @@
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
-import { ArrowLeft, Mail, Github, Calendar, Activity } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { ArrowLeft, Mail, Github, Calendar, Activity, Package, Clock } from 'lucide-react';
 import { useUserDetail } from '@/hooks/useUserDetail';
 import { useUserActions } from '@/hooks/useUserActions';
-import { Card } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { getStatusColor, formatDate, formatRelativeTime, getInitials } from '@/utils/user-management.utils';
 import UserActionButtons from '@/components/admin/users/UserActionButtons';
 import EditUserModal from '@/components/admin/users/EditUserModal';
+import ApplicationDetailModal from '@/components/admin/users/ApplicationDetailModal';
+import userManagementService from '@/services/user-management.service';
 
 export default function UserDetailPage() {
   const params = useParams();
@@ -25,17 +29,39 @@ export default function UserDetailPage() {
   
   const { user, isLoading, isError, mutate } = useUserDetail(userId);
   const { updateUser } = useUserActions();
+  const [applications, setApplications] = useState<any[]>([]);
+  const [loginHistory, setLoginHistory] = useState<any[]>([]);
+  const [loadingApps, setLoadingApps] = useState(true);
+  const [loadingHistory, setLoadingHistory] = useState(true);
+  const [selectedApplicationId, setSelectedApplicationId] = useState<string | null>(null);
+  const [isApplicationModalOpen, setIsApplicationModalOpen] = useState(false);
 
   const handleEdit = async (roles: string[]) => {
     await updateUser(userId, roles);
     mutate();
   };
 
+  useEffect(() => {
+    if (userId) {
+      // Fetch applications
+      userManagementService.getUserApplications(userId)
+        .then(setApplications)
+        .catch(console.error)
+        .finally(() => setLoadingApps(false));
+      
+      // Fetch login history
+      userManagementService.getUserLoginHistory(userId, 20)
+        .then(setLoginHistory)
+        .catch(console.error)
+        .finally(() => setLoadingHistory(false));
+    }
+  }, [userId]);
+
   if (isLoading) {
     return (
       <div className="container mx-auto p-6">
         <Card className="p-6">
-          <p className="text-center text-gray-500">Loading user details...</p>
+          <p className="text-center text-gray-500">Đang tải thông tin người dùng...</p>
         </Card>
       </div>
     );
@@ -45,9 +71,9 @@ export default function UserDetailPage() {
     return (
       <div className="container mx-auto p-6">
         <Card className="p-6">
-          <p className="text-center text-red-600">Failed to load user. User may not exist.</p>
+          <p className="text-center text-red-600">Không thể tải thông tin người dùng. Người dùng có thể không tồn tại.</p>
           <div className="flex justify-center mt-4">
-            <Button onClick={() => router.back()}>Go Back</Button>
+            <Button onClick={() => router.back()}>Quay lại</Button>
           </div>
         </Card>
       </div>
@@ -59,7 +85,7 @@ export default function UserDetailPage() {
       {/* Back Button */}
       <Button variant="ghost" onClick={() => router.back()}>
         <ArrowLeft className="w-4 h-4 mr-2" />
-        Back to Users
+        Quay lại danh sách người dùng
       </Button>
 
       {/* User Info Card */}
@@ -107,13 +133,13 @@ export default function UserDetailPage() {
 
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4" />
-                <span>Joined {formatDate(user.createdAt)}</span>
+                <span>Tham gia {formatDate(user.createdAt)}</span>
               </div>
 
               {user.lastLoginAt && (
                 <div className="flex items-center gap-2">
                   <Activity className="w-4 h-4" />
-                  <span>Last login {formatRelativeTime(user.lastLoginAt)}</span>
+                  <span>Đăng nhập lần cuối {formatRelativeTime(user.lastLoginAt)}</span>
                 </div>
               )}
             </div>
@@ -138,28 +164,135 @@ export default function UserDetailPage() {
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card className="p-4">
-          <div className="text-sm text-gray-600">Total Projects</div>
+          <div className="text-sm text-gray-600">Tổng dự án</div>
           <div className="text-2xl font-bold mt-1">{user.totalProjects || 0}</div>
         </Card>
         <Card className="p-4">
-          <div className="text-sm text-gray-600">Active Projects</div>
+          <div className="text-sm text-gray-600">Dự án đang chạy</div>
           <div className="text-2xl font-bold mt-1 text-green-600">
             {user.activeProjects || 0}
           </div>
         </Card>
         <Card className="p-4">
-          <div className="text-sm text-gray-600">Login Count</div>
+          <div className="text-sm text-gray-600">Số lần đăng nhập</div>
           <div className="text-2xl font-bold mt-1">{user.loginCount || 0}</div>
         </Card>
         <Card className="p-4">
-          <div className="text-sm text-gray-600">Last Login IP</div>
+          <div className="text-sm text-gray-600">IP đăng nhập cuối</div>
           <div className="text-lg font-mono mt-1">
             {user.lastLoginIp || 'N/A'}
           </div>
         </Card>
       </div>
 
-      {/* TODO: Add Projects List, Activity Log, etc. */}
+      {/* Projects List */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Package className="w-5 h-5" />
+            Danh sách dự án
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {loadingApps ? (
+            <p className="text-center text-gray-500 py-4">Đang tải...</p>
+          ) : applications.length === 0 ? (
+            <p className="text-center text-gray-500 py-4">Người dùng này chưa có dự án nào</p>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Tên dự án</TableHead>
+                  <TableHead>Trạng thái</TableHead>
+                  <TableHead>Ngày tạo</TableHead>
+                  <TableHead>Cập nhật lần cuối</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {applications.map((app) => (
+                  <TableRow key={app.id}>
+                    <TableCell>
+                      <button
+                        onClick={() => {
+                          setSelectedApplicationId(app.id);
+                          setIsApplicationModalOpen(true);
+                        }}
+                        className="text-blue-600 hover:underline cursor-pointer"
+                      >
+                        {app.name}
+                      </button>
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant={
+                          app.status === 'SUCCESS'
+                            ? 'default'
+                            : app.status === 'FAILED'
+                            ? 'destructive'
+                            : 'secondary'
+                        }
+                      >
+                        {app.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{formatDate(app.createdAt)}</TableCell>
+                    <TableCell>{formatDate(app.updatedAt)}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Activity Log */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Clock className="w-5 h-5" />
+            Nhật ký hoạt động
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {loadingHistory ? (
+            <p className="text-center text-gray-500 py-4">Đang tải...</p>
+          ) : loginHistory.length === 0 ? (
+            <p className="text-center text-gray-500 py-4">Chưa có lịch sử đăng nhập</p>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Thời gian đăng nhập</TableHead>
+                  <TableHead>Địa chỉ IP</TableHead>
+                  <TableHead>User Agent</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {loginHistory.map((login) => (
+                  <TableRow key={login.id}>
+                    <TableCell>{formatDate(login.loginTime)}</TableCell>
+                    <TableCell className="font-mono">{login.ipAddress || 'N/A'}</TableCell>
+                    <TableCell className="text-sm text-gray-600 max-w-md truncate">
+                      {login.userAgent || 'N/A'}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Application Detail Modal */}
+      <ApplicationDetailModal
+        isOpen={isApplicationModalOpen}
+        onClose={() => {
+          setIsApplicationModalOpen(false);
+          setSelectedApplicationId(null);
+        }}
+        userId={userId}
+        applicationId={selectedApplicationId}
+      />
     </div>
   );
 }

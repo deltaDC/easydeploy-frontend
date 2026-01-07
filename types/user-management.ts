@@ -29,29 +29,48 @@ export enum SortDirection {
 // ============================================
 
 /**
- * User trong danh sách (response từ GET /api/v1/admin/users)
+ * User
  */
 export interface User {
-  id: string; // ezdpl000001
+  id: string;
   email: string;
   githubUsername: string | null;
   githubId: string | null;
   avatarUrl: string | null;
   status: UserStatus;
   roles: UserRole[];
-  createdAt: string; // ISO string
+  createdAt: string;
   updatedAt: string;
   totalProjects?: number;
   activeProjects?: number;
+  lastLoginAt?: string | null;
 }
 
 /**
- * User detail đầy đủ (response từ GET /api/v1/admin/users/{userId})
+ * User detail
  */
 export interface UserDetail extends User {
   loginCount: number;
   lastLoginAt: string | null;
   lastLoginIp: string | null;
+}
+
+/**
+ * Application detail for admin view (limited info, no secrets)
+ */
+export interface ApplicationDetailDTO {
+  id: string;
+  userId: string;
+  name: string;
+  status: string;
+  publicUrl: string | null;
+  containerId: string | null;
+  createdAt: string;
+  updatedAt: string;
+  repositoryName: string | null;
+  repositoryFullName: string | null;
+  language: string | null;
+  selectedBranch: string | null;
 }
 
 // ============================================
@@ -62,12 +81,12 @@ export interface UserDetail extends User {
  * Query params cho GET /api/v1/admin/users
  */
 export interface GetUsersParams {
-  page?: number; // 1-based
-  size?: number; // default 20
-  sortBy?: string; // default 'createdAt'
-  direction?: SortDirection; // default 'DESC'
+  page?: number;
+  size?: number;
+  sortBy?: string;
+  direction?: SortDirection;
   status?: UserStatus;
-  keyword?: string; // search by email or username
+  keyword?: string;
 }
 
 /**
@@ -84,7 +103,7 @@ export interface UpdateUserRequest {
  * Cũng dùng cho suspend, delete, activate
  */
 export interface UserActionRequest {
-  reason: string; // Lý do thực hiện hành động
+  reason: string;
 }
 
 // ============================================
@@ -97,7 +116,7 @@ export interface UserActionRequest {
 export interface UserListResponse {
   users: User[];
   totalUsers: number;
-  currentPage: number; // 1-based (từ backend)
+  currentPage: number;
   totalPages: number;
   pageSize: number;
 }

@@ -112,7 +112,7 @@ export function StatsCards({ stats }: StatsCardsProps) {
                   {card.title}
                 </CardTitle>
                 <div className={`p-2.5 rounded-xl ${card.bgColor}`}>
-                  {card.showSpinner ? (
+                  {card.showSpinner && card.value > 0 ? (
                     <Icon className={`h-5 w-5 ${card.color} animate-spin`} strokeWidth={1.5} />
                   ) : (
                     <Icon className={`h-5 w-5 ${card.color}`} strokeWidth={1.5} />

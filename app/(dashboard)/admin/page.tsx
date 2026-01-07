@@ -5,24 +5,19 @@ import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import Link from "next/link";
 import api from "@/services/api";
 import { StatsService } from "@/services/stats.service";
 import userManagementService from "@/services/user-management.service";
+import { monitoringService } from "@/services/monitoring.service";
 import { SortDirection } from "@/types/user-management";
 import { 
 	Users, 
 	Activity, 
 	Server, 
 	Shield, 
-	Search, 
-	Filter,
-	MoreHorizontal,
-	Ban,
 	CheckCircle,
 	AlertCircle,
 	TrendingUp,
@@ -33,8 +28,6 @@ import {
 export default function AdminDashboard() {
 	const { user, isAdmin } = useAuth();
 	const [mounted, setMounted] = useState(false);
-	const [searchTerm, setSearchTerm] = useState("");
-	const [statusFilter, setStatusFilter] = useState("all");
 	const [stats, setStats] = useState({
 		totalUsers: 0,
 		activeUsers: 0,
@@ -42,8 +35,12 @@ export default function AdminDashboard() {
 		runningApps: 0,
 		totalDeployments: 0,
 		successfulDeployments: 0,
-		systemUptime: 0,
-		avgResponseTime: 0,
+		systemUptime: null as number | null,
+		avgResponseTime: null as number | null,
+		totalUsersChangePercent: undefined as number | undefined,
+		runningAppsChangePercent: undefined as number | undefined,
+		successRateChangePercent: undefined as number | undefined,
+		systemUptimeChangePercent: undefined as number | undefined,
 	});
 	const [recentUsers, setRecentUsers] = useState<Array<{
 		id: string;
@@ -85,9 +82,105 @@ export default function AdminDashboard() {
 					runningApps: summary.runningApplications,
 					totalDeployments: summary.totalDeployments,
 					successfulDeployments: summary.successfulDeployments,
-					systemUptime: 99.8, // Chưa có backend
-					avgResponseTime: 145, // Chưa có backend
+					systemUptime: summary.systemUptime ?? null,
+					avgResponseTime: summary.avgResponseTime ?? null,
+					totalUsersChangePercent: summary.totalUsersChangePercent,
+					runningAppsChangePercent: summary.runningAppsChangePercent,
+					successRateChangePercent: summary.successRateChangePercent,
+					systemUptimeChangePercent: summary.systemUptimeChangePercent,
 				});
+				
+				try {
+					const prometheusMetrics = await monitoringService.getPrometheusMetrics();
+					if (prometheusMetrics?.systemMetrics) {
+						const sysMetrics = prometheusMetrics.systemMetrics;
+						const jvmMetrics = prometheusMetrics.jvmMetrics;
+						
+						setSystemMetrics([
+							{
+								name: "CPU Usage",
+								value: `${sysMetrics.processCpuUsage?.toFixed(1) || 0}%`,
+								trend: sysMetrics.cpuTrend || "up",
+								change: sysMetrics.cpuChange || "+0%"
+							},
+							{
+								name: "Memory Usage", 
+								value: `${jvmMetrics?.heapUsagePercent?.toFixed(1) || 0}%`,
+								trend: sysMetrics.memoryTrend || "down",
+								change: sysMetrics.memoryChange || "+0%"
+							},
+							{
+								name: "Disk Usage",
+								value: sysMetrics.diskUsage != null ? `${sysMetrics.diskUsage.toFixed(1)}%` : "N/A",
+								trend: "up",
+								change: "+0%"
+							},
+							{
+								name: "Network I/O",
+								value: sysMetrics.networkIO || "N/A",
+								trend: "up", 
+								change: "+0%"
+							}
+						]);
+					} else {
+						// Fallback to hardcoded values if metrics not available
+						setSystemMetrics([
+							{
+								name: "CPU Usage",
+								value: "N/A",
+								trend: "up",
+								change: "+0%"
+							},
+							{
+								name: "Memory Usage", 
+								value: "N/A",
+								trend: "down",
+								change: "+0%"
+							},
+							{
+								name: "Disk Usage",
+								value: "N/A", 
+								trend: "up",
+								change: "+0%"
+							},
+							{
+								name: "Network I/O",
+								value: "N/A",
+								trend: "up", 
+								change: "+0%"
+							}
+						]);
+					}
+				} catch (error) {
+					console.error("Error fetching Prometheus metrics:", error);
+					// Keep hardcoded values on error
+					setSystemMetrics([
+						{
+							name: "CPU Usage",
+							value: "N/A",
+							trend: "up",
+							change: "+0%"
+						},
+						{
+							name: "Memory Usage", 
+							value: "N/A",
+							trend: "down",
+							change: "+0%"
+						},
+						{
+							name: "Disk Usage",
+							value: "N/A", 
+							trend: "up",
+							change: "+0%"
+						},
+						{
+							name: "Network I/O",
+							value: "N/A",
+							trend: "up", 
+							change: "+0%"
+						}
+					]);
+				}
 				
 				const usersResponse = await userManagementService.getAllUsers({
 					page: 1,
@@ -103,38 +196,16 @@ export default function AdminDashboard() {
 					status: user.status?.toLowerCase() || 'active',
 					createdAt: user.createdAt || '',
 					lastLoginAt: (user as any).lastLoginAt || user.createdAt || '',
-					appsCount: user.totalProjects || 0,
+					appsCount: (user as any).totalProjects ?? 0,
 				}));
 				
-				setRecentUsers(users);
+				users.sort((a, b) => {
+					const dateA = new Date(a.lastLoginAt).getTime();
+					const dateB = new Date(b.lastLoginAt).getTime();
+					return dateB - dateA;
+				});
 				
-				// System metrics - chưa có backend
-				setSystemMetrics([
-					{
-						name: "CPU Usage",
-						value: "45%",
-						trend: "up",
-						change: "+2.3%"
-					},
-					{
-						name: "Memory Usage", 
-						value: "67%",
-						trend: "down",
-						change: "-1.2%"
-					},
-					{
-						name: "Disk Usage",
-						value: "23%", 
-						trend: "up",
-						change: "+0.8%"
-					},
-					{
-						name: "Network I/O",
-						value: "234 MB/s",
-						trend: "up", 
-						change: "+12.5%"
-					}
-				]);
+				setRecentUsers(users.slice(0, 5));
 			} catch (error) {
 				console.error("Error fetching admin data:", error);
 			} finally {
@@ -178,6 +249,15 @@ export default function AdminDashboard() {
 		);
 	}
 
+	const formatPercentageChange = (value: number | undefined): { text: string; color: string } => {
+		if (value === null || value === undefined || isNaN(value)) {
+			return { text: "+0%", color: "text-muted-foreground" };
+		}
+		const sign = value >= 0 ? "+" : "";
+		const color = value >= 0 ? "text-green-600" : "text-red-600";
+		return { text: `${sign}${value.toFixed(1)}%`, color };
+	};
+
 	return (
 		<div className="py-6">
 			<div className="container-page grid gap-6">
@@ -206,7 +286,10 @@ export default function AdminDashboard() {
 							<CardContent>
 								<div className="text-2xl font-bold">{stats.totalUsers.toLocaleString()}</div>
 								<p className="text-xs text-muted-foreground flex items-center gap-1">
-									<span className="text-green-600">+12%</span> so với tháng trước
+									{(() => {
+										const change = formatPercentageChange(stats.totalUsersChangePercent);
+										return <span className={change.color}>{change.text}</span>;
+									})()} so với tháng trước
 									<ArrowRight className="h-3 w-3 ml-auto" />
 								</p>	
 							</CardContent>
@@ -221,7 +304,10 @@ export default function AdminDashboard() {
 						<CardContent>
 							<div className="text-2xl font-bold">{stats.runningApps.toLocaleString()}</div>
 							<p className="text-xs text-muted-foreground">
-								<span className="text-green-600">+8%</span> so với tháng trước
+								{(() => {
+									const change = formatPercentageChange(stats.runningAppsChangePercent);
+									return <span className={change.color}>{change.text}</span>;
+								})()} so với tháng trước
 							</p>
 						</CardContent>
 					</Card>
@@ -236,7 +322,10 @@ export default function AdminDashboard() {
 								{((stats.successfulDeployments / stats.totalDeployments) * 100).toFixed(1)}%
 							</div>
 							<p className="text-xs text-muted-foreground">
-								<span className="text-green-600">+2.1%</span> so với tháng trước
+								{(() => {
+									const change = formatPercentageChange(stats.successRateChangePercent);
+									return <span className={change.color}>{change.text}</span>;
+								})()} so với tháng trước
 							</p>
 						</CardContent>
 					</Card>
@@ -247,9 +336,14 @@ export default function AdminDashboard() {
 							<CheckCircle className="h-4 w-4 text-muted-foreground" />
 						</CardHeader>
 						<CardContent>
-							<div className="text-2xl font-bold">{stats.systemUptime}%</div>
+							<div className="text-2xl font-bold">
+								{stats.systemUptime != null ? `${stats.systemUptime}%` : "N/A"}
+							</div>
 							<p className="text-xs text-muted-foreground">
-								<span className="text-green-600">+0.1%</span> so với tháng trước
+								{(() => {
+									const change = formatPercentageChange(stats.systemUptimeChangePercent);
+									return <span className={change.color}>{change.text}</span>;
+								})()} so với tháng trước
 							</p>
 						</CardContent>
 					</Card>
@@ -287,31 +381,9 @@ export default function AdminDashboard() {
 				<Card>
 					<CardHeader>
 						<CardTitle>Quản lý người dùng</CardTitle>
-						<CardDescription>Danh sách và quản lý tài khoản người dùng</CardDescription>
+						<CardDescription>5 người hoạt động gần nhất</CardDescription>
 					</CardHeader>
 					<CardContent>
-						<div className="flex items-center gap-4 mb-4">
-							<div className="relative flex-1">
-								<Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-								<Input
-									placeholder="Tìm kiếm người dùng..."
-									value={searchTerm}
-									onChange={(e) => setSearchTerm(e.target.value)}
-									className="pl-10"
-								/>
-							</div>
-							<Select value={statusFilter} onValueChange={setStatusFilter}>
-								<SelectTrigger className="w-40">
-									<SelectValue />
-								</SelectTrigger>
-								<SelectContent>
-									<SelectItem value="all">Tất cả</SelectItem>
-									<SelectItem value="active">Hoạt động</SelectItem>
-									<SelectItem value="suspended">Bị khóa</SelectItem>
-								</SelectContent>
-							</Select>
-						</div>
-
 						<Table>
 							<TableHeader>
 								<TableRow>
@@ -320,7 +392,6 @@ export default function AdminDashboard() {
 									<TableHead>Trạng thái</TableHead>
 									<TableHead>Số ứng dụng</TableHead>
 									<TableHead>Đăng nhập cuối</TableHead>
-									<TableHead className="w-[100px]">Thao tác</TableHead>
 								</TableRow>
 							</TableHeader>
 							<TableBody>
@@ -338,18 +409,16 @@ export default function AdminDashboard() {
 										</Badge>
 									</TableCell>
 										<TableCell>
-											<Badge variant={user.status === 'active' ? 'default' : 'destructive'}>
+											<Badge 
+												variant={user.status === 'active' ? 'default' : 'destructive'}
+												className={user.status === 'active' ? 'bg-green-500 hover:bg-green-600 text-white' : ''}
+											>
 												{user.status === 'active' ? 'Hoạt động' : 'Bị khóa'}
 											</Badge>
 										</TableCell>
 										<TableCell>{user.appsCount}</TableCell>
 										<TableCell>
 											{new Date(user.lastLoginAt).toLocaleDateString('vi-VN')}
-										</TableCell>
-										<TableCell>
-											<Button variant="outline" size="sm">
-												<MoreHorizontal className="h-4 w-4" />
-											</Button>
 										</TableCell>
 									</TableRow>
 								))}
