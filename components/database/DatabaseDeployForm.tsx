@@ -143,8 +143,8 @@ function PreviewCard({
           </span>
         </motion.div>
 
-        {/* Resources preview */}
-        <div className="w-full max-w-xs space-y-4">
+        {/* Resources preview - Ẩn */}
+        {/* <div className="w-full max-w-xs space-y-4">
           <div className="flex items-center justify-between text-sm">
             <span className="text-charcoal/60">Storage</span>
             <span className="font-semibold text-charcoal">{formData.storageGb} GB</span>
@@ -159,7 +159,7 @@ function PreviewCard({
             <span className="text-charcoal/60">Memory</span>
             <span className="font-semibold text-charcoal">{formData.memoryMb} MB</span>
           </div>
-        </div>
+        </div> */}
       </div>
     </motion.div>
   );
@@ -340,19 +340,48 @@ export default function DatabaseDeployForm() {
               <div className="space-y-2">
                 <Label className="text-charcoal font-medium">Phiên bản</Label>
                 <div className="flex flex-wrap gap-2">
-                  {currentOption?.versions.map((version) => (
-                    <GlassPill
-                      key={version}
-                      label=""
-                      value={`v${version}`}
-                      className={formData.version === version ? "ring-2 ring-misty-sage/50" : ""}
-                    />
-                  ))}
+                  {currentOption?.versions.map((version) => {
+                    const isSelected = formData.version === version;
+                    return (
+                      <motion.button
+                        key={version}
+                        type="button"
+                        onClick={() => {
+                          setFormData({ ...formData, version });
+                        }}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        className={`inline-flex items-center gap-2 px-4 py-2 rounded-full transition-all duration-200 ${
+                          isSelected
+                            ? "ring-2 ring-misty-sage/50 bg-misty-sage/20"
+                            : "bg-white/10 hover:bg-white/20"
+                        }`}
+                        style={{
+                          backdropFilter: "blur(10px)",
+                          border: isSelected
+                            ? "1px solid rgba(146, 175, 173, 0.5)"
+                            : "1px solid rgba(255, 255, 255, 0.3)",
+                          boxShadow: isSelected
+                            ? "0 0 20px rgba(146, 175, 173, 0.3), inset 0 0 10px rgba(255, 255, 255, 0.1)"
+                            : "0 0 20px rgba(146, 175, 173, 0.2), inset 0 0 10px rgba(255, 255, 255, 0.1)",
+                        }}
+                      >
+                        <span className="text-sm text-charcoal font-semibold">v{version}</span>
+                        {isSelected && (
+                          <motion.div
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            className="w-2 h-2 rounded-full bg-misty-sage"
+                          />
+                        )}
+                      </motion.button>
+                    );
+                  })}
                 </div>
               </div>
 
-              {/* Storage Slider */}
-              <div className="space-y-3">
+              {/* Storage Slider - Ẩn */}
+              {/* <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <Label className="text-charcoal font-medium flex items-center gap-2">
                     <HardDrive className="w-4 h-4 text-misty-sage" strokeWidth={1.5} />
@@ -376,10 +405,10 @@ export default function DatabaseDeployForm() {
                   <span>1 GB</span>
                   <span>10 GB</span>
                 </div>
-              </div>
+              </div> */}
 
-              {/* Memory Slider */}
-              <div className="space-y-3">
+              {/* Memory Slider - Ẩn */}
+              {/* <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <Label className="text-charcoal font-medium flex items-center gap-2">
                     <MemoryStick className="w-4 h-4 text-misty-sage" strokeWidth={1.5} />
@@ -403,7 +432,7 @@ export default function DatabaseDeployForm() {
                   <span>128 MB</span>
                   <span>2048 MB</span>
                 </div>
-              </div>
+              </div> */}
 
               {/* Submit Button */}
               <motion.div

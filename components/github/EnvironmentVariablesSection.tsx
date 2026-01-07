@@ -144,7 +144,7 @@ export function EnvironmentVariablesSection({
                 </div>
               </div>
             ) : (
-              <div className="divide-y divide-white/20">
+              <div className="divide-y divide-white/20 overflow-x-auto">
                 {envVars.map((envVar, index) => {
                   const isHidden = hiddenEnvVars.has(index);
                   return (
@@ -152,16 +152,16 @@ export function EnvironmentVariablesSection({
                       key={index}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="p-4 hover:bg-white/20 transition-colors"
+                      className="p-4 hover:bg-white/20 transition-colors min-w-0"
                     >
-                      <div className="flex gap-3 items-center">
+                      <div className="flex gap-3 items-center min-w-0">
                         <Input
                           placeholder="TÊN_BIẾN"
                           value={envVar.key}
                           onChange={(e) => handleEnvVarChange(index, 'key', e.target.value)}
-                          className="flex-1 h-10 rounded-misty-sm border-0 bg-white/80 backdrop-blur-sm shadow-inner-sm focus:ring-2 focus:ring-misty-sage/20 font-mono text-sm"
+                          className="flex-1 h-10 rounded-misty-sm border-0 bg-white/80 backdrop-blur-sm shadow-inner-sm focus:ring-2 focus:ring-misty-sage/20 font-mono text-sm min-w-0"
                         />
-                        <div className="relative flex-1">
+                        <div className="relative flex-1 min-w-0">
                           <Input
                             type={isHidden ? "password" : "text"}
                             placeholder="Giá trị"
@@ -172,7 +172,8 @@ export function EnvironmentVariablesSection({
                               }
                             }}
                             disabled={isHidden}
-                            className="h-10 rounded-misty-sm border-0 bg-white/80 backdrop-blur-sm shadow-inner-sm focus:ring-2 focus:ring-misty-sage/20 font-mono text-sm pr-10"
+                            className="h-10 rounded-misty-sm border-0 bg-white/80 backdrop-blur-sm shadow-inner-sm focus:ring-2 focus:ring-misty-sage/20 font-mono text-sm pr-10 break-words overflow-wrap-anywhere"
+                            style={{ wordBreak: 'break-all' }}
                           />
                           <Button
                             variant="ghost"

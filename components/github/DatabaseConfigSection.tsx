@@ -222,11 +222,11 @@ export function DatabaseConfigSection({
       label: 'Sử dụng cơ sở dữ liệu hệ thống',
       description: 'Chọn từ các cơ sở dữ liệu đã triển khai của bạn',
     },
-    {
-      value: 'managed' as const,
-      label: 'Tạo cơ sở dữ liệu hệ thống mới',
-      description: 'Tạo mới PostgreSQL, MySQL, MongoDB, Redis',
-    },
+    // {
+    //   value: 'managed' as const,
+    //   label: 'Tạo cơ sở dữ liệu hệ thống mới',
+    //   description: 'Tạo mới PostgreSQL, MySQL, MongoDB, Redis',
+    // },
     {
       value: 'external' as const,
       label: 'Kết nối cơ sở dữ liệu bên ngoài',
