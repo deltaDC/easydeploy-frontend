@@ -39,14 +39,14 @@ export function ResourceMonitor({ metrics }: ResourceMonitorProps) {
       transition={{ duration: 0.5, delay: 0.1 }}
       className="space-y-4"
     >
-      <Card className="bg-white/40 backdrop-blur-[20px] border border-white/60 rounded-3xl shadow-[0_8px_32px_rgba(31,38,135,0.1)] hover:ring-2 hover:ring-emerald-100 hover:ring-opacity-50 transition-all duration-300">
+      <Card className="bg-white/40 backdrop-blur-[20px] border border-white/60 rounded-3xl shadow-[0_8px_32px_rgba(31,38,135,0.1)] hover:ring-2 hover:ring-emerald-100 hover:ring-opacity-50 transition-all duration-300 h-full flex flex-col">
         <CardHeader>
           <CardTitle className="text-charcoal">Tài nguyên hệ thống</CardTitle>
           <CardDescription className="text-charcoal/60">
             CPU và RAM đang sử dụng
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-6 flex-1 flex flex-col justify-between">
           {/* CPU Donut Chart */}
           <div className="space-y-2">
             <div className="flex items-center gap-2 mb-2">

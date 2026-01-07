@@ -40,7 +40,7 @@ export default function DeleteUserModal({
 
   const handleDelete = async () => {
     if (!reason.trim()) {
-      alert('Please provide a reason');
+      alert('Vui lòng cung cấp lý do');
       return;
     }
 
@@ -65,10 +65,10 @@ export default function DeleteUserModal({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-red-600">
             <Trash2 className="w-5 h-5" />
-            Delete User Permanently
+            Xóa người dùng vĩnh viễn
           </DialogTitle>
           <DialogDescription>
-            This will permanently delete user <strong>{userEmail}</strong>. This action is irreversible!
+            Hành động này sẽ xóa vĩnh viễn người dùng <strong>{userEmail}</strong>. Hành động này không thể hoàn tác!
           </DialogDescription>
         </DialogHeader>
 
@@ -76,13 +76,13 @@ export default function DeleteUserModal({
           <div className="flex items-start gap-2">
             <AlertTriangle className="w-5 h-5 text-red-600 mt-0.5" />
             <div>
-              <p className="text-sm font-medium text-red-800">Warning:</p>
+              <p className="text-sm font-medium text-red-800">Cảnh báo:</p>
               <ul className="text-sm text-red-700 space-y-1 list-disc list-inside mt-1">
-                <li>All user data will be <strong>permanently deleted</strong></li>
-                <li>All projects must be stopped/deleted first</li>
-                <li>All logs and activity history will be removed</li>
-                <li>Domain mappings will be unlinked</li>
-                <li>This action <strong>CANNOT be undone</strong></li>
+                <li>Tất cả dữ liệu người dùng sẽ bị <strong>xóa vĩnh viễn</strong></li>
+                <li>Tất cả dự án phải được dừng/xóa trước</li>
+                <li>Tất cả nhật ký và lịch sử hoạt động sẽ bị xóa</li>
+                <li>Ánh xạ tên miền sẽ bị hủy liên kết</li>
+                <li>Hành động này <strong>KHÔNG THỂ hoàn tác</strong></li>
               </ul>
             </div>
           </div>
@@ -90,17 +90,17 @@ export default function DeleteUserModal({
 
         <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
           <p className="text-sm text-gray-700">
-            <strong>Note:</strong> If user has active projects, you must ban or suspend them first before deletion.
+            <strong>Lưu ý:</strong> Nếu người dùng có dự án đang hoạt động, bạn phải cấm hoặc tạm khóa họ trước khi xóa.
           </p>
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="reason">
-            Reason for Deletion <span className="text-red-500">*</span>
+            Lý do xóa <span className="text-red-500">*</span>
           </Label>
           <Textarea
             id="reason"
-            placeholder="Why are you deleting this user? (e.g., GDPR request, account cleanup, duplicate account)"
+            placeholder="Tại sao bạn xóa người dùng này? (ví dụ: yêu cầu GDPR, dọn dẹp tài khoản, tài khoản trùng lặp)"
             value={reason}
             onChange={(e: any) => setReason(e.target.value)}
             rows={4}
@@ -110,14 +110,14 @@ export default function DeleteUserModal({
 
         <DialogFooter>
           <Button variant="outline" onClick={handleClose} disabled={isLoading}>
-            Cancel
+            Hủy
           </Button>
           <Button
             onClick={handleDelete}
             disabled={isLoading || !reason.trim()}
             variant="destructive"
           >
-            {isLoading ? 'Deleting...' : 'Delete Permanently'}
+            {isLoading ? 'Đang xóa...' : 'Xóa vĩnh viễn'}
           </Button>
         </DialogFooter>
       </DialogContent>

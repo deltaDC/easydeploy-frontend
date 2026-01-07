@@ -40,7 +40,7 @@ export default function UserActionButtons({ user, onSuccess }: UserActionButtons
             className="bg-green-600 hover:bg-green-700"
           >
             <CheckCircle className="w-4 h-4 mr-2" />
-            Activate
+            Kích hoạt
           </Button>
         )}
 
@@ -51,7 +51,7 @@ export default function UserActionButtons({ user, onSuccess }: UserActionButtons
             className="bg-yellow-600 hover:bg-yellow-700"
           >
             <Pause className="w-4 h-4 mr-2" />
-            Suspend
+            Tạm khóa
           </Button>
         )}
 
@@ -62,7 +62,7 @@ export default function UserActionButtons({ user, onSuccess }: UserActionButtons
             className="bg-orange-600 hover:bg-orange-700"
           >
             <Ban className="w-4 h-4 mr-2" />
-            Ban User
+            Cấm người dùng
           </Button>
         )}
 
@@ -73,7 +73,7 @@ export default function UserActionButtons({ user, onSuccess }: UserActionButtons
             variant="destructive"
           >
             <Trash2 className="w-4 h-4 mr-2" />
-            Delete Permanently
+            Xóa vĩnh viễn
           </Button>
         )}
       </div>
