@@ -41,7 +41,7 @@ export function DatabaseLogsTab({ database }: DatabaseLogsTabProps) {
               >
                 <Terminal className="w-10 h-10 text-blue-500" strokeWidth={1.5} />
               </motion.div>
-              <h3 className="text-xl font-serif font-semibold text-charcoal mb-2">
+              <h3 className="text-xl font-semibold text-charcoal mb-2">
                 Database đang được triển khai
               </h3>
               <p className="text-sm text-charcoal/60 mb-4 max-w-md mx-auto">

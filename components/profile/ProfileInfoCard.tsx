@@ -235,12 +235,12 @@ export function ProfileInfoCard({ profile, onUpdate }: ProfileInfoCardProps) {
               </div>
 
               <div className="flex gap-2">
-                <Button type="submit" disabled={isLoading}>
+                <Button type="submit" disabled={isLoading} variant="success">
                   {isLoading ? "Đang lưu..." : "Lưu thay đổi"}
                 </Button>
                 <Button
                   type="button"
-                  variant="outline"
+                  variant="secondary"
                   onClick={() => {
                     setIsEditing(false);
                     setFormData({

@@ -139,14 +139,14 @@ export default function GitHubAppIntegration() {
             disabled={loading}
           >
             <RefreshCw className="h-4 w-4 mr-2" />
-            Refresh
+            Làm mới
           </Button>
           <Button
             onClick={handleInstallApp}
             disabled={installing}
           >
             <Github className="h-4 w-4 mr-2" />
-            {installing ? "Installing..." : "Install GitHub App"}
+            {installing ? "Đang cài đặt..." : "Cài đặt GitHub App"}
           </Button>
         </div>
       </div>
@@ -160,19 +160,19 @@ export default function GitHubAppIntegration() {
       {/* Installations */}
       <Card>
         <CardHeader>
-          <CardTitle>GitHub App Installations</CardTitle>
+          <CardTitle>Cài đặt GitHub App</CardTitle>
           <CardDescription>
             Danh sách các GitHub App installations của bạn
           </CardDescription>
         </CardHeader>
         <CardContent>
           {loading ? (
-            <div className="text-center py-4">Loading...</div>
+            <div className="text-center py-4">Đang tải...</div>
           ) : installations.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <Github className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>Chưa có GitHub App installation nào</p>
-              <p className="text-sm">Nhấn &quot;Install GitHub App&quot; để bắt đầu</p>
+              <p className="text-sm">Nhấn &quot;Cài đặt GitHub App&quot; để bắt đầu</p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -233,7 +233,7 @@ export default function GitHubAppIntegration() {
           {repositories.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <p>Chưa có repository nào</p>
-              <p className="text-sm">Install GitHub App để xem repositories</p>
+              <p className="text-sm">Cài đặt GitHub App để xem repositories</p>
             </div>
           ) : (
             <div className="space-y-2">
@@ -259,7 +259,7 @@ export default function GitHubAppIntegration() {
                         </p>
                       )}
                       <p className="text-xs text-muted-foreground">
-                        Updated: {new Date(repo.updatedAt).toLocaleDateString()}
+                        Cập nhật: {new Date(repo.updatedAt).toLocaleDateString()}
                       </p>
                     </div>
                   </div>

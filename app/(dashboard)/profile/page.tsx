@@ -229,11 +229,11 @@ export default function ProfilePage() {
 
 								{isEditing && (
 									<div className="flex gap-2 pt-4">
-										<Button onClick={handleSave} disabled={isSaving} className="gap-2">
+										<Button onClick={handleSave} disabled={isSaving} className="gap-2" variant="success">
 											<Save className="h-4 w-4" />
 											{isSaving ? 'Đang lưu...' : 'Lưu thay đổi'}
 										</Button>
-										<Button variant="outline" onClick={handleCancel} className="gap-2">
+										<Button variant="secondary" onClick={handleCancel} className="gap-2">
 											<X className="h-4 w-4" />
 											Hủy
 										</Button>

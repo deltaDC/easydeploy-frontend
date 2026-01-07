@@ -3,6 +3,7 @@ import { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
+import { useSidebar } from "@/contexts/SidebarContext";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { 
@@ -14,18 +15,21 @@ import {
 	Users, 
 	BarChart3, 
 	Monitor, 
-	Database 
+	Database,
+	ChevronLeft,
+	ChevronRight
 } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface SidebarLinkProps {
 	href: string;
 	icon: React.ElementType;
 	children: ReactNode;
 	pathname: string;
+	collapsed: boolean;
 }
 
-function SidebarLink({ href, icon: Icon, children, pathname }: SidebarLinkProps) {
+function SidebarLink({ href, icon: Icon, children, pathname, collapsed }: SidebarLinkProps) {
 	const isActive = (href: string) => {
 		if (href === "/admin" || href === "/dashboard") {
 			return pathname === "/admin" || pathname === "/dashboard" || pathname === "/";
@@ -36,13 +40,13 @@ function SidebarLink({ href, icon: Icon, children, pathname }: SidebarLinkProps)
 	const active = isActive(href);
 	
 	return (
-		<Link href={href}>
+		<Link href={href} title={collapsed ? String(children) : undefined}>
 			<motion.div
-				whileHover={{ x: 4 }}
-				className={`relative flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-300 ${
+				whileHover={{ x: collapsed ? 0 : 4 }}
+				className={`relative flex items-center ${collapsed ? 'justify-center' : 'gap-3'} px-4 py-2.5 rounded-xl transition-all duration-300 ${
 					active
-						? "bg-white/60 text-charcoal font-medium"
-						: "text-charcoal/70 hover:text-charcoal hover:bg-white/20"
+						? "bg-white/60 text-charcoal font-medium shadow-md hover:shadow-lg"
+						: "text-charcoal/70 hover:text-charcoal hover:bg-white/20 hover:shadow-md"
 				}`}
 			>
 					{/* Active indicator bar */}
@@ -54,8 +58,20 @@ function SidebarLink({ href, icon: Icon, children, pathname }: SidebarLinkProps)
 						transition={{ type: "spring", stiffness: 500, damping: 30 }}
 					/>
 				)}
-				<Icon className="h-5 w-5" strokeWidth={1.5} />
-				<span className="text-sm">{children}</span>
+				<Icon className="h-5 w-5 flex-shrink-0" strokeWidth={1.5} />
+				<AnimatePresence>
+					{!collapsed && (
+						<motion.span
+							initial={{ opacity: 0, width: 0 }}
+							animate={{ opacity: 1, width: "auto" }}
+							exit={{ opacity: 0, width: 0 }}
+							transition={{ duration: 0.2 }}
+							className="text-sm overflow-hidden whitespace-nowrap"
+						>
+							{children}
+						</motion.span>
+					)}
+				</AnimatePresence>
 			</motion.div>
 		</Link>
 	);
@@ -63,6 +79,7 @@ function SidebarLink({ href, icon: Icon, children, pathname }: SidebarLinkProps)
 
 export default function DashboardSidebar() {
 	const { user, isAuthenticated, logout, isAdmin } = useAuth();
+	const { collapsed } = useSidebar();
 	const pathname = usePathname();
 
 	const getNavLinks = () => {
@@ -110,7 +127,7 @@ export default function DashboardSidebar() {
 					<div className="h-8 w-8 bg-misty-sage/20 rounded-lg flex items-center justify-center transition-transform group-hover:scale-110">
 						<span className="text-charcoal font-bold text-sm">ED</span>
 					</div>
-					<span className="text-lg font-semibold text-charcoal font-serif">EasyDeploy</span>
+					<span className="text-lg font-semibold text-charcoal">EasyDeploy</span>
 				</Link>
 			</div>
 
@@ -122,6 +139,7 @@ export default function DashboardSidebar() {
 						href={link.href}
 						icon={link.icon}
 						pathname={pathname}
+						collapsed={collapsed}
 					>
 						{link.label}
 					</SidebarLink>

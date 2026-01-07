@@ -40,7 +40,7 @@ export default function ActivateUserModal({
 
   const handleActivate = async () => {
     if (!reason.trim()) {
-      alert('Vui lòng cung cấp lý do');
+      alert('Vui lòng nhập lý do');
       return;
     }
 
@@ -73,12 +73,12 @@ export default function ActivateUserModal({
         </DialogHeader>
 
         <div className="bg-green-50 border border-green-200 rounded-lg p-4 space-y-2">
-          <p className="text-sm font-medium text-green-800">Ảnh hưởng:</p>
+          <p className="text-sm font-medium text-green-800">Tác động:</p>
           <ul className="text-sm text-green-700 space-y-1 list-disc list-inside">
-            <li>Đặt trạng thái người dùng thành <strong>ACTIVE</strong></li>
-            <li>Khôi phục quyền truy cập đăng nhập</li>
-            <li>Cho phép người dùng quản lý dự án lại</li>
-            <li>Bật quyền truy cập API</li>
+            <li>Đặt trạng thái người dùng thành <strong>HOẠT ĐỘNG</strong></li>
+            <li>Khôi phục quyền đăng nhập</li>
+            <li>Cho phép người dùng quản lý dự án trở lại</li>
+            <li>Kích hoạt quyền truy cập API</li>
           </ul>
         </div>
 
@@ -88,7 +88,7 @@ export default function ActivateUserModal({
           </Label>
           <Textarea
             id="reason"
-            placeholder="Tại sao bạn kích hoạt người dùng này? (ví dụ: kháng cáo được chấp thuận, vấn đề đã được giải quyết, tài khoản đã được xem xét)"
+            placeholder="Tại sao bạn kích hoạt người dùng này? (ví dụ: khiếu nại được chấp nhận, vấn đề đã giải quyết, tài khoản đã xem xét)"
             value={reason}
             onChange={(e: any) => setReason(e.target.value)}
             rows={4}
@@ -97,15 +97,15 @@ export default function ActivateUserModal({
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={handleClose} disabled={isLoading}>
+          <Button variant="secondary" onClick={handleClose} disabled={isLoading}>
             Hủy
           </Button>
           <Button
             onClick={handleActivate}
             disabled={isLoading || !reason.trim()}
-            className="bg-green-600 hover:bg-green-700"
+            variant="success"
           >
-            {isLoading ? 'Đang kích hoạt...' : 'Kích hoạt người dùng'}
+            {isLoading ? 'Đang kích hoạt...' : 'Kích hoạt'}
           </Button>
         </DialogFooter>
       </DialogContent>

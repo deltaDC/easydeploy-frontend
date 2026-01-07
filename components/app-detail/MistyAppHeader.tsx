@@ -91,7 +91,7 @@ export function MistyAppHeader({
         {/* App Title & Status */}
         <div className="flex items-center gap-4">
           <div>
-            <h1 className="text-3xl font-serif font-bold text-charcoal tracking-tight">
+            <h1 className="text-3xl font-bold text-charcoal tracking-tight">
               {appName}
             </h1>
             <p className="text-sm text-charcoal/60 mt-0.5">

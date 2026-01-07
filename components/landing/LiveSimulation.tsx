@@ -51,11 +51,11 @@ export function LiveSimulation() {
 					className="max-w-4xl mx-auto"
 				>
 					<div className="text-center mb-12">
-						<h2 className="font-serif text-4xl md:text-5xl font-semibold text-charcoal mb-4">
-							Live Simulation
+						<h2 className="text-4xl md:text-5xl font-bold text-charcoal mb-4">
+							Giám sát theo thời gian thực
 						</h2>
 						<p className="text-body-lg text-charcoal/70 max-w-2xl mx-auto">
-							Xem dashboard demo trực tiếp ngay trên trang này
+							Xem bảng điều khiển demo trực tiếp ngay trên trang này
 						</p>
 					</div>
 
@@ -67,12 +67,12 @@ export function LiveSimulation() {
 						<div className="bg-misty-grey/5 px-6 py-4 border-b border-white/20 relative z-10">
 							<div className="flex items-center justify-between">
 								<div>
-									<h3 className="font-semibold text-charcoal">App Performance</h3>
-									<p className="text-sm text-charcoal/60">Real-time monitoring</p>
+									<h3 className="font-semibold text-charcoal">Hiệu suất Ứng dụng</h3>
+									<p className="text-sm text-charcoal/60">Giám sát theo thời gian thực</p>
 								</div>
 								<div className="flex items-center gap-2">
 									<div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-									<span className="text-sm text-charcoal/60">Live</span>
+									<span className="text-sm text-charcoal/60">Trực tiếp</span>
 								</div>
 							</div>
 						</div>
@@ -82,7 +82,7 @@ export function LiveSimulation() {
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
 								{/* CPU Usage */}
 								<div>
-									<p className="text-sm text-charcoal/60 mb-2">CPU Usage</p>
+									<p className="text-sm text-charcoal/60 mb-2">Sử dụng CPU</p>
 									<div className="h-32 w-full min-w-0 min-h-[128px]">
 										<ResponsiveContainer width="100%" height="100%" minHeight={128}>
 											<AreaChart data={data}>
@@ -107,7 +107,7 @@ export function LiveSimulation() {
 
 								{/* Traffic */}
 								<div>
-									<p className="text-sm text-charcoal/60 mb-2">Traffic</p>
+									<p className="text-sm text-charcoal/60 mb-2">Lưu lượng truy cập</p>
 									<div className="h-32 w-full min-w-0 min-h-[128px]">
 										<ResponsiveContainer width="100%" height="100%" minHeight={128}>
 											<LineChart data={data}>
@@ -127,16 +127,16 @@ export function LiveSimulation() {
 							{/* Stats */}
 							<div className="grid grid-cols-3 gap-4 pt-8 border-t border-white/20">
 								<div className="text-center">
-									<div className="text-2xl font-bold text-misty-sage">98.5%</div>
-									<div className="text-xs text-charcoal/60 mt-1">Uptime</div>
+									<div className="text-2xl font-bold text-green-600">98.5%</div>
+									<div className="text-xs text-charcoal/60 mt-1">Thời gian hoạt động</div>
 								</div>
 								<div className="text-center">
-									<div className="text-2xl font-bold text-misty-sage">1.2s</div>
-									<div className="text-xs text-charcoal/60 mt-1">Response</div>
+									<div className="text-2xl font-bold text-green-600">1.2s</div>
+									<div className="text-xs text-charcoal/60 mt-1">Phản hồi</div>
 								</div>
 								<div className="text-center">
-									<div className="text-2xl font-bold text-misty-sage">2.4K</div>
-									<div className="text-xs text-charcoal/60 mt-1">Requests</div>
+									<div className="text-2xl font-bold text-green-600">2.4K</div>
+									<div className="text-xs text-charcoal/60 mt-1">Yêu cầu</div>
 								</div>
 							</div>
 						</div>

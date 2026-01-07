@@ -63,7 +63,7 @@ export function DatabaseOverviewTab({ database }: DatabaseOverviewTabProps) {
     >
       {/* Database Name Header with Serif Font */}
       <div className="mb-6">
-        <h2 className="text-3xl font-serif font-semibold text-charcoal mb-4" style={{ fontFamily: "'Playfair Display', 'Merriweather', serif" }}>
+        <h2 className="text-3xl font-semibold text-charcoal mb-4">
           {database.name}
         </h2>
         <div className="flex flex-wrap gap-2">

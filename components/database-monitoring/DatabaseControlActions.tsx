@@ -38,8 +38,8 @@ export function DatabaseControlActions({ databaseId, status, onActionComplete }:
       }
 
       toast({
-        title: "Success",
-        description: result || `${actionName} completed successfully`,
+        title: "Thành công",
+        description: result || `${actionName} hoàn tất thành công`,
       });
 
       if (onActionComplete) {
@@ -53,8 +53,8 @@ export function DatabaseControlActions({ databaseId, status, onActionComplete }:
       }, 1000);
     } catch (error: any) {
       toast({
-        title: "Error",
-        description: error.response?.data || `Failed to ${action} database`,
+        title: "Lỗi",
+        description: error.response?.data || `Không thể ${action === "start" ? "khởi động" : action === "stop" ? "dừng" : "khởi động lại"} cơ sở dữ liệu`,
         variant: "destructive",
       });
     } finally {
@@ -73,7 +73,7 @@ export function DatabaseControlActions({ databaseId, status, onActionComplete }:
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Settings2 className="h-5 w-5" />
-          Database Controls
+          Điều khiển cơ sở dữ liệu
         </CardTitle>
         <CardDescription className="flex items-center gap-2 mt-2">
           {status && (
@@ -90,8 +90,8 @@ export function DatabaseControlActions({ databaseId, status, onActionComplete }:
                 isDeploying ? 'text-blue-600 dark:text-blue-400' :
                 'text-gray-600'
               }`}>
-                {isRunning ? 'Database đang chạy' : 
-                 isStopped ? 'Database đã dừng' : 
+                {isRunning ? 'Cơ sở dữ liệu đang chạy' : 
+                 isStopped ? 'Cơ sở dữ liệu đã dừng' : 
                  isDeploying ? 'Đang triển khai...' :
                  `${status}`}
               </span>
@@ -102,49 +102,49 @@ export function DatabaseControlActions({ databaseId, status, onActionComplete }:
       <CardContent className="space-y-3">
         <Button
           className="w-full justify-start"
-          variant={isRunning ? "outline" : "default"}
+          variant={isRunning ? "secondary" : "success"}
           disabled={isLoading || isRunning || isDeploying}
-          onClick={() => handleAction("start", "Start")}
+          onClick={() => handleAction("start", "Khởi động")}
         >
           {isLoading && currentAction === "start" ? (
             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
           ) : (
             <Play className="h-4 w-4 mr-2" />
           )}
-          Start Database
-          {isRunning && <span className="ml-auto text-xs opacity-50">(Running)</span>}
-          {isDeploying && <span className="ml-auto text-xs opacity-50">(Deploying)</span>}
+          Khởi động cơ sở dữ liệu
+          {isRunning && <span className="ml-auto text-xs opacity-50">(Đang chạy)</span>}
+          {isDeploying && <span className="ml-auto text-xs opacity-50">(Đang triển khai)</span>}
         </Button>
 
         <Button
           className="w-full justify-start"
-          variant={isStopped ? "outline" : "destructive"}
+          variant={isStopped ? "secondary" : "destructive"}
           disabled={isLoading || isStopped || isDeploying}
-          onClick={() => handleAction("stop", "Stop")}
+          onClick={() => handleAction("stop", "Dừng")}
         >
           {isLoading && currentAction === "stop" ? (
             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
           ) : (
             <Square className="h-4 w-4 mr-2" />
           )}
-          Stop Database
-          {isStopped && <span className="ml-auto text-xs opacity-50">(Stopped)</span>}
-          {isDeploying && <span className="ml-auto text-xs opacity-50">(Deploying)</span>}
+          Dừng cơ sở dữ liệu
+          {isStopped && <span className="ml-auto text-xs opacity-50">(Đã dừng)</span>}
+          {isDeploying && <span className="ml-auto text-xs opacity-50">(Đang triển khai)</span>}
         </Button>
 
         <Button
           className="w-full justify-start"
-          variant="outline"
+          variant="warning"
           disabled={isLoading || isStopped || isDeploying}
-          onClick={() => handleAction("restart", "Restart")}
+          onClick={() => handleAction("restart", "Khởi động lại")}
         >
           {isLoading && currentAction === "restart" ? (
             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
           ) : (
             <RotateCcw className="h-4 w-4 mr-2" />
           )}
-          Restart Database
-          {isDeploying && <span className="ml-auto text-xs opacity-50">(Deploying)</span>}
+          Khởi động lại cơ sở dữ liệu
+          {isDeploying && <span className="ml-auto text-xs opacity-50">(Đang triển khai)</span>}
         </Button>
       </CardContent>
     </Card>

@@ -24,7 +24,7 @@ const templates = [
 	{
 		id: "docker",
 		name: "Docker",
-		description: "Containerized applications",
+		description: "Ứng dụng container hóa",
 		icon: Database,
 		color: "bg-cyan-500/10 text-cyan-600",
 	},
@@ -33,8 +33,8 @@ const templates = [
 const deploymentSteps = [
 	{ step: 1, text: "Kết nối repository...", icon: "🔗" },
 	{ step: 2, text: "Phân tích cấu hình...", icon: "⚙️" },
-	{ step: 3, text: "Build application...", icon: "🔨" },
-	{ step: 4, text: "Deploy to cloud...", icon: "☁️" },
+	{ step: 3, text: "Xây dựng ứng dụng...", icon: "🔨" },
+	{ step: 4, text: "Triển khai lên đám mây...", icon: "☁️" },
 	{ step: 5, text: "Hoàn tất!", icon: "✅" },
 ];
 
@@ -75,7 +75,7 @@ export function TemplateLibrary() {
 					transition={{ duration: 0.8 }}
 				>
 					<div className="text-center mb-12">
-						<h2 className="font-serif text-4xl md:text-5xl font-semibold text-charcoal mb-4">
+						<h2 className="text-4xl md:text-5xl font-bold text-charcoal mb-4">
 							Thư viện mẫu
 						</h2>
 						<p className="text-body-lg text-charcoal/70 max-w-2xl mx-auto">

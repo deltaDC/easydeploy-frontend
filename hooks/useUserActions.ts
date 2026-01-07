@@ -30,7 +30,7 @@ export const useUserActions = () => {
     try {
       const data: UserActionRequest = { reason };
       await userManagementService.banUser(userId, data);
-      toast.success('Cấm người dùng thành công');
+      toast.success('Đã cấm người dùng thành công');
       return true;
     } catch (error: any) {
       toast.error(error?.response?.data?.message || 'Không thể cấm người dùng');
@@ -45,10 +45,10 @@ export const useUserActions = () => {
     try {
       const data: UserActionRequest = { reason };
       await userManagementService.suspendUser(userId, data);
-      toast.success('Tạm khóa người dùng thành công');
+      toast.success('Đã tạm ngưng người dùng thành công');
       return true;
     } catch (error: any) {
-      toast.error(error?.response?.data?.message || 'Không thể tạm khóa người dùng');
+      toast.error(error?.response?.data?.message || 'Không thể tạm ngưng người dùng');
       return false;
     } finally {
       setIsLoading(false);
@@ -60,7 +60,7 @@ export const useUserActions = () => {
     try {
       const data: UserActionRequest = { reason };
       await userManagementService.deleteUser(userId, data);
-      toast.success('Xóa người dùng thành công');
+      toast.success('Đã xóa người dùng thành công');
       return true;
     } catch (error: any) {
       toast.error(error?.response?.data?.message || 'Không thể xóa người dùng');
@@ -75,7 +75,7 @@ export const useUserActions = () => {
     try {
       const data: UserActionRequest = { reason };
       await userManagementService.activateUser(userId, data);
-      toast.success('Kích hoạt người dùng thành công');
+      toast.success('Đã kích hoạt người dùng thành công');
       return true;
     } catch (error: any) {
       toast.error(error?.response?.data?.message || 'Không thể kích hoạt người dùng');

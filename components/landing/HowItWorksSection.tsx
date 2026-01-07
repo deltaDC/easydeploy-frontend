@@ -42,7 +42,7 @@ export function HowItWorksSection() {
 		<section id="how-it-works" className="space-section bg-porcelain">
 			<div className="container-page">
 				<div className="text-center mb-20">
-					<h2 className="font-serif text-4xl md:text-5xl font-semibold text-charcoal mb-4">Cách hoạt động</h2>
+					<h2 className="text-4xl md:text-5xl font-bold text-charcoal mb-4">Cách hoạt động</h2>
 					<p className="text-body-lg text-charcoal/70 max-w-2xl mx-auto">
 						Quy trình đơn giản chỉ với 4 bước để có ứng dụng của bạn online
 					</p>

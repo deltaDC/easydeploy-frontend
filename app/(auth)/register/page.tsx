@@ -149,7 +149,7 @@ export default function RegisterPage() {
 									/>
 								</svg>
 							</div>
-							<h1 className="font-serif text-3xl font-semibold tracking-tight text-charcoal">Đăng ký</h1>
+							<h1 className="text-3xl font-bold tracking-tight text-charcoal">Đăng ký</h1>
 							<p className="mt-2 text-sm text-charcoal/70">Tạo tài khoản EasyDeploy mới</p>
 						</motion.div>
 
@@ -158,11 +158,11 @@ export default function RegisterPage() {
 							animate={{ opacity: 1, y: 0 }}
 							transition={{ delay: 0.1, duration: 0.5 }}
 						>
-							<Card className="shadow-misty-xl border-0 bg-porcelain/80 backdrop-blur-xl rounded-3xl relative overflow-hidden">
+							<Card className="shadow-2xl border-2 border-gray-200 bg-white backdrop-blur-xl rounded-3xl relative overflow-hidden">
 								{/* Inner Glow */}
 								<div className="absolute inset-0 shadow-inner-glow-soft pointer-events-none rounded-3xl" />
 								<CardHeader className="space-y-1 pb-6">
-									<CardTitle className="font-serif text-2xl text-center font-semibold text-charcoal">
+									<CardTitle className="text-2xl text-center font-bold text-charcoal">
 										Tạo tài khoản
 									</CardTitle>
 									<CardDescription className="text-center text-charcoal/70">
@@ -186,7 +186,7 @@ export default function RegisterPage() {
 													onChange={handleInputChange}
 													required
 													disabled={isLoading}
-													className="pl-10 h-11 rounded-misty-sm border-0 bg-misty-grey/20 focus:bg-misty-grey/30 focus:ring-2 focus:ring-misty-sage/30 focus:ring-offset-0 shadow-inner-glow-soft transition-all"
+													className="pl-10 h-11 rounded-xl border border-gray-300 bg-gray-50 focus:bg-white focus:border-green-500 focus:ring-2 focus:ring-green-500/20 focus:ring-offset-0 transition-all"
 												/>
 											</div>
 										</div>
@@ -205,7 +205,7 @@ export default function RegisterPage() {
 													onChange={handleInputChange}
 													required
 													disabled={isLoading}
-													className="pl-10 pr-10 h-11 rounded-misty-sm border-0 bg-misty-grey/20 focus:bg-misty-grey/30 focus:ring-2 focus:ring-misty-sage/30 focus:ring-offset-0 shadow-inner-glow-soft transition-all"
+													className="pl-10 pr-10 h-11 rounded-xl border border-gray-300 bg-gray-50 focus:bg-white focus:border-green-500 focus:ring-2 focus:ring-green-500/20 focus:ring-offset-0 transition-all"
 												/>
 												<button
 													type="button"
@@ -235,7 +235,7 @@ export default function RegisterPage() {
 													onChange={handleInputChange}
 													required
 													disabled={isLoading}
-													className="pl-10 pr-10 h-11 rounded-misty-sm border-0 bg-misty-grey/20 focus:bg-misty-grey/30 focus:ring-2 focus:ring-misty-sage/30 focus:ring-offset-0 shadow-inner-glow-soft transition-all"
+													className="pl-10 pr-10 h-11 rounded-xl border border-gray-300 bg-gray-50 focus:bg-white focus:border-green-500 focus:ring-2 focus:ring-green-500/20 focus:ring-offset-0 transition-all"
 												/>
 												<button
 													type="button"
@@ -258,7 +258,8 @@ export default function RegisterPage() {
 										<div className="pt-2">
 											<Button
 												type="submit"
-												className="w-full h-11 bg-misty-sage hover:bg-misty-sage/90 text-white rounded-full font-medium shadow-misty hover:shadow-misty-lg transition-all"
+												variant="success"
+												className="w-full h-11 rounded-full font-medium shadow-lg hover:shadow-xl transition-all"
 												disabled={isLoading}
 											>
 												{isLoading ? "Đang tạo tài khoản..." : "Tạo tài khoản"}
@@ -272,12 +273,12 @@ export default function RegisterPage() {
 											<Separator className="w-full bg-misty-grey/30" />
 										</div>
 										<div className="relative flex justify-center text-xs uppercase">
-											<span className="bg-porcelain px-2 text-charcoal/60">Hoặc tiếp tục với</span>
+												<span className="bg-white px-2 text-charcoal/60">Hoặc tiếp tục với</span>
+											</div>
 										</div>
-									</div>
-									<Button
-										variant="outline"
-										className="w-full h-11 border-misty-grey/30 hover:bg-misty-sage/10 hover:border-misty-sage/50 rounded-full text-charcoal hover:shadow-[0_0_20px_rgba(255,255,255,0.3)] transition-all relative z-10"
+										<Button
+											variant="outline"
+											className="w-full h-11 border-2 border-gray-300 hover:bg-gray-50 hover:border-gray-400 rounded-full text-charcoal transition-all relative z-10"
 										asChild
 									>
 										<a href="/callback/github" className="flex items-center justify-center">

@@ -131,6 +131,7 @@ export default function ImportProjectPage() {
 							onClick={loadRepositories}
 							disabled={isLoading}
 							className="gap-2"
+							variant="success"
 						>
 							<Github className="h-4 w-4" />
 							{isLoading ? "Đang tải..." : "Tải repositories"}
@@ -143,7 +144,7 @@ export default function ImportProjectPage() {
 							className="gap-2"
 						>
 							<Github className="h-4 w-4" />
-							Connect GitHub App
+							Kết nối GitHub App
 						</Button>
 					</div>
 				</div>
@@ -251,6 +252,7 @@ export default function ImportProjectPage() {
 										<Button 
 											size="sm" 
 											className="flex-1"
+											variant="success"
 											onClick={() => handleImportRepo(repo)}
 										>
 											<Download className="h-3 w-3 mr-1" />

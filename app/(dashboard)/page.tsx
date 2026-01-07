@@ -76,7 +76,7 @@ export default function DashboardPage() {
         className="space-y-2 relative z-10"
       >
         <div className="flex items-center gap-3">
-          <h1 className="font-serif text-4xl md:text-5xl font-semibold text-[#064E3B]" style={{ textShadow: '0 2px 8px rgba(0, 0, 0, 0.05)' }}>
+          <h1 className="text-4xl md:text-5xl font-bold text-[#064E3B]" style={{ textShadow: '0 2px 8px rgba(0, 0, 0, 0.05)' }}>
             Chào buổi sáng, {username}
           </h1>
           <Sun className="h-6 w-6 text-yellow-400 animate-pulse" strokeWidth={1.5} />

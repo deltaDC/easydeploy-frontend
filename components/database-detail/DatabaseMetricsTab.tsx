@@ -41,11 +41,11 @@ export function DatabaseMetricsTab({ database }: DatabaseMetricsTabProps) {
               >
                 <Activity className="w-10 h-10 text-blue-500" strokeWidth={1.5} />
               </motion.div>
-              <h3 className="text-xl font-serif font-semibold text-charcoal mb-2">
-                Database đang được triển khai
+              <h3 className="text-xl font-semibold text-charcoal mb-2">
+                Cơ sở dữ liệu đang được triển khai
               </h3>
               <p className="text-sm text-charcoal/60 mb-4 max-w-md mx-auto">
-                Dữ liệu metrics sẽ khả dụng sau khi quá trình triển khai hoàn tất.
+                Dữ liệu hiệu suất sẽ khả dụng sau khi quá trình triển khai hoàn tất.
               </p>
               <Badge
                 className="px-4 py-1.5"

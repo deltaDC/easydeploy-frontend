@@ -17,7 +17,7 @@ interface LogsViewerProps {
   title?: string;
 }
 
-export default function LogsViewer({ logs, onRefresh, isLoading = false, title = "System Logs (Real-time)" }: LogsViewerProps) {
+export default function LogsViewer({ logs, onRefresh, isLoading = false, title = "Logs hệ thống (Thời gian thực)" }: LogsViewerProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [logLevel, setLogLevel] = useState<string>("all");
   const [combinedLogs, setCombinedLogs] = useState<SystemLog[]>(logs);
@@ -89,7 +89,7 @@ export default function LogsViewer({ logs, onRefresh, isLoading = false, title =
   // Show toast on connection status change
   useEffect(() => {
     if (isConnected) {
-      toast.success(" Real-time logs connected");
+      toast.success(" Đã kết nối logs thời gian thực");
     }
   }, [isConnected]);
 
@@ -193,7 +193,7 @@ export default function LogsViewer({ logs, onRefresh, isLoading = false, title =
             onClick={handleDownload}
           >
             <Download className="h-3 w-3 mr-1" />
-            Download
+            Tải xuống
           </Button>
         </div>
 
@@ -202,7 +202,7 @@ export default function LogsViewer({ logs, onRefresh, isLoading = false, title =
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search logs..."
+              placeholder="Tìm kiếm logs..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-9"
@@ -210,13 +210,13 @@ export default function LogsViewer({ logs, onRefresh, isLoading = false, title =
           </div>
           <Select value={logLevel} onValueChange={setLogLevel}>
             <SelectTrigger className="w-[140px]">
-              <SelectValue placeholder="Log Level" />
+              <SelectValue placeholder="Mức log" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Levels</SelectItem>
-              <SelectItem value="error">Error</SelectItem>
-              <SelectItem value="warn">Warning</SelectItem>
-              <SelectItem value="info">Info</SelectItem>
+              <SelectItem value="all">Tất cả</SelectItem>
+              <SelectItem value="error">Lỗi</SelectItem>
+              <SelectItem value="warn">Cảnh báo</SelectItem>
+              <SelectItem value="info">Thông tin</SelectItem>
               <SelectItem value="debug">Debug</SelectItem>
             </SelectContent>
           </Select>
@@ -243,10 +243,10 @@ export default function LogsViewer({ logs, onRefresh, isLoading = false, title =
                 {!isConnected ? (
                   <div className="text-center space-y-2">
                     <RefreshCw className="h-6 w-6 animate-spin mx-auto text-primary" />
-                    <p>Connecting to real-time log stream...</p>
+                    <p>Đang kết nối tới luồng log thời gian thực...</p>
                   </div>
                 ) : (
-                  <p>No logs available</p>
+                  <p>Không có log nào</p>
                 )}
               </div>
             )}
@@ -254,8 +254,8 @@ export default function LogsViewer({ logs, onRefresh, isLoading = false, title =
           
           {/* Log count */}
           <div className="mt-2 text-xs text-muted-foreground text-right">
-            {filteredLogs.length} lines
-            {searchTerm && ` (filtered)`}
+            {filteredLogs.length} dòng
+            {searchTerm && ` (đã lọc)`}
           </div>
         </div>
       </CardContent>

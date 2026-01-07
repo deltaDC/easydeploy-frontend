@@ -26,7 +26,7 @@ export default function UserDetailPage() {
   const params = useParams();
   const router = useRouter();
   const userId = params.userId as string;
-  
+
   const { user, isLoading, isError, mutate } = useUserDetail(userId);
   const { updateUser } = useUserActions();
   const [applications, setApplications] = useState<any[]>([]);
@@ -116,7 +116,7 @@ export default function UserDetailPage() {
                 <Mail className="w-4 h-4" />
                 <span>{user.email}</span>
               </div>
-              
+
               {user.githubUsername && (
                 <div className="flex items-center gap-2">
                   <Github className="w-4 h-4" />
@@ -178,9 +178,9 @@ export default function UserDetailPage() {
           <div className="text-2xl font-bold mt-1">{user.loginCount || 0}</div>
         </Card>
         <Card className="p-4">
-          <div className="text-sm text-gray-600">IP đăng nhập cuối</div>
+          <div className="text-sm text-gray-600">Địa chỉ IP đăng nhập cuối</div>
           <div className="text-lg font-mono mt-1">
-            {user.lastLoginIp || 'N/A'}
+            {user.lastLoginIp || 'Không có'}
           </div>
         </Card>
       </div>

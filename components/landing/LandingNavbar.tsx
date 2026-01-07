@@ -38,33 +38,22 @@ export function LandingNavbar() {
 				{/* Desktop Navigation */}
 				<div className="hidden md:flex items-center gap-6 text-sm">
 					<Link
-						href="#features"
-						className="text-charcoal/70 hover:text-charcoal transition-colors font-medium"
-					>
-						Tính năng
-					</Link>
-					<Link
 						href="#how-it-works"
 						className="text-charcoal/70 hover:text-charcoal transition-colors font-medium"
 					>
 						Cách hoạt động
 					</Link>
-					<Link
-						href="#templates"
-						className="text-charcoal/70 hover:text-charcoal transition-colors font-medium"
-					>
-						Mẫu
-					</Link>
 					<Button
 						asChild
 						variant="outline"
-						className="border-misty-sage/30 text-charcoal hover:bg-misty-sage/10 hover:border-misty-sage/50 rounded-full"
+						className="border-gray-300 text-charcoal hover:bg-gray-50 hover:border-gray-400 rounded-full"
 					>
 						<Link href="/login">Đăng nhập</Link>
 					</Button>
 					<Button
 						asChild
-						className="bg-misty-sage hover:bg-misty-sage/90 text-white rounded-full"
+						variant="success"
+						className="rounded-full"
 					>
 						<Link href="/register">Bắt đầu</Link>
 					</Button>

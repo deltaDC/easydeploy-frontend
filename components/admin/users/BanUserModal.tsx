@@ -40,7 +40,7 @@ export default function BanUserModal({
 
   const handleBan = async () => {
     if (!reason.trim()) {
-      alert('Vui lòng cung cấp lý do');
+      alert('Vui lòng nhập lý do');
       return;
     }
 
@@ -73,9 +73,9 @@ export default function BanUserModal({
         </DialogHeader>
 
         <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 space-y-2">
-          <p className="text-sm font-medium text-orange-800">Ảnh hưởng:</p>
+          <p className="text-sm font-medium text-orange-800">Tác động:</p>
           <ul className="text-sm text-orange-700 space-y-1 list-disc list-inside">
-            <li>Đặt trạng thái người dùng thành <strong>BANNED</strong></li>
+            <li>Đặt trạng thái người dùng thành <strong>BỊ CẤM</strong></li>
             <li>Thu hồi tất cả token xác thực</li>
             <li>Tạm dừng tất cả dự án đang hoạt động</li>
             <li>Vô hiệu hóa quyền truy cập API</li>
@@ -98,13 +98,13 @@ export default function BanUserModal({
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={handleClose} disabled={isLoading}>
+          <Button variant="secondary" onClick={handleClose} disabled={isLoading}>
             Hủy
           </Button>
           <Button
             onClick={handleBan}
             disabled={isLoading || !reason.trim()}
-            className="bg-orange-600 hover:bg-orange-700"
+            variant="warning"
           >
             {isLoading ? 'Đang cấm...' : 'Cấm người dùng'}
           </Button>

@@ -113,7 +113,7 @@ export function EmptyState() {
 						transition={{ duration: 0.6, delay: 0.3 }}
 						className="space-y-3"
 					>
-						<h3 className="text-2xl font-serif font-semibold text-charcoal">
+							<h3 className="text-2xl font-bold text-charcoal">
 							Chưa có ứng dụng nào
 						</h3>
 						<p className="text-charcoal/70 max-w-md">

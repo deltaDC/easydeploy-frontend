@@ -36,7 +36,7 @@ export function FeatureGrid() {
 		<section id="features" className="space-section-sm bg-[#F8F9FA]">
 			<div className="container-page">
 				<div className="text-center mb-16">
-					<h2 className="font-serif text-4xl md:text-5xl font-semibold text-charcoal mb-4">Tính năng nổi bật</h2>
+					<h2 className="text-4xl md:text-5xl font-bold text-charcoal mb-4">Tính năng nổi bật</h2>
 					<p className="text-body-lg text-charcoal/70 max-w-2xl mx-auto">
 						Tất cả công cụ bạn cần để triển khai ứng dụng một cách nhanh chóng và hiệu quả
 					</p>

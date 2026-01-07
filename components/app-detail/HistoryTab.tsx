@@ -97,7 +97,7 @@ function RollbackConfirmModal({
 
         <div className="flex gap-3 justify-end">
           <Button
-            variant="outline"
+            variant="secondary"
             onClick={onCancel}
             disabled={isLoading}
             className="glass-card-light haptic-button"
@@ -107,7 +107,8 @@ function RollbackConfirmModal({
           <Button
             onClick={onConfirm}
             disabled={isLoading}
-            className="bg-amber-500 hover:bg-amber-600 text-white haptic-button"
+            variant="warning"
+            className="haptic-button"
           >
             {isLoading ? (
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />

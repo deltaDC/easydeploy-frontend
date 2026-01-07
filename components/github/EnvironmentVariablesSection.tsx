@@ -264,7 +264,7 @@ JWT_SECRET=your-secret-key`}
                 </div>
                 <DialogFooter>
                   <Button
-                    variant="outline"
+                    variant="secondary"
                     onClick={() => {
                       setEnvModalOpen(false);
                       setEnvContent("");
@@ -275,7 +275,7 @@ JWT_SECRET=your-secret-key`}
                   </Button>
                   <Button
                     onClick={handleImportEnvContent}
-                    className="bg-gradient-to-br from-misty-sage to-misty-sage/80 hover:from-misty-sage/90 hover:to-misty-sage/70 text-white"
+                    variant="success"
                   >
                     Thêm biến
                   </Button>

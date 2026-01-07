@@ -220,7 +220,7 @@ export function CreationJourneyModal({
 
               {/* Database name */}
               <motion.h3
-                className="text-xl font-serif font-semibold text-charcoal mb-2"
+                className="text-xl font-semibold text-charcoal mb-2"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.3 }}

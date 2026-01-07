@@ -28,7 +28,7 @@ interface EditUserModalProps {
 }
 
 const AVAILABLE_ROLES = [
-  { value: 'ADMIN', label: 'Quản trị viên', description: 'Quyền truy cập đầy đủ hệ thống' },
+  { value: 'ADMIN', label: 'Quản trị viên', description: 'Quyền truy cập toàn bộ hệ thống' },
   { value: 'DEVELOPER', label: 'Nhà phát triển', description: 'Có thể triển khai và quản lý ứng dụng của mình' },
 ];
 
@@ -54,7 +54,7 @@ export default function EditUserModal({ user, onSuccess, onEdit }: EditUserModal
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (selectedRoles.length === 0) {
       alert('Người dùng phải có ít nhất một vai trò');
       return;
@@ -116,7 +116,7 @@ export default function EditUserModal({ user, onSuccess, onEdit }: EditUserModal
             </div>
 
             {selectedRoles.length === 0 && (
-                <p className="text-sm text-red-500">
+              <p className="text-sm text-red-500">
                 Người dùng phải có ít nhất một vai trò
               </p>
             )}
@@ -125,13 +125,13 @@ export default function EditUserModal({ user, onSuccess, onEdit }: EditUserModal
           <DialogFooter>
             <Button
               type="button"
-              variant="outline"
+              variant="secondary"
               onClick={() => setOpen(false)}
               disabled={isLoading}
             >
               Hủy
             </Button>
-            <Button type="submit" disabled={isLoading || selectedRoles.length === 0}>
+            <Button type="submit" disabled={isLoading || selectedRoles.length === 0} variant="success">
               {isLoading ? 'Đang lưu...' : 'Lưu thay đổi'}
             </Button>
           </DialogFooter>

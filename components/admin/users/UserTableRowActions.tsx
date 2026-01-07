@@ -47,14 +47,14 @@ export default function UserTableRowActions({ user, onSuccess }: UserTableRowAct
           {actions.canActivate && (
             <DropdownMenuItem onClick={() => setActivateModalOpen(true)}>
               <CheckCircle className="w-4 h-4 mr-2" />
-              Activate
+              Kích hoạt
             </DropdownMenuItem>
           )}
           
           {actions.canSuspend && (
             <DropdownMenuItem onClick={() => setSuspendModalOpen(true)}>
               <Pause className="w-4 h-4 mr-2" />
-              Suspend
+              Tạm ngưng
             </DropdownMenuItem>
           )}
 
@@ -66,7 +66,7 @@ export default function UserTableRowActions({ user, onSuccess }: UserTableRowAct
                 className="text-orange-600"
               >
                 <Ban className="w-4 h-4 mr-2" />
-                Ban User
+                Cấm người dùng
               </DropdownMenuItem>
             </>
           )}
@@ -79,7 +79,7 @@ export default function UserTableRowActions({ user, onSuccess }: UserTableRowAct
                 className="text-red-600"
               >
                 <Trash2 className="w-4 h-4 mr-2" />
-                Delete User
+                Xóa người dùng
               </DropdownMenuItem>
             </>
           )}

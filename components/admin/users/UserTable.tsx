@@ -56,7 +56,7 @@ export default function UserTable({
   if (isLoading) {
     return (
       <Card className="p-6">
-        <div className="text-center text-gray-500">Loading users...</div>
+        <div className="text-center text-gray-500">Đang tải danh sách người dùng...</div>
       </Card>
     );
   }
@@ -64,7 +64,7 @@ export default function UserTable({
   if (users.length === 0) {
     return (
       <Card className="p-6">
-        <div className="text-center text-gray-500">No users found</div>
+        <div className="text-center text-gray-500">Không tìm thấy người dùng nào</div>
       </Card>
     );
   }
@@ -76,13 +76,13 @@ export default function UserTable({
         <Table>
           <TableHeader className="sticky top-0 bg-white z-10">
             <TableRow>
-              <TableHead>User</TableHead>
+              <TableHead>Người dùng</TableHead>
               <TableHead>GitHub</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Roles</TableHead>
-              <TableHead>Projects</TableHead>
-              <TableHead>Created At</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead>Trạng thái</TableHead>
+              <TableHead>Vai trò</TableHead>
+              <TableHead>Dự án</TableHead>
+              <TableHead>Ngày tạo</TableHead>
+              <TableHead className="text-right">Hành động</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -141,7 +141,7 @@ export default function UserTable({
                 <div className="text-sm">
                   <div className="font-medium">{user.totalProjects || 0}</div>
                   <div className="text-gray-500 text-xs">
-                    {user.activeProjects || 0} active
+                    {user.activeProjects || 0} hoạt động
                   </div>
                 </div>
               </TableCell>
@@ -174,7 +174,7 @@ export default function UserTable({
           <div className="flex items-center justify-between">
             {/* Page info */}
             <div className="text-sm text-gray-600">
-              Showing {(currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, totalUsers || users.length)} of {totalUsers || users.length} results
+              Hiển thị {(currentPage - 1) * pageSize + 1} đến {Math.min(currentPage * pageSize, totalUsers || users.length)} trong tổng số {totalUsers || users.length} kết quả
             </div>
 
             {/* Pagination controls */}

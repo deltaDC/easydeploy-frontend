@@ -39,8 +39,8 @@ export function TableBrowser({ databaseId }: TableBrowserProps) {
       setTables(tableList);
     } catch (error: any) {
       toast({
-        title: "Error",
-        description: error.response?.data?.message || "Failed to load tables",
+        title: "Lỗi",
+        description: error.response?.data?.message || "Không thể tải danh sách bảng",
         variant: "destructive",
       });
     } finally {
@@ -57,8 +57,8 @@ export function TableBrowser({ databaseId }: TableBrowserProps) {
       setTableSchema(schema);
     } catch (error: any) {
       toast({
-        title: "Error",
-        description: error.response?.data?.message || "Failed to load table schema",
+        title: "Lỗi",
+        description: error.response?.data?.message || "Không thể tải cấu trúc bảng",
         variant: "destructive",
       });
     } finally {
@@ -81,8 +81,8 @@ export function TableBrowser({ databaseId }: TableBrowserProps) {
       setCurrentPage(page);
     } catch (error: any) {
       toast({
-        title: "Error",
-        description: error.response?.data?.message || "Failed to load table data",
+        title: "Lỗi",
+        description: error.response?.data?.message || "Không thể tải dữ liệu bảng",
         variant: "destructive",
       });
     } finally {
@@ -123,7 +123,7 @@ export function TableBrowser({ databaseId }: TableBrowserProps) {
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-2 text-base">
                 <Database className="h-4 w-4" />
-                Tables ({tables.length})
+                Bảng ({tables.length})
               </CardTitle>
               <Button variant="ghost" size="sm" onClick={handleRefresh}>
                 <RefreshCw className="h-4 w-4" />
@@ -136,7 +136,7 @@ export function TableBrowser({ databaseId }: TableBrowserProps) {
                 <Loader2 className="h-6 w-6 animate-spin" />
               </div>
             ) : tables.length === 0 ? (
-              <p className="text-sm text-muted-foreground py-8 text-center">No tables found</p>
+              <p className="text-sm text-muted-foreground py-8 text-center">Không tìm thấy bảng nào</p>
             ) : (
               <div className="space-y-1">
                 {tables.map((table) => (
@@ -169,7 +169,7 @@ export function TableBrowser({ databaseId }: TableBrowserProps) {
         {!selectedTable ? (
           <Card>
             <CardContent className="flex items-center justify-center py-12">
-              <p className="text-muted-foreground">Select a table to view its details</p>
+              <p className="text-muted-foreground">Chọn một bảng để xem chi tiết</p>
             </CardContent>
           </Card>
         ) : (
@@ -177,9 +177,9 @@ export function TableBrowser({ databaseId }: TableBrowserProps) {
             {/* Schema */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">Schema: {selectedTable}</CardTitle>
+                <CardTitle className="text-base">Cấu trúc: {selectedTable}</CardTitle>
                 {tableSchema && (
-                  <CardDescription>{tableSchema.rowCount} rows</CardDescription>
+                  <CardDescription>{tableSchema.rowCount} dòng</CardDescription>
                 )}
               </CardHeader>
               <CardContent>
@@ -192,10 +192,10 @@ export function TableBrowser({ databaseId }: TableBrowserProps) {
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="border-b">
-                          <th className="text-left py-2 px-3 font-semibold">Column</th>
-                          <th className="text-left py-2 px-3 font-semibold">Type</th>
-                          <th className="text-left py-2 px-3 font-semibold">Nullable</th>
-                          <th className="text-left py-2 px-3 font-semibold">Default</th>
+                          <th className="text-left py-2 px-3 font-semibold">Cột</th>
+                          <th className="text-left py-2 px-3 font-semibold">Kiểu</th>
+                          <th className="text-left py-2 px-3 font-semibold">Cho phép NULL</th>
+                          <th className="text-left py-2 px-3 font-semibold">Mặc định</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -214,9 +214,9 @@ export function TableBrowser({ databaseId }: TableBrowserProps) {
                             </td>
                             <td className="py-2 px-3">
                               {column.nullable ? (
-                                <span className="text-muted-foreground">YES</span>
+                                <span className="text-muted-foreground">CÓ</span>
                               ) : (
-                                <span className="text-destructive">NO</span>
+                                <span className="text-destructive">KHÔNG</span>
                               )}
                             </td>
                             <td className="py-2 px-3 font-mono text-xs">
@@ -235,7 +235,7 @@ export function TableBrowser({ databaseId }: TableBrowserProps) {
             <Card>
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-base">Data</CardTitle>
+                  <CardTitle className="text-base">Dữ liệu</CardTitle>
                   <div className="flex items-center gap-2">
                     <Button
                       variant="outline"
@@ -243,10 +243,10 @@ export function TableBrowser({ databaseId }: TableBrowserProps) {
                       onClick={() => loadTableData(currentPage - 1)}
                       disabled={currentPage === 0 || isLoadingData}
                     >
-                      Previous
+                      Trước
                     </Button>
                     <span className="text-sm text-muted-foreground">
-                      Page {currentPage + 1}
+                      Trang {currentPage + 1}
                     </span>
                     <Button
                       variant="outline"
@@ -258,7 +258,7 @@ export function TableBrowser({ databaseId }: TableBrowserProps) {
                         tableData.rowCount < pageSize
                       }
                     >
-                      Next
+                      Tiếp theo
                     </Button>
                   </div>
                 </div>
@@ -322,7 +322,7 @@ export function TableBrowser({ databaseId }: TableBrowserProps) {
                     </table>
                   </div>
                 ) : (
-                  <p className="text-center py-8 text-muted-foreground">No data</p>
+                  <p className="text-center py-8 text-muted-foreground">Không có dữ liệu</p>
                 )}
               </CardContent>
             </Card>

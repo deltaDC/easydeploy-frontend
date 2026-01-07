@@ -13,11 +13,15 @@ import { StatsService } from "@/services/stats.service";
 import userManagementService from "@/services/user-management.service";
 import { monitoringService } from "@/services/monitoring.service";
 import { SortDirection } from "@/types/user-management";
-import { 
-	Users, 
-	Activity, 
-	Server, 
-	Shield, 
+import {
+	Users,
+	Activity,
+	Server,
+	Shield,
+	Search,
+	Filter,
+	MoreHorizontal,
+	Ban,
 	CheckCircle,
 	AlertCircle,
 	TrendingUp,
@@ -74,7 +78,7 @@ export default function AdminDashboard() {
 				const endDate = new Date().toISOString();
 				const overviewResponse = await StatsService.getSystemOverview('year', startDate, endDate);
 				const summary = overviewResponse.summary;
-				
+
 				setStats({
 					totalUsers: summary.totalUsers,
 					activeUsers: summary.activeUsers,
@@ -188,7 +192,7 @@ export default function AdminDashboard() {
 					sortBy: 'createdAt',
 					direction: SortDirection.DESC,
 				});
-				
+
 				const users = usersResponse.users.map((user) => ({
 					id: user.id,
 					email: user.email,
@@ -291,7 +295,7 @@ export default function AdminDashboard() {
 										return <span className={change.color}>{change.text}</span>;
 									})()} so với tháng trước
 									<ArrowRight className="h-3 w-3 ml-auto" />
-								</p>	
+								</p>
 							</CardContent>
 						</Card>
 					</Link>
@@ -403,11 +407,11 @@ export default function AdminDashboard() {
 												<div className="text-sm text-muted-foreground">{user.email}</div>
 											</div>
 										</TableCell>
-									<TableCell>
-										<Badge variant={user.roles.has('ADMIN') ? 'default' : 'secondary'}>
-											{user.roles.has('ADMIN') ? 'Quản trị viên' : 'Người dùng'}
-										</Badge>
-									</TableCell>
+										<TableCell>
+											<Badge variant={user.roles.has('ADMIN') ? 'default' : 'secondary'}>
+												{user.roles.has('ADMIN') ? 'Quản trị viên' : 'Người dùng'}
+											</Badge>
+										</TableCell>
 										<TableCell>
 											<Badge 
 												variant={user.status === 'active' ? 'default' : 'destructive'}

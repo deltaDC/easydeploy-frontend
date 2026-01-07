@@ -73,12 +73,12 @@ api.interceptors.response.use(
             data?.errorMessage ||
             (Array.isArray(data?.errors) ? data.errors.join(", ") : undefined) ||
             error.message ||
-            "Unexpected error";
+            "Lỗi không xác định";
 
         let message = extractedMessage as string;
         switch (status) {
             case 400:
-                message ||= "Invalid request";
+                message ||= "Yêu cầu không hợp lệ";
                 // Handle specific backend errors
                 if (message.includes("Role DEVELOPER không tồn tại")) {
                     message = "Hệ thống chưa được cấu hình đầy đủ. Vui lòng liên hệ admin để khởi tạo dữ liệu hệ thống.";
@@ -89,7 +89,7 @@ api.interceptors.response.use(
                 }
                 break;
             case 401: {
-                message ||= "Unauthorized";
+                message ||= "Phiên đăng nhập hết hạn";
                 if (typeof window !== "undefined") {
                     const isOnAuth = window.location.pathname.startsWith("/login");
                     if (!isOnAuth) {
@@ -105,29 +105,29 @@ api.interceptors.response.use(
                 break;
             }
             case 403:
-                message ||= "Forbidden - insufficient permissions";
+                message ||= "Không có quyền truy cập";
                 break;
             case 404:
-                message ||= "Resource not found";
+                message ||= "Không tìm thấy tài nguyên";
                 break;
             case 409:
-                message ||= "Conflict - resource state issue";
+                message ||= "Xung đột - trạng thái tài nguyên không hợp lệ";
                 break;
             case 422:
-                message ||= "Unprocessable entity - validation failed";
+                message ||= "Dữ liệu không hợp lệ";
                 break;
             case 429:
-                message ||= "Too many requests - please try again later";
+                message ||= "Quá nhiều yêu cầu - vui lòng thử lại sau";
                 break;
             case 500:
             case 502:
             case 503:
             case 504:
-                message ||= "Server error - please try again later";
+                message ||= "Lỗi máy chủ - vui lòng thử lại sau";
                 break;
             default:
                 if (status === 0) {
-                    message ||= "Network error - please check your connection";
+                    message ||= "Lỗi mạng - vui lòng kiểm tra kết nối";
                 }
                 break;
         }

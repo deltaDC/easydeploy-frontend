@@ -67,7 +67,7 @@ function DeleteConfirmModal({
         </p>
         <div className="flex gap-3 justify-end">
           <Button
-            variant="outline"
+            variant="secondary"
             onClick={onCancel}
             disabled={isDeleting}
             className="glass-card-light haptic-button"
@@ -353,7 +353,7 @@ export default function ApplicationDetailPage() {
   if (!application) {
     return (
       <div className="text-center py-12">
-        <h2 className="text-2xl font-serif font-semibold text-charcoal mb-2">
+        <h2 className="text-2xl font-bold text-charcoal mb-2">
           Không tìm thấy ứng dụng
         </h2>
         <p className="text-charcoal/60 mb-4">
