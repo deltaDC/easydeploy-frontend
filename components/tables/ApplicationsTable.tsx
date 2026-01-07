@@ -468,25 +468,6 @@ export default function ApplicationsTable() {
 											</>
 										)}
 									</Badge>
-
-									{/* Hover Overlay with glow from edges */}
-									<div className="absolute inset-0 bg-gradient-to-t from-charcoal/80 via-charcoal/40 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 rounded-3xl flex items-center justify-center">
-										<div className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{
-											boxShadow: 'inset 0 0 40px rgba(16, 185, 129, 0.2)'
-										}} />
-										<Button 
-											variant="secondary" 
-											size="sm" 
-											className="h-10 px-4 bg-white/90 backdrop-blur-sm hover:bg-emerald-500 hover:text-white text-charcoal rounded-xl shadow-lg hover-glow-emerald font-medium relative z-10 transition-colors" 
-											asChild
-											title="Xem chi tiết"
-										>
-											<Link href={`/apps/${application.id}`}>
-												<View className="h-4 w-4 mr-2" strokeWidth={1.5} />
-												<span className="text-sm">Xem chi tiết</span>
-											</Link>
-										</Button>
-									</div>
 								</CardContent>
 								</Card>
 							</motion.div>

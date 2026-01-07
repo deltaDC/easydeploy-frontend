@@ -6,7 +6,6 @@ import { ArrowLeft, Play, Square, RotateCw, Trash2 } from "lucide-react";
 import { Database, DatabaseStatus, DatabaseType } from "@/types/database.type";
 import { DatabaseTypeIcon } from "./DatabaseTypeIcon";
 import { StatusPulse } from "./StatusPulse";
-import { DB_TYPE_COLORS } from "./types";
 import { Button } from "@/components/ui/button";
 
 interface MistyDatabaseHeaderProps {
@@ -27,7 +26,6 @@ export function MistyDatabaseHeader({
   onDelete,
 }: MistyDatabaseHeaderProps) {
   const router = useRouter();
-  const colors = DB_TYPE_COLORS[database.type];
 
   const getTypeLabel = (type: DatabaseType) => {
     const labels: Record<DatabaseType, string> = {
@@ -50,22 +48,6 @@ export function MistyDatabaseHeader({
         border: "1px solid rgba(255, 255, 255, 0.2)",
       }}
     >
-      {/* Animated glow background based on DB type */}
-      <motion.div
-        className="absolute -top-20 -right-20 w-64 h-64 rounded-full blur-3xl"
-        style={{ backgroundColor: colors.glow }}
-        animate={{
-          x: [0, 20, 0],
-          y: [0, 15, 0],
-          opacity: [0.3, 0.5, 0.3],
-        }}
-        transition={{
-          duration: 8,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
-      />
-
       <div className="relative z-10 p-6">
         <div className="flex items-start justify-between">
           {/* Left side - Back button and info */}

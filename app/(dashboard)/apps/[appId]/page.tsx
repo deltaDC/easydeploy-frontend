@@ -50,15 +50,17 @@ function DeleteConfirmModal({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center rollback-overlay"
+      className="fixed inset-0 z-50 flex items-center justify-center"
       onClick={onCancel}
     >
+      {/* Backdrop không nhìn xuyên thấu */}
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
       <motion.div
         initial={{ scale: 0.95, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.95, opacity: 0 }}
         onClick={(e) => e.stopPropagation()}
-        className="glass-card p-6 max-w-md mx-4 shadow-misty-xl"
+        className="relative glass-card p-6 max-w-md mx-4 shadow-misty-xl bg-white/95 backdrop-blur-xl"
       >
         <h3 className="text-lg font-semibold text-charcoal mb-2">Xác nhận xóa ứng dụng</h3>
         <p className="text-charcoal/70 mb-6">
