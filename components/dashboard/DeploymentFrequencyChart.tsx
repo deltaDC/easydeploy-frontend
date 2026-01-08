@@ -60,7 +60,7 @@ export function DeploymentFrequencyChart({ data }: DeploymentFrequencyChartProps
                 />
                 <YAxis 
                   tick={{ fontSize: 11, fill: "#64748b" }}
-                  label={{ value: "Deployments", angle: -90, position: "insideLeft", fontSize: 11, fill: "#64748b" }}
+                  label={{ value: "Số lần triển khai", angle: -90, position: "insideLeft", fontSize: 11, fill: "#64748b" }}
                 />
                 <Tooltip
                   contentStyle={{

@@ -173,7 +173,7 @@ function MemoryGauge({ percentage, used, total, waveformData }: {
           <div className="p-2 rounded-lg bg-emerald-500/10">
             <Zap className="h-5 w-5 text-emerald-600" strokeWidth={1.5} />
           </div>
-          <span className="text-xs text-charcoal/50">Memory Usage</span>
+          <span className="text-xs text-charcoal/50">Bộ nhớ sử dụng</span>
         </div>
         
         {/* Liquid Wave Visualization */}
@@ -210,7 +210,7 @@ function MemoryGauge({ percentage, used, total, waveformData }: {
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
               <span className="text-2xl font-bold text-charcoal">{percentage.toFixed(1)}%</span>
-              <span className="text-xs text-charcoal/50">Used</span>
+              <span className="text-xs text-charcoal/50">Đã sử dụng</span>
             </div>
           </div>
         ) : (
@@ -260,7 +260,7 @@ function MemoryGauge({ percentage, used, total, waveformData }: {
             {/* Center text */}
             <div className="absolute inset-0 flex flex-col items-center justify-center">
               <span className="text-2xl font-bold text-charcoal">{percentage.toFixed(1)}%</span>
-              <span className="text-xs text-charcoal/50">Used</span>
+              <span className="text-xs text-charcoal/50">Đã sử dụng</span>
             </div>
             
             {/* Glowing dot indicator */}
@@ -380,7 +380,7 @@ export function MetricsTab({ appId }: MetricsTabProps) {
 
         eventSource.onerror = () => {
           setIsConnected(false);
-          setError("Connection lost. Reconnecting...");
+          setError("Mất kết nối. Đang kết nối lại...");
           
           if (eventSourceRef.current) {
             eventSourceRef.current.close();
@@ -506,7 +506,7 @@ export function MetricsTab({ appId }: MetricsTabProps) {
             <div className="flex items-center gap-2">
               <Clock className="h-4 w-4 text-charcoal/50" />
               <span className="text-sm text-charcoal/70">
-                Uptime: {formatUptime(metrics.uptime)}
+                Thời gian hoạt động: {formatUptime(metrics.uptime)}
               </span>
             </div>
             <div
@@ -516,7 +516,7 @@ export function MetricsTab({ appId }: MetricsTabProps) {
                   : "bg-slate-100 text-slate-600"
               }`}
             >
-              {metrics.status || "Unknown"}
+              {metrics.status || "Không xác định"}
             </div>
           </div>
         </motion.div>
@@ -528,7 +528,7 @@ export function MetricsTab({ appId }: MetricsTabProps) {
         {/* Top Row: CPU & Memory */}
         <div className="grid gap-6 md:grid-cols-2">
         <GlassMetricCard
-          title="CPU Usage"
+          title="CPU sử dụng"
           value={metrics?.cpuUsage?.toFixed(1) || 0}
           unit="%"
           icon={Cpu}
@@ -558,7 +558,7 @@ export function MetricsTab({ appId }: MetricsTabProps) {
               <div className="p-2 rounded-lg bg-purple-500/10">
                 <ArrowDown className="h-6 w-6 text-purple-400 network-icon-neon" strokeWidth={1} style={{ color: '#8b5cf6' }} />
               </div>
-              <span className="text-xs text-charcoal/50">Network RX</span>
+              <span className="text-xs text-charcoal/50">Mạng nhận</span>
             </div>
             <div className="flex items-baseline gap-1">
               <span className="text-2xl font-bold text-charcoal font-tabular-nums">{latestNetworkRates.rx.toFixed(2)}</span>
@@ -579,7 +579,7 @@ export function MetricsTab({ appId }: MetricsTabProps) {
               <div className="p-2 rounded-lg bg-orange-500/10">
                 <ArrowUp className="h-6 w-6 text-orange-400 network-icon-neon" strokeWidth={1} style={{ color: '#f97316' }} />
               </div>
-              <span className="text-xs text-charcoal/50">Network TX</span>
+              <span className="text-xs text-charcoal/50">Mạng gửi</span>
             </div>
             <div className="flex items-baseline gap-1">
               <span className="text-2xl font-bold text-charcoal font-tabular-nums">{latestNetworkRates.tx.toFixed(2)}</span>
@@ -594,7 +594,7 @@ export function MetricsTab({ appId }: MetricsTabProps) {
         {chartData.length > 0 && (
         <Card className="glass-card border-0 shadow-sage-glow">
           <CardHeader>
-            <CardTitle className="text-charcoal">CPU & Memory</CardTitle>
+            <CardTitle className="text-charcoal">CPU & Bộ nhớ</CardTitle>
             <CardDescription className="text-charcoal/60">
               Sử dụng tài nguyên theo thời gian
             </CardDescription>
@@ -656,7 +656,7 @@ export function MetricsTab({ appId }: MetricsTabProps) {
                     stroke="#10b981"
                     strokeWidth={2}
                     fill="url(#memoryGradient)"
-                    name="Memory %"
+                    name="Bộ nhớ %"
                     style={{ border: 'none', outline: 'none' }}
                   />
                 </AreaChart>
@@ -670,7 +670,7 @@ export function MetricsTab({ appId }: MetricsTabProps) {
         {networkChartData.length > 0 && (
         <Card className="glass-card border-0 shadow-sage-glow">
           <CardHeader>
-            <CardTitle className="text-charcoal">Network Throughput</CardTitle>
+            <CardTitle className="text-charcoal">Thông lượng mạng</CardTitle>
             <CardDescription className="text-charcoal/60">
               KB/s nhận và gửi
             </CardDescription>
@@ -707,8 +707,8 @@ export function MetricsTab({ appId }: MetricsTabProps) {
                     }}
                     formatter={(value: number) => `${value.toFixed(2)} KB/s`}
                   />
-                  <Area type="basis" dataKey="rx" stroke="#8b5cf6" strokeWidth={2} fill="url(#rxGradient)" name="RX" />
-                  <Area type="basis" dataKey="tx" stroke="#f97316" strokeWidth={2} fill="url(#txGradient)" name="TX" />
+                  <Area type="basis" dataKey="rx" stroke="#8b5cf6" strokeWidth={2} fill="url(#rxGradient)" name="Nhận" />
+                  <Area type="basis" dataKey="tx" stroke="#f97316" strokeWidth={2} fill="url(#txGradient)" name="Gửi" />
                 </AreaChart>
               </ResponsiveContainer>
             </div>

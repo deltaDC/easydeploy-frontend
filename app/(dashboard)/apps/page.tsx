@@ -22,7 +22,7 @@ export default function AppsListPage() {
 						Ứng dụng của bạn
 					</h1>
 					<p className="text-charcoal/70">
-						Quản lý, redeploy và xem log
+						Quản lý, tái triển khai và xem log
 					</p>
 				</div>
 				<Button

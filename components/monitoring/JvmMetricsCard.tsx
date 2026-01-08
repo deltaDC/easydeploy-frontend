@@ -21,14 +21,14 @@ export function JvmMetricsCard({ metrics }: JvmMetricsCardProps) {
     <div className="bg-white rounded-lg shadow p-6">
       <div className="flex items-center gap-2 mb-4">
         <Database className="w-5 h-5 text-blue-600" />
-        <h3 className="text-lg font-semibold text-gray-900">JVM Memory & Threads</h3>
+        <h3 className="text-lg font-semibold text-gray-900">Bộ nhớ JVM & Luồng</h3>
       </div>
 
       <div className="space-y-4">
         {/* Heap Memory */}
         <div>
           <div className="flex items-center justify-between mb-1">
-            <span className="text-sm font-medium text-gray-700">Heap Memory</span>
+            <span className="text-sm font-medium text-gray-700">Bộ nhớ Heap</span>
             <span className="text-sm text-gray-600">
               {formatBytes(metrics.heapUsed)} / {formatBytes(metrics.heapMax)}
             </span>
@@ -44,7 +44,7 @@ export function JvmMetricsCard({ metrics }: JvmMetricsCardProps) {
             />
           </div>
           <div className="text-xs text-gray-500 mt-1">
-            {metrics.heapUsagePercent.toFixed(1)}% used
+            {metrics.heapUsagePercent.toFixed(1)}% đã sử dụng
           </div>
         </div>
 
@@ -63,7 +63,7 @@ export function JvmMetricsCard({ metrics }: JvmMetricsCardProps) {
           <div className="bg-gray-50 rounded-lg p-3">
             <div className="flex items-center gap-2 mb-1">
               <Cpu className="w-4 h-4 text-indigo-600" />
-              <span className="text-xs text-gray-600">Threads</span>
+              <span className="text-xs text-gray-600">Luồng</span>
             </div>
             <div className="text-lg font-bold text-gray-900">
               {metrics.threadsLive}
@@ -76,15 +76,15 @@ export function JvmMetricsCard({ metrics }: JvmMetricsCardProps) {
         <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
           <div className="flex items-center gap-2 mb-2">
             <Trash2 className="w-4 h-4 text-amber-600" />
-            <span className="text-sm font-medium text-amber-900">Garbage Collection</span>
+            <span className="text-sm font-medium text-amber-900">Thu gom rác</span>
           </div>
           <div className="grid grid-cols-2 gap-3 text-sm">
             <div>
-              <div className="text-xs text-amber-700">Collections</div>
+              <div className="text-xs text-amber-700">Số lần thu gom</div>
               <div className="font-semibold text-amber-900">{metrics.gcCount}</div>
             </div>
             <div>
-              <div className="text-xs text-amber-700">Pause Time</div>
+              <div className="text-xs text-amber-700">Thời gian tạm dừng</div>
               <div className="font-semibold text-amber-900">{metrics.gcPauseTime} ms</div>
             </div>
           </div>

@@ -67,8 +67,8 @@ export function DatabaseOverviewTab({ database }: DatabaseOverviewTabProps) {
           {database.name}
         </h2>
         <div className="flex flex-wrap gap-2">
-          <GlassPill label="Version" value={database.version} />
-          {database.port && <GlassPill label="Port" value={String(database.port)} />}
+          <GlassPill label="Phiên bản" value={database.version} />
+          {database.port && <GlassPill label="Cổng" value={String(database.port)} />}
         </div>
       </div>
 

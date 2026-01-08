@@ -422,10 +422,10 @@ export function OverviewTab({
                     value={application.deployConfig.exposedPort?.toString() || "Chưa có"}
                   />
                   
-                  {/* Auto Redeploy */}
+                  {/* Tự động tái triển khai */}
                   <div className="pill-info flex items-center justify-between">
                     <div>
-                      <p className="text-xs text-charcoal/50 mb-0.5">Tự động triển khai lại</p>
+                      <p className="text-xs text-charcoal/50 mb-0.5">Tự động tái triển khai</p>
                       <p className="text-sm font-medium text-charcoal">
                         {application.deployConfig.autoRedeploy ? "Bật" : "Tắt"}
                       </p>

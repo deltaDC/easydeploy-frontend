@@ -170,7 +170,7 @@ function ContainersList({ containers, onViewDetail }: ContainersListProps) {
       {totalPages > 1 && (
         <div className="flex items-center justify-between border-t pt-4">
           <div className="text-sm text-muted-foreground">
-            Hiển thị {startIndex + 1}-{Math.min(endIndex, containers.length)} trong tổng số {containers.length} containers
+            Hiển thị {startIndex + 1}-{Math.min(endIndex, containers.length)} trong tổng số {containers.length} container
           </div>
           <div className="flex items-center gap-2">
             <Button
