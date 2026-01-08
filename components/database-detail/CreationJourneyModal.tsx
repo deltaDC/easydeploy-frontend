@@ -172,7 +172,7 @@ export function CreationJourneyModal({
                 <motion.div
                   initial={{ y: -100, opacity: 0, scale: 0.5 }}
                   animate={{
-                    y: isComplete ? 0 : [0, -5, 0],
+                    y: 0,
                     opacity: 1,
                     scale: isComplete ? 1.1 : 1,
                   }}
@@ -181,10 +181,10 @@ export function CreationJourneyModal({
                     opacity: { duration: 0.5 },
                     scale: isComplete
                       ? { duration: 0.3 }
-                      : { duration: 2, repeat: Infinity, ease: "easeInOut" },
+                      : {},
                   }}
                 >
-                  <DatabaseTypeIcon type={dbType} size="xl" animated showGlow />
+                  <DatabaseTypeIcon type={dbType} size="xl" animated={false} showGlow />
                 </motion.div>
 
                 {/* Growing effect from seed */}
@@ -266,42 +266,6 @@ export function CreationJourneyModal({
                     }}
                   />
                 ))}
-              </div>
-
-              {/* Spinner particles around button area */}
-              <div className="mt-6 relative h-8 flex items-center justify-center">
-                <div className="relative">
-                  {[...Array(8)].map((_, i) => (
-                    <motion.div
-                      key={i}
-                      className="absolute w-1.5 h-1.5 rounded-full"
-                      style={{
-                        backgroundColor: colors.primary,
-                        transformOrigin: "12px 12px",
-                      }}
-                      animate={{
-                        rotate: 360,
-                        opacity: [0.3, 1, 0.3],
-                      }}
-                      transition={{
-                        rotate: {
-                          duration: 2,
-                          repeat: Infinity,
-                          ease: "linear",
-                        },
-                        opacity: {
-                          duration: 1,
-                          repeat: Infinity,
-                          delay: i * 0.125,
-                        },
-                      }}
-                      initial={{
-                        x: Math.cos((i * Math.PI) / 4) * 12,
-                        y: Math.sin((i * Math.PI) / 4) * 12,
-                      }}
-                    />
-                  ))}
-                </div>
               </div>
             </div>
           </motion.div>

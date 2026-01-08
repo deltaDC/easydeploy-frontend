@@ -305,7 +305,7 @@ function TimelineNode({
               {/* Live Badge for Current Version */}
               {isFirst && deployment.status === "SUCCESS" && (
                 <Badge className="bg-emerald-500 text-white animate-pulse text-xs">
-                  Live
+                  Đang chạy
                 </Badge>
               )}
             </div>

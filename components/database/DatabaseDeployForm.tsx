@@ -35,25 +35,25 @@ const DB_OPTIONS: DbTypeOption[] = [
   {
     type: DatabaseType.POSTGRESQL,
     label: "PostgreSQL",
-    description: "Relational database",
+    description: "Cơ sở dữ liệu quan hệ",
     versions: ["14", "15", "16"],
   },
   {
     type: DatabaseType.MYSQL,
     label: "MySQL",
-    description: "Popular SQL database",
+    description: "Cơ sở dữ liệu SQL phổ biến",
     versions: ["8.0", "8.1"],
   },
   {
     type: DatabaseType.MONGODB,
     label: "MongoDB",
-    description: "NoSQL document store",
+    description: "Kho lưu trữ tài liệu NoSQL",
     versions: ["6.0", "7.0"],
   },
   {
     type: DatabaseType.REDIS,
     label: "Redis",
-    description: "In-memory data store",
+    description: "Kho lưu trữ dữ liệu trong bộ nhớ",
     versions: ["7", "7-alpine"],
   },
 ];
@@ -146,7 +146,7 @@ function PreviewCard({
         {/* Resources preview - Ẩn */}
         {/* <div className="w-full max-w-xs space-y-4">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-charcoal/60">Storage</span>
+            <span className="text-charcoal/60">Lưu trữ</span>
             <span className="font-semibold text-charcoal">{formData.storageGb} GB</span>
           </div>
           <LiquidStorageBar
@@ -156,7 +156,7 @@ function PreviewCard({
             showLabel={false}
           />
           <div className="flex items-center justify-between text-sm">
-            <span className="text-charcoal/60">Memory</span>
+            <span className="text-charcoal/60">Bộ nhớ</span>
             <span className="font-semibold text-charcoal">{formData.memoryMb} MB</span>
           </div>
         </div> */}
@@ -436,21 +436,17 @@ export default function DatabaseDeployForm() {
 
               {/* Submit Button */}
               <motion.div
-                whileHover={{ scale: loading ? 1 : 1.01 }}
-                whileTap={{ scale: loading ? 1 : 0.99 }}
+                whileHover={{ scale: loading || !isFormValid() ? 1 : 1.01 }}
+                whileTap={{ scale: loading || !isFormValid() ? 1 : 0.99 }}
               >
                 <Button
                   type="submit"
                   disabled={loading || !isFormValid()}
-                  className="w-full py-6 text-base font-semibold rounded-xl transition-all duration-300"
-                  style={{
-                    background: loading || !isFormValid()
-                      ? "rgba(146, 175, 173, 0.5)"
-                      : "linear-gradient(135deg, #92AFAD, #7A9694)",
-                    boxShadow: loading || !isFormValid()
-                      ? "none"
-                      : "0 10px 30px rgba(146, 175, 173, 0.4)",
-                  }}
+                  className={`w-full py-6 text-base font-semibold rounded-xl transition-all duration-300 ${
+                    loading || !isFormValid()
+                      ? "bg-gray-400/50 text-gray-600 border border-gray-400/50 cursor-not-allowed"
+                      : "bg-gradient-to-br from-emerald-600 to-emerald-500 hover:from-emerald-700 hover:to-emerald-600 text-white border border-emerald-500 shadow-[0_10px_30px_rgba(34,197,94,0.4)]"
+                  }`}
                 >
                   {loading ? (
                     <span className="flex items-center gap-2">

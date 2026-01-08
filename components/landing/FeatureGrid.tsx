@@ -27,7 +27,7 @@ const features = [
 	{
 		icon: Github,
 		title: "Tích hợp GitHub",
-		description: "Kết nối GitHub trong 1 phút. Tự động redeploy khi có commit mới.",
+		description: "Kết nối GitHub trong 1 phút. Tự động tái triển khai khi có commit mới.",
 	},
 ];
 
